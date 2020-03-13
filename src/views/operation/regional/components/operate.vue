@@ -146,11 +146,13 @@
               <el-form-item :label-width="formLabelWidth">
                 <el-tabs v-model="activeName" @tab-click="handleClick">
                   <el-tab-pane label="用户可见区域" name="Visible">
-                    <div class="gdmap">
+                    <div class="gdmap" :class="{ 'active': isActive }">
                       <el-autocomplete
                         class="location-search"
+                        valueKey="name"
                         v-model="searchAddress"
                         id="locationsearch"
+                        clearable
                         :fetch-suggestions="querySearch"
                         placeholder="请输入内容"
                         :trigger-on-focus="false"
@@ -159,10 +161,9 @@
                       <div id="container" v-loading="maplading"></div>
                       <div class="action-area-map-action">
                         <ul>
-                          <li>
+                          <li @click="clickmap">
                             <svg-icon
-                              :icon-class="isFullscreen?'exit-fullscreen':'fullscreen'"
-                              @click="clickmap"
+                              :icon-class="isFullscreenmap ?'exit-fullscreen':'fullscreen'"
                             />
                           </li>
                           <li>
@@ -186,7 +187,7 @@
                     </div>
                   </el-tab-pane>
                   <el-tab-pane label="实际区域" name="Actual">
-                    <div class="gdmap">
+                    <div class="gdmapActual" :class="{ 'active': isActiveActual }">
                       <el-autocomplete
                         class="location-search"
                         v-model="searchAddress"
@@ -200,25 +201,24 @@
                       <div id="container1" v-loading="mapActuallading"></div>
                       <div v-if="this.viewok" class="action-area-map-action">
                         <ul>
-                          <li>
+                          <li @click="clickActualmap">
                             <svg-icon
                               :icon-class="isFullscreen?'exit-fullscreen':'fullscreen'"
-                              @click="clickmap"
                             />
                           </li>
                           <li>
                             <i class="el-icon-question"></i>
                             <span>帮助</span>
                           </li>
-                          <li @click="previous">
+                          <li @click="previousActual">
                             <i class="el-icon-question"></i>
                             <span>上一步</span>
                           </li>
-                          <li @click="redo">
+                          <li @click="redoActual">
                             <i class="el-icon-refresh-right"></i>
                             <span>重做</span>
                           </li>
-                          <li @click="markerfn">
+                          <li @click="markerfnActual">
                             <i class="el-icon-check"></i>
                             <span>完成</span>
                           </li>
@@ -256,6 +256,7 @@ export default {
   data() {
     return {
       isFullscreen: false,
+      isFullscreenmap: false,
       query: {},
       value2: "",
       options: [
@@ -301,18 +302,35 @@ export default {
       activeName: "Visible",
       maplading: true,
       mapActuallading: true,
-      searchAddress: "",
-      map: null, // 地图1
-      mapActual: null, // 地图2
-      viewok: false,
+      searchAddress: "", // 地址
+      location: "", //地图搜索定位
+      // 地图1
+      map: null, 
       marker: null, //marker
       polyline: null,
       polygon: null,
       //折线坐标,所有的点位都存在这
       markarr: [],
       markers: [],
-      polylines: []
+      polylines: [],
+      polygonActual: null, // 初始化第二个地图渲染第一个地图画过的区域
+      isActive: false, // 全屏
+      result: [],
+      // 地图2
+      mapActual: null, 
+      viewok: false,
+      markerActual: null, //marker
+      polylineActual: null,
+      polygonact: null,
+      //地图2折线坐标,所有的点位都存在这
+      markarrActual: [],
+      markersActual: [],
+      polylinesActual: [],
+      isActiveActual: false, // 全屏
     };
+  },
+  watch: {
+    
   },
   mounted() {
     // this.clickOn();
@@ -324,12 +342,12 @@ export default {
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`);
     },
-    clickmap() {},
+    
     // 创建
     handleCreate() {
       this.dialogtitle = "新建运营区域";
       this.dialogForm = true;
-      if(this.activeName ='Visible'){
+      if ((this.activeName = "Visible")) {
         this.$nextTick(() => {
           this.init();
           this.maplading = false;
@@ -337,63 +355,56 @@ export default {
       }
     },
     querySearch(queryString, cb) {
-      // let map = this.map;
-      // AMap.plugin(['AMap.Autocomplete','AMap.PlaceSearch'],function(){
-      //   var autoOptions = {
-      //     // 城市，默认全国 
-      //     city: "杭州",
-      //     // 使用联想输入的input的id
-      //     input: "locationsearch"
-      //   }
-      //   var autocomplete= new AMap.Autocomplete(autoOptions)
-
-      //   var placeSearch = new AMap.PlaceSearch({
-      //     city:'北京',
-      //     map: map
-      //   })
-      //   AMap.event.addListener(autocomplete, 'el-scrollbar', function(e){
-      //     //TODO 针对选中的poi实现自己的功能
-      //     console.log(e,'111111')
-      //     // placeSearch.search(e.poi.name)
-      //     this.select()
-      //   })
-      // })
-    
+      let that = this;
+      AMap.plugin('AMap.Autocomplete', function(){
+        // 实例化Autocomplete
+        var autoOptions = {
+          //city 限定城市，默认全国
+          city: '全国'
+        }
+        var autoComplete= new AMap.Autocomplete(autoOptions);
+        autoComplete.search(queryString, function(status, result) {
+          // 搜索成功时，result即是对应的匹配数据
+          console.log(result,'1111')
+          if(result.info === 'OK'){
+            cb(result.tips)
+          }else{
+            that.$notify.error({
+              title: '错误',
+              message: '服务器出小差了，请重新搜索'
+            });
+          }
+          
+        })
+      })
     },
-    select(e) {
-        this.map.placeSearch.setCity(e.poi.adcode);
-        this.map.placeSearch.search(e.poi.name);  //关键字查询查询
-    },
+    // select(e) {
+    //   this.map.placeSearch.setCity(e.poi.adcode);
+    //   this.map.placeSearch.search(e.poi.name); //关键字查询查询
+    // },
     handleSelect(item) {
       console.log(item);
-      this.searchAddress = item.name
-      this.map.setCenter(item.location)
-      this.map.setMapZoom(18)
-    },
-    createFilter(queryString) {
-      return restaurant => {
-        return (
-          restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) ===
-          0
-        );
-      };
+      this.searchAddress = item.name;
+      this.location = item.location;
+      this.map.setCenter(item.location);
     },
     // 切换tabs
     handleClick(tab, event) {
-      console.log(tab, event, "qqqq");
-      if(this.activeName == "Actual" && this.polygon == null){
-        this.activeName ='Visible';
+      console.log(tab, event);
+      if (this.activeName == "Actual" && this.polygon == null) {
+        this.activeName = "Visible";
         this.$message({
-          message: '必须先画完用户可见区域才能画实际区域',
-          type: 'warning'
+          message: "必须先画完用户可见区域才能画实际区域",
+          type: "warning"
         });
         this.viewok = false;
-      }else{
+      } else {
+        console.log(this.polygon,'1111')
         this.viewok = true;
-        this.$nextTick(()=>{
+        this.$nextTick(() => {
           this.initmapActual();
           this.mapActuallading = false;
-        })
+        });
       }
     },
     // 地图
@@ -408,69 +419,15 @@ export default {
         zoom: 14
       });
       // 工具条控件
-      console.log(this.map,'111')
+      console.log(this.map, "111");
       this.map.plugin(["AMap.ToolBar"], function() {
-        that.map.addControl(new AMap.ToolBar()); 
+        that.map.addControl(new AMap.ToolBar());
       });
       // 地图类型切换
       this.map.plugin(["AMap.MapType"], function() {
-       that.map.addControl(new AMap.MapType());
+        that.map.addControl(new AMap.MapType());
       });
       this.clickOn();
-    },
-    // 初始化第二个地图
-    initmapActual() {
-      console.log("container1");
-      // this.markers = [];
-      // this.polylines = [];
-      // this.markarr = [];
-      let that = this;
-      that.mapActual = new AMap.Map("container1", {
-        resizeEnable: true,
-        zoom: 14
-      });
-      // 工具条控件
-      console.log(that.mapActual,'111')
-      that.mapActual.plugin(["AMap.ToolBar"], function() {
-        that.mapActual.addControl(new AMap.ToolBar()); 
-      });
-      // 地图类型切换
-      that.mapActual.plugin(["AMap.MapType"], function() {
-       that.mapActual.addControl(new AMap.MapType());
-      });
-      // this.clickOn();
-      // 绘制折线
-      this.marker = new AMap.Marker({
-        position: this.markarr,
-        // position: [e.lnglat.getLat(), e.lnglat.getLng()],
-        offset: new AMap.Pixel(-13, -30)
-      });
-      this.polyline = new AMap.Polyline({
-        path: this.markarr,
-        isOutline: true,
-        outlineColor: "#ffeeff",
-        borderWeight: 1,
-        strokeColor: "#409EFF",
-        strokeOpacity: 1,
-        strokeWeight: 3,
-        // 折线样式还支持 'dashed'
-        strokeStyle: "solid",
-        // strokeStyle是dashed时有效
-        // strokeDasharray: [10, 5],
-        lineJoin: "round",
-        lineCap: "round",
-        zIndex: 50
-      });
-      this.polyline.setMap(that.mapActual);
-      this.polygon = new AMap.Polygon({
-          path: this.markarr,
-          fillColor: "#1791fc",
-          zIndex: 50,
-          fillOpacity: 0.4,
-          strokeOpacity: 0.2,
-          strokeWeight: 0
-        });
-        that.mapActual.add(this.polygon);
     },
     showInfoClick(e) {
       console.log(e, "1111");
@@ -481,8 +438,8 @@ export default {
           e.lnglat.getLat() +
           " ] 的位置单击了地图！"
       );
-      if(this.polygon){
-        this.polygon.setMap(null)
+      if (this.polygon) {
+        this.polygon.setMap(null);
         this.polygon = null;
       }
       // 创建点覆盖物
@@ -491,15 +448,15 @@ export default {
         // position: [e.lnglat.getLat(), e.lnglat.getLng()],
         offset: new AMap.Pixel(-13, -30)
       });
-      this.markers.push(this.marker)
+      this.markers.push(this.marker);
       this.markarr.push([e.lnglat.getLng(), e.lnglat.getLat()]);
       this.marker.setMap(this.map);
       this.polyline = new AMap.Polyline({
         path: this.markarr,
-        isOutline: true,
+        isOutline: false,
         outlineColor: "#ffeeff",
         borderWeight: 1,
-        strokeColor: "#409EFF",
+        strokeColor: "#67c23a",
         strokeOpacity: 1,
         strokeWeight: 3,
         // 折线样式还支持 'dashed'
@@ -510,47 +467,205 @@ export default {
         lineCap: "round",
         zIndex: 50
       });
-      this.polylines.push(this.polyline)
+      this.polylines.push(this.polyline);
       this.polyline.setMap(this.map);
     },
     clickOn() {
-      this.map.on('click', this.showInfoClick);
+      this.map.on("click", this.showInfoClick);
+    },
+    // 初始化第二个地图
+    initmapActual(e) {
+      console.log("container1");
+      this.markersActual = [];
+      this.polylinesActual = [];
+      this.markarrActual = [];
+      let that = this;
+      that.mapActual = new AMap.Map("container1", {
+        resizeEnable: true,
+        zoom: 14
+      });
+      console.log(this.location,'111111')
+      this.mapActual.setCenter(this.location);
+      // 工具条控件
+      console.log(that.mapActual, "111");
+      that.mapActual.plugin(["AMap.ToolBar"], function() {
+        that.mapActual.addControl(new AMap.ToolBar());
+      });
+      // 地图类型切换
+      that.mapActual.plugin(["AMap.MapType"], function() {
+        that.mapActual.addControl(new AMap.MapType());
+      });
+      
+      // 绘制折线
+      this.marker = new AMap.Marker({
+        position: this.markarr,
+        // position: [e.lnglat.getLat(), e.lnglat.getLng()],
+        offset: new AMap.Pixel(-13, -30)
+      });
+      this.polyline = new AMap.Polyline({
+        path: this.markarr,
+        isOutline: false,
+        borderWeight: 1,
+        strokeColor: "#67c23a",
+        strokeOpacity: 1,
+        strokeWeight: 3,
+        strokeStyle: "solid",
+        // strokeStyle是dashed时有效
+        // strokeDasharray: [10, 5],
+        lineJoin: "round",
+        lineCap: "round",
+        zIndex: 50
+      });
+      this.polyline.setMap(that.mapActual);
+      this.polygonActual = new AMap.Polygon({
+        path: this.markarr,
+        fillColor: "#67c23a",
+        fillOpacity: 0.4,
+        strokeOpacity: 1,
+        strokeColor: "#67c23a",
+        strokeWeight: 3
+      });
+      that.mapActual.add(this.polygonActual);
+      this.clickOnActual();
+    },
+    // 第二个地图点击画区域
+    ActualClick(e) {
+      console.log(e, "1111");
+      console.log(
+        "您在 [ " +
+          e.lnglat.getLng() +
+          "," +
+          e.lnglat.getLat() +
+          " ] 的位置单击了地图！"
+      );
+      if (this.polygonact) {
+        this.polygonact.setMap(null);
+        this.polygonact = null;
+      }
+      // 创建点覆盖物
+      this.markerActual = new AMap.Marker({
+        position: [e.lnglat.getLng(), e.lnglat.getLat()],
+        // position: [e.lnglat.getLat(), e.lnglat.getLng()],
+        offset: new AMap.Pixel(-13, -30)
+      });
+      this.markersActual.push(this.markerActual);
+      this.markarrActual.push([e.lnglat.getLng(), e.lnglat.getLat()]);
+      this.markerActual.setMap(this.mapActual);
+      this.polylineActual = new AMap.Polyline({
+        path: this.markarrActual,
+        isOutline: false,
+        borderWeight: 1,
+        strokeColor: "#f56c6c",
+        strokeOpacity: 1,
+        strokeWeight: 3,
+        // 折线样式还支持 'dashed'
+        strokeStyle: "solid",
+        // strokeStyle是dashed时有效
+        // strokeDasharray: [10, 5],
+        lineJoin: "round",
+        lineCap: "round",
+        zIndex: 50
+      });
+      this.polylinesActual.push(this.polylineActual);
+      this.polylineActual.setMap(this.mapActual);
+    },
+    clickOnActual() {
+      this.mapActual.on("click", this.ActualClick);
+    },
+    // 放大缩小地图
+    clickmap() {
+      if(this.isFullscreenmap === false){
+        this.isFullscreenmap = true;
+        this.isActive = true
+      }else{
+        this.isFullscreenmap = false;
+        this.isActive = false
+      }
     },
     // 上一步
     previous() {
-      if(this.polygon){
-        this.polygon.setMap(null)
+      if (this.polygon) {
+        this.polygon.setMap(null);
         this.polygon = null;
       }
-      if(this.markarr.length != 0){
-        this.markarr.pop()
-        this.markers[this.markarr.length].setMap(null)
-        this.markers.pop()
-        this.polylines[this.markarr.length].setMap(null)
-        this.polylines.pop()
+      if (this.markarr.length != 0) {
+        this.markarr.pop();
+        this.markers[this.markarr.length].setMap(null);
+        this.markers.pop();
+        this.polylines[this.markarr.length].setMap(null);
+        this.polylines.pop();
       }
     },
     // 重做
     redo() {
-        this.map.clearMap()
-        this.markers = [];
-        this.polylines = [];
-        this.markarr = [];
-        this.polygon = null;
-        // this.polygon.setMap(null)
+      this.map.clearMap();
+      this.markers = [];
+      this.polylines = [];
+      this.markarr = [];
+      this.polygon = null;
+      // this.polygon.setMap(null)
     },
     // 绘制完成
     markerfn() {
-      if(!this.polygon){
+      if (!this.polygon) {
         this.polygon = new AMap.Polygon({
           path: this.markarr,
-          fillColor: "#1791fc",
-          zIndex: 50,
+          fillColor: "#67c23a",
           fillOpacity: 0.4,
-          strokeOpacity: 0.2,
-          strokeWeight: 0
+          strokeOpacity: 1,
+          strokeColor: "#67c23a",
+          strokeWeight: 3
         });
         this.map.add(this.polygon);
+      }else{
+        console.log(this.polygon,'走这里了')
+      }
+    },
+    // 放大缩小地图
+    clickActualmap() {
+      if(this.isFullscreen === false){
+        this.isFullscreen = true
+        this.isActiveActual = true
+      }else{
+        this.isFullscreen = false
+        this.isActiveActual = false
+      }
+    },
+    // 第二个地图重做
+    redoActual() {
+      this.mapActual.clearMap();
+      this.markersActual = [];
+      this.polylinesActual = [];
+      this.markarrActual = [];
+      this.polygonact = null;
+      this.initmapActual()
+    },
+    // 第二个地图上一步
+    previousActual() {
+      if (this.polygonact) {
+        this.polygonact.setMap(null);
+        this.polygonact = null;
+      }
+      if (this.markarrActual.length != 0) {
+        this.markarrActual.pop();
+        this.markersActual[this.markarrActual.length].setMap(null);
+        this.markersActual.pop();
+        this.polylinesActual[this.markarrActual.length].setMap(null);
+        this.polylinesActual.pop();
+      }
+    },
+    // 第二个地图绘制完成
+    markerfnActual() {
+      if (!this.polygonact) {
+        this.polygonact = new AMap.Polygon({
+          path: this.markarrActual,
+          fillColor: "#f56c6c",
+          fillOpacity: 0.4,
+          strokeOpacity: 1,
+          strokeColor: "#f56c6c",
+          strokeWeight: 3
+        });
+        this.mapActual.add(this.polygonact);
       }
     }
   }
@@ -589,7 +704,7 @@ export default {
           color: red;
         }
       }
-      .gdmap {
+      .gdmap,.gdmapActual{
         position: relative;
         width: 100%;
         height: 400px;
@@ -603,7 +718,8 @@ export default {
           margin-left: -160px;
           z-index: 9;
         }
-        #container,#container1{
+        #container,
+        #container1 {
           width: 100%;
           height: 100%;
         }
@@ -619,11 +735,11 @@ export default {
           box-shadow: 0 0px 2px 0px rgba(0, 0, 0, 0.2);
           bottom: 0;
           padding-bottom: 16px;
-          ul{
+          ul {
             list-style: none;
             padding: 0;
             margin: 0;
-            li{
+            li {
               width: 100%;
               height: 65px;
               &:hover {
@@ -631,23 +747,23 @@ export default {
               }
             }
             cursor: pointer;
-            i{
+            i {
               display: block;
               text-align: center;
               font-size: 30px;
               padding-top: 10px;
               margin-bottom: -10px;
             }
-            span{
+            span {
               display: block;
               -o-user-select: none;
               -moz-user-select: none; /*火狐 firefox*/
               -webkit-user-select: none; /*webkit浏览器*/
               -ms-user-select: none; /*IE10+*/
-              -khtml-user-select :none; /*早期的浏览器*/
-              user-select: none; 
+              -khtml-user-select: none; /*早期的浏览器*/
+              user-select: none;
             }
-            svg{
+            svg {
               font-size: 30px;
               align-items: center;
               justify-content: center;
@@ -666,7 +782,17 @@ export default {
 .operate-container /deep/ .page-container {
   justify-content: flex-start;
 }
-.operate-container .gdmap #container /deep/ .amap-maptype-list {
+.operate-container .gdmap #container /deep/ .amap-maptype-list,
+.operate-container .gdmapActual #container1 /deep/ .amap-maptype-list{
   display: none !important;
+}
+
+.operate-container .gdmap.active,
+.operate-container .gdmapActual.active{
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
 }
 </style>

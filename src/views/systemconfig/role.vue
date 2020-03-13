@@ -13,7 +13,7 @@
             />
           </div>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="9">
           <div class="grid-content bg-purple">
             <span>时间</span>
             <el-date-picker

@@ -322,7 +322,7 @@
 <script>
 import { getDay,transTime,getDate } from '@/utils/index.js'
 export default {
-  name: "Journal",
+  name: "journal",
   data() {
     return {
       query: {},
@@ -401,6 +401,9 @@ export default {
       },
       formLabelWidth: "120px",
     };
+  },
+  mounted(){
+    console.log('进来了')
   },
   methods: {
     // 搜索

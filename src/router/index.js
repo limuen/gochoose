@@ -225,6 +225,12 @@ export const constantRoutes = [
     alwaysShow: true,
     children: [
       {
+        path: 'router',
+        name: 'router',
+        component: () => import('@/views/systemconfig/router'),
+        meta: { title: '动态路由' }
+      },
+      {
         path: 'role',
         name: 'role',
         component: () => import('@/views/systemconfig/role'),

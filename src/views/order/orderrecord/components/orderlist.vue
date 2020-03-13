@@ -322,7 +322,7 @@ export default {
   }
 }
 .orderlist-container .search-container /deep/ .el-input {
-  width: 195px;
+  width: 190px;
 }
 .orderlist-container .Operation /deep/ .el-input,.el-textarea{
   width: 300px;
