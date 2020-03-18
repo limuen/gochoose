@@ -18,24 +18,31 @@
 </template>
 
 <script>
-    import operate from './components/operate';
-    import sibility from './components/sibility';
-    import transer from './components/transer';
-    import prohibit from './components/prohibit'
+    const path = require('path')
+    const files = require.context('@/views/operation/regional/components', false, /\.vue$/)
+    const modules = {}
+    files.keys().forEach(key => {
+        const name = path.basename(key, '.vue')
+        modules[name] = files(key).default || files(key)
+    })
+    // import operate from './components/operate';
+    // import sibility from './components/sibility';
+    // import transer from './components/transer';
+    // import prohibit from './components/prohibit'
     export default {
         name: 'regional',
-        components: {
-            operate,
-            sibility,
-            transer,
-            prohibit
-        },
+        // components: {
+        //     operate,
+        //     sibility,
+        //     transer,
+        //     prohibit
+        // },
+        components:modules,
         data() {
             return {
                 activeName: 'operate'
             }
         },
-        
         methods: {
             handleClick(tab, event) {
                 console.log(tab, event);

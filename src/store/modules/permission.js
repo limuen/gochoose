@@ -1,4 +1,4 @@
-import { asyncRoutes, errorRoutes, constantRoutes } from '@/router'
+import { errorRoutes, constantRoutes, asyncRoutes} from '@/router'
 import Layout from '@/layout'
 /**
  * 遍历后台传来的路由字符串，转换为组件对象
@@ -9,12 +9,23 @@ export function filterAsyncRoutes(asyncRouter) {
   // 遍历后台传来的路由字符串，转换为组件对象
   const accessedRoutes = []
   asyncRouter.forEach(router => {
+    router = {
+      path: router.path,
+      name: router.name,
+      // redirect: router.redirect,
+      component: router.component ? router.component : router.path,
+      alwaysShow: router.alwaysShow,
+      meta: router.meta,
+      hidden: router.hidden,
+      children: router.children
+    }
     if (router.component) {
       if (router.component === 'Layout') {
         // Layout组件特殊处理
         router.component = Layout
-      } else {
+      } else { 
         const component = router.component
+        console.log(component,'component')
         router.component = () => import(`@/views${component}`)
       }
     }
@@ -42,27 +53,6 @@ function hasPermission(roles, route) {
   }
 }
 
-/**
- * Filter asynchronous routing tables by recursion
- * @param routes asyncRoutes
- * @param roles
- */
-// export function filterAsyncRoutes(routes, roles) {
-//   const res = []
-
-//   routes.forEach(route => {
-//     const tmp = { ...route }
-//     if (hasPermission(roles, tmp)) {
-//       if (tmp.children) {
-//         tmp.children = filterAsyncRoutes(tmp.children, roles)
-//       }
-//       res.push(tmp)
-//     }
-//   })
-
-//   return res
-// }
-
 const state = {
   routes: [],
   buttons: [],
@@ -73,29 +63,15 @@ const mutations = {
   SET_ROUTERS: (state, routes) => {
     state.addRoutes = routes
     // 动态路由
-    // state.routes = constantRoutes.concat(routes)
+    state.routes = constantRoutes.concat(routes)
     // 本地路由
-    state.routes = constantRoutes
+    // state.routes = constantRoutes
   },
   SET_BUTTONS: (state, buttons) => {
     state.buttons = buttons
   }
 }
 
-// const actions = {
-//   generateRoutes({ commit }, roles) {
-//     return new Promise(resolve => {
-//       let accessedRoutes
-//       if (roles.includes('admin')) {
-//         accessedRoutes = asyncRoutes || []
-//       } else {
-//         accessedRoutes = filterAsyncRoutes(asyncRoutes, roles)
-//       }
-//       commit('SET_ROUTES', accessedRoutes)
-//       resolve(accessedRoutes)
-//     })
-//   }
-// }
 
 /**
  * @param routers
@@ -105,13 +81,13 @@ const mutations = {
 const actions = {
   generateRoutes({ commit }, { routers, buttons }) {
     return new Promise(resolve => {
-      console.log(routers)
+      // console.log(routers)
       // 动态路由
-      // const accessedRoutes = filterAsyncRoutes(routers).concat(errorRoutes)
+      const accessedRoutes = filterAsyncRoutes(routers).concat(errorRoutes)
       // 静态路由
-      const accessedRoutes = constantRoutes
+      // const accessedRoutes = constantRoutes
       commit('SET_ROUTERS', accessedRoutes)
-      // // commit('SET_BUTTONS', buttons)
+      commit('SET_BUTTONS', buttons)
       resolve(accessedRoutes)
     })
   }

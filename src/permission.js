@@ -5,6 +5,7 @@ import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 import { getToken } from '@/utils/auth' // get token from cookie
 import getPageTitle from '@/utils/get-page-title'
+//import { asyncRoutes } from 'mock/role/routes'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
@@ -19,7 +20,6 @@ router.beforeEach(async(to, from, next) => {
 
   // determine whether the user has logged in
   const hasToken = getToken()
-
   if (hasToken) {
     if (to.path === '/login') {
       // if is logged in, redirect to the home page
@@ -32,15 +32,13 @@ router.beforeEach(async(to, from, next) => {
         next()
       } else {
         try {
-          // get user info
-          const { routers, buttons } = await store.dispatch('user/getInfo')
-
+          // get user info 从queryUserMenu那直接返回信息
+          const { routers, buttons } = await store.dispatch('user/queryUserMenu')
+          
           // generate accessible routes map based on roles
           const accessRoutes = await store.dispatch('permission/generateRoutes', { routers, buttons })
-
           // dynamically add accessible routes
           router.addRoutes(accessRoutes)
-
           // hack method to ensure that addRoutes is complete
           // set the replace: true, so the navigation will not leave a history record
           next({ ...to, replace: true })
@@ -55,7 +53,6 @@ router.beforeEach(async(to, from, next) => {
     }
   } else {
     /* has no token*/
-
     if (whiteList.indexOf(to.path) !== -1) {
       // in the free login whitelist, go directly
       next()

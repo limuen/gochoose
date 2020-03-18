@@ -48,8 +48,11 @@ service.interceptors.response.use(
     if (res.data && res.data.access_token) {
       store.dispatch('user/saveToken', res.data.access_token)
     }
+    if(res.code == 0){
+      return res
+    }
     // if the custom code is not 20000, it is judged as an error.
-    if (res.code !== 20000) {
+    if (res.code !== 0) {
       Message({
         message: res.msg || 'error',
         type: 'error',

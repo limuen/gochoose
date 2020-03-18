@@ -81,6 +81,7 @@
 </template>
 
 <script>
+import router from '@/router'
 import Rideout from "./components/Rideout";
 import overtime from "./components/overtime";
 import free from "./components/free"

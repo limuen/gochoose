@@ -1,4 +1,4 @@
-import { login, logout, getInfo } from '@/api/user'
+import { login, logout, getInfo, queryUserMenu } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
 
@@ -7,16 +7,12 @@ const state = {
   name: '',
   user_id: '',
   avatar: '',
-  introduction: '',
   roles: []
 }
 
 const mutations = {
   SET_TOKEN: (state, token) => {
     state.token = token
-  },
-  SET_INTRODUCTION: (state, introduction) => {
-    state.introduction = introduction
   },
   SET_USERID: (state, user_id) => {
     state.user_id = user_id
@@ -39,9 +35,36 @@ const actions = {
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
         const { data } = response
-        commit('SET_TOKEN', data.access_token)
-        setToken(data.access_token)
+        console.log(data,'11111')
+        commit('SET_TOKEN', data.userName)
+        setToken(data.userName)
         resolve()
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+  // 查询个人菜单
+  queryUserMenu( { commit, state } ) {
+    return new Promise((resolve, reject) => {
+      queryUserMenu().then(response => {
+        const { data } = response
+        console.log(data,'queryUserMenu')
+        if (!data) {
+          reject('验证失败，请重新登录。')
+        }
+        data.ruleName = data.ruleName.split(',')
+        const { ruleName, id, userName, avatar  } = data
+        // roles must be a non-empty array
+        if (!ruleName || ruleName.length <= 0) {
+          reject('getInfo: ruleName must be a non-null array!')
+        }
+
+        commit('SET_ROLES', ruleName)
+        commit('SET_USERID', id)
+        commit('SET_NAME', userName)
+        commit('SET_AVATAR', avatar)
+        resolve(data)
       }).catch(error => {
         reject(error)
       })
@@ -49,34 +72,32 @@ const actions = {
   },
 
   // get user info
-  getInfo({ commit, state }) {
-    return new Promise((resolve, reject) => {
-      getInfo().then(response => {
-        const { data } = response
-        console.log(data,'111')
-        if (!data) {
-          reject('验证失败，请重新登录。')
-        }
+  // getInfo({ commit, state }) {
+  //   return new Promise((resolve, reject) => {
+  //     getInfo().then(response => {
+  //       const { data } = response
+  //       console.log(data,'getInfo')
+  //       if (!data) {
+  //         reject('验证失败，请重新登录。')
+  //       }
+  //       // const { roles, name, avatar, introduction } = data
+  //       const { roles, user_id, name, avatar, introduction } = data
+  //       // roles must be a non-empty array
+  //       if (!roles || roles.length <= 0) {
+  //         reject('getInfo: roles must be a non-null array!')
+  //       }
 
-        // const { roles, name, avatar, introduction } = data
-        const { roles, user_id, name, avatar, introduction } = data
-
-        // roles must be a non-empty array
-        if (!roles || roles.length <= 0) {
-          reject('getInfo: roles must be a non-null array!')
-        }
-
-        commit('SET_ROLES', roles)
-        commit('SET_USERID', user_id)
-        commit('SET_NAME', name)
-        commit('SET_AVATAR', avatar)
-        commit('SET_INTRODUCTION', introduction)
-        resolve(data)
-      }).catch(error => {
-        reject(error)
-      })
-    })
-  },
+  //       commit('SET_ROLES', roles)
+  //       commit('SET_USERID', user_id)
+  //       commit('SET_NAME', name)
+  //       commit('SET_AVATAR', avatar)
+  //       commit('SET_INTRODUCTION', introduction)
+  //       resolve(data)
+  //     }).catch(error => {
+  //       reject(error)
+  //     })
+  //   })
+  // },
 
   // save token
   saveToken({ commit }, token) {
@@ -98,7 +119,7 @@ const actions = {
     })
   },
 
-  // remove token
+  // // remove token
   resetToken({ commit }) {
     return new Promise(resolve => {
       commit('SET_TOKEN', '')

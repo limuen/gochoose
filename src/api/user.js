@@ -2,15 +2,20 @@ import request from '@/utils/request'
 
 export function login(data) {
   return request({
-    url: '/user/login',
+    url: '/managerUser/login',
     method: 'post',
     data
   })
 }
 
-export function getInfo(token) {
+/**
+ * 
+ * 查询个人权限菜单
+ */
+
+export function queryUserMenu(token) {
   return request({
-    url: '/user/info',
+    url: '/ruleMenu/queryUserMenu',
     method: 'get',
     params: { token }
   })

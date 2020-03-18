@@ -1,8 +1,8 @@
 <template>
   <div class="mochaitmo-container">
     <div class="create-button">
-        <el-button type="primary" @click="handleCreate" icon="el-icon-edit">新增运维员</el-button>
-    </div>  
+      <el-button type="primary" @click="handleCreate" icon="el-icon-edit">新增运维员</el-button>
+    </div>
     <div class="search-container">
       <el-row :gutter="24">
         <el-col :span="6">
@@ -95,7 +95,7 @@
             </el-select>
           </div>
         </el-col>
-        
+
         <el-col :span="24">
           <div class="grid-content bg-purple">
             <el-button type="primary">查询</el-button>
@@ -158,35 +158,51 @@
     <!-- 新增编辑运维 -->
     <el-dialog :title="dialogtitle" width="35%" :visible.sync="dialogFormVisible">
       <el-form :model="form">
-        
         <el-form-item label="加盟商" :label-width="formLabelWidth">
           <el-select v-model="value" placeholder="请选择加盟商">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
-            </el-select>
+            <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="责任区域" :label-width="formLabelWidth">
           <el-select v-model="value" placeholder="请选择责任区域">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
-            </el-select>
+            <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="运维角色" :label-width="formLabelWidth">
           <el-checkbox-group v-model="duty" @change="changeCheckAll">
-            <el-checkbox
-              v-for="item in addproduct"
-              :label="item.id"
-              :key="item.id"
-            >{{item.name}}</el-checkbox>
+            <el-checkbox v-for="item in addproduct" :label="item.id" :key="item.id">{{item.name}}</el-checkbox>
           </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="开启派单" :label-width="formLabelWidth">
+          <el-select v-model="value" placeholder="请选择开启派单">
+            <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="派单时间" :label-width="formLabelWidth">
+            <el-time-picker
+              is-range
+              arrow-control
+              v-model="value2"
+              range-separator="至"
+              start-placeholder="开始时间"
+              end-placeholder="结束时间"
+              placeholder="选择时间范围"
+            ></el-time-picker>
         </el-form-item>
         <el-form-item label="联系人" :label-width="formLabelWidth">
           <el-input v-model="form.name" autocomplete="off"></el-input>
@@ -252,7 +268,7 @@ export default {
         resource: "",
         desc: ""
       },
-      dialogtitle: "",
+      dialogtitle: ""
     };
   },
   methods: {
@@ -263,14 +279,14 @@ export default {
       console.log(`当前页: ${val}`);
     },
     handleCreate() {
-      this.dialogtitle = "新增运维员"
+      this.dialogtitle = "新增运维员";
       this.dialogFormVisible = true;
     },
     // 选择附加产品
-    changeCheckAll(value){
+    changeCheckAll(value) {
       // this.form.addProducts = value.join(',')
       // console.log(this.form.addProducts,'this.form.addProducts')
-    }, 
+    },
     getAreaList(val, key, editInit = true) {
       if (key == "province" && editInit) {
         this.form.cityId = "";
@@ -290,12 +306,12 @@ export default {
       };
       let query = key === "init" ? { level: 1 } : { pid: val };
 
-    //   queryArea(query)
-    //     .then(res => {
-    //       this[keyMap[key]] = res.data;
-    //     })
-    //     .catch(() => {});
-    },
+      //   queryArea(query)
+      //     .then(res => {
+      //       this[keyMap[key]] = res.data;
+      //     })
+      //     .catch(() => {});
+    }
   }
 };
 </script>
@@ -303,11 +319,11 @@ export default {
 <style lang="scss" scoped>
 .mochaitmo {
   &-container {
-    .create-button{
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-end;
-        margin-bottom: 20px;
+    .create-button {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-end;
+      margin-bottom: 20px;
     }
     .search-container {
       .el-row {
