@@ -12,7 +12,7 @@ export function getRole(roleId) {
 // 角色列表
 export function getRoleList(params) {
   return request({
-    url: '/system/role/role-list',
+    url: '/rule/queryManagerListPage',
     method: 'get',
     params: params
   })
@@ -21,7 +21,7 @@ export function getRoleList(params) {
 // 新增角色
 export function createRole(data) {
   return request({
-    url: '/system/role/create-role',
+    url: '/rule/insert',
     method: 'post',
     data
   })
@@ -30,8 +30,8 @@ export function createRole(data) {
 // 修改角色
 export function updateRole(data) {
   return request({
-    url: '/system/role/update-role',
-    method: 'post',
+    url: '/rule/update',
+    method: 'PUT',
     data
   })
 }
@@ -39,8 +39,8 @@ export function updateRole(data) {
 // 删除角色
 export function deleteRole(data) {
   return request({
-    url: '/system/role/delete-role',
-    method: 'post',
+    url: '/rule/delete',
+    method: 'DELETE',
     data
   })
 }

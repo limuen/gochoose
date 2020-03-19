@@ -12,7 +12,7 @@ export function filterAsyncRoutes(asyncRouter) {
     router = {
       path: router.path,
       name: router.name,
-      // redirect: router.redirect,
+      redirect: router.redirect,
       component: router.component ? router.component : router.path,
       alwaysShow: router.alwaysShow,
       meta: router.meta,

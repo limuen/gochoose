@@ -1,15 +1,29 @@
 import request from '@/utils/request'
 
-export function getAdminRouterTree() {
+/**
+ * @description   查询tree
+ * @author LiMuEn
+ * @date 2020-3-19
+ * @returns
+ */
+export function getAdminRouterTree(params) {
   return request({
-    url: '/system/router/router-tree',
-    method: 'get'
+    url: '/ruleMenu/authorizeQuery',
+    method: 'get',
+    params
   })
 }
 
-export function createAdminRouter(data) {
+
+/**
+ * @description   修改tree
+ * @author LiMuEn
+ * @date 2020-3-19
+ * @returns
+ */
+export function authorization(data) {
   return request({
-    url: '/system/router/create-router',
+    url: '/ruleMenu/authorization',
     method: 'post',
     data
   })

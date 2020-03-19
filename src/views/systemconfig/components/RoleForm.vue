@@ -1,7 +1,7 @@
 <template>
   <div class="content">
-    <el-container style="width: 100%; border: 1px solid #eee" :style="contentStyleObj">
-      <el-aside style="background-color: white;border-right: 1px solid #eee;margin-bottom: 0px" width="45%">
+    <el-container style="width: 50%; border: 1px solid #eee" :style="contentStyleObj">
+      <!-- <el-aside style="background-color: white;border-right: 1px solid #eee;margin-bottom: 0px" width="45%">
         <div>
           <el-form ref="roleForm" :model="roleForm" :rules="rules" label-width="80px">
             <el-form-item label="角色名称" prop="role_name">
@@ -16,10 +16,11 @@
             </el-form-item>
           </el-form>
         </div>
-      </el-aside>
-      <el-aside style="background-color: white;border-right: 1px solid #eee;margin-bottom: 0px" width="30%">
+      </el-aside> -->
+      <el-aside style="background-color: white;border-right: 1px solid #eee;margin-bottom: 0px" v-loading="treeloading" width="100%">
         <div class="auth-btn"><el-tag>路由权限</el-tag></div>
         <el-tree
+          style="display:block;marin:auto;"
           ref="routerTree"
           :data="routers"
           show-checkbox
@@ -30,27 +31,31 @@
           :check-strictly="true"
           @check-change="getCheckRouters"
         />
+        <el-button type="primary" style="display:block;margin:20px auto;" @click="submitForm('roleForm')">提 交</el-button>
       </el-aside>
-      <el-aside style="background-color: white;border-right: 1px solid #eee;margin-bottom: 0px" width="25%">
+      <!-- <el-aside style="background-color: white;border-right: 1px solid #eee;margin-bottom: 0px" width="50%">
         <div class="auth-btn" style="padding-bottom: 5px;"><el-tag>按钮权限</el-tag></div>
         <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate" @change="handleCheckAllChange">全选</el-checkbox>
         <div style="margin: 15px 0;" />
         <el-checkbox-group v-model="roleForm.buttons" @change="handleCheckedButtonsChange">
           <el-checkbox v-for="button in buttons" :key="button.button_id" :label="button.button_id">{{ button.title }}</el-checkbox>
         </el-checkbox-group>
-      </el-aside>
+      </el-aside> -->
     </el-container>
   </div>
 </template>
 
 <script>
 // import { getSystemButtonAll } from '@/api/button'
-// import { getAdminRouterTree } from '@/api/admin-router'
+import { 
+  getAdminRouterTree,
+  authorization
+} from '@/api/admin-router'
 // import { getRole, createRole, updateRole } from '@/api/role'
 // import { Message } from 'element-ui'
 export default {
   name: 'RoleForm',
-  inject: ['reload'],
+  // inject: ['reload'],
   props: {
     isEdit: {
       type: Boolean,
@@ -63,10 +68,9 @@ export default {
         height: ''
       },
       roleForm: {
-        role_name: '',
-        desc: '',
+        ruleId: "",
         routers: [],
-        buttons: []
+        // buttons: []
       },
       rules: {
         role_name: [
@@ -77,9 +81,10 @@ export default {
         ]
       },
       routers: [],
+      treeloading: true,
       defaultProps: {
         children: 'children',
-        label: 'label'
+        label: 'descr'
       },
       checkAll: false,
       buttons: [],
@@ -100,53 +105,65 @@ export default {
       }
     }
   },
-  created() {
+  mounted() {
     window.addEventListener('resize', this.getHeight)
     this.getHeight()
-    if (this.isEdit) {
-      const roleId = this.$route.query.id
-      getRole(roleId).then(res => {
-        this.roleForm = {
-          role_id: res.data.role_id,
-          role_name: res.data.role_name,
-          desc: res.data.desc,
-          routers: res.data.router_ids,
-          buttons: res.data.button_ids
-        }
-      })
-    }
-    getAdminRouterTree().then(res => {
-      this.routers = res.data.routers_tree
+    // 获取树
+    const ruleId = this.$route.query.id;
+    this.roleForm.ruleId = this.$route.query.id;
+    console.log(ruleId)
+    getAdminRouterTree({ ruleId:ruleId }).then(res=>{
+      console.log(res,'11111111')
+      if(res.code == 0){
+        this.routers = res.data.routers;
+        this.roleForm.routers = res.data.buttons;
+        this.treeloading = false;
+      }
     })
-    getSystemButtonAll(1).then(res => {
-      this.buttons = res.data
-    })
+    // if (this.isEdit) {
+    //   const roleId = this.$route.query.id
+    //   getRole(roleId).then(res => {
+    //     this.roleForm = {
+    //       role_id: res.data.role_id,
+    //       role_name: res.data.role_name,
+    //       desc: res.data.desc,
+    //       routers: res.data.router_ids,
+    //       buttons: res.data.button_ids
+    //     }
+    //   })
+    // }
+    // getAdminRouterTree().then(res => {
+    //   this.routers = res.data.routers_tree
+    // })
+    // getSystemButtonAll(1).then(res => {
+    //   this.buttons = res.data
+    // })
   },
   methods: {
     getHeight() {
       this.contentStyleObj.height = window.innerHeight - 120 + 'px'
     },
     submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          if (this.isEdit) {
-            // 修改
-            updateRole(this.roleForm).then(res => {
-              Message.success(res.msg)
-              this.reload()
-            })
-          } else {
-            // 新增
-            createRole(this.roleForm).then(res => {
-              Message.success(res.msg)
-              this.reload()
-            })
-          }
-        } else {
-          Message.error('数据验证失败！')
-          return false
-        }
-      })
+      
+      this.roleForm.buttons = this.$refs.routerTree.getCheckedKeys(true);
+      console.log(this.roleForm,'roleForm')
+      // authorization({
+      //   menus: this.roleForm.routers,
+      //   ruleId:this.roleForm.ruleId
+      // }).then(res=>{
+      //   console.log(res,'1111111')
+      //   if(res.code == 0){
+      //     this.$notify({
+      //       title: '成功',
+      //       message: '分配权限成功',
+      //       type: 'success'
+      //     });
+      //     this.$router.push({
+      //       path: "/systemconfig/role"
+      //     });
+      //     // location.reload()
+      //   }
+      // })
     },
     resetForm(formName) {
       this.$refs[formName].resetFields()

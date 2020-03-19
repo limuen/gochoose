@@ -2,27 +2,14 @@
   <div class="role-container">
     <div class="search-container">
       <el-row :gutter="24">
-        <el-col :span="6">
+        <el-col :span="5">
           <div class="grid-content bg-purple">
             <span>角色名称</span>
             <el-input
-              v-model="listQuery.role_name"
+              v-model="listQuery.name"
               placeholder="角色名称"
-              style="width: 200px;"
+              style="width: 250px;"
               @keyup.enter.native="handleFilter"
-            />
-          </div>
-        </el-col>
-        <el-col :span="9">
-          <div class="grid-content bg-purple">
-            <span>时间</span>
-            <el-date-picker
-              v-model="listQuery.date"
-              type="daterange"
-              value-format="yyyy-MM-dd"
-              range-separator="-"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
             />
           </div>
         </el-col>
@@ -35,71 +22,86 @@
       </el-row>
     </div>
     <el-table
-            ref="multipleTable"
-            :data="tableData"
-            tooltip-effect="dark"
-            style="width: 100%"
-            :header-cell-style="{background:'#EBEFF4'}"
-          >
-      <el-table-column align="center" type="index" width="50" />
-      <el-table-column align="center" prop="role_name" label="角色名称" width="200" />
-      <el-table-column align="center" prop="desc" label="角色描述" />
-      <el-table-column align="center" prop="create_time" label="创建时间" width="200" />
-      <el-table-column align="center" prop="update_time" label="更新时间" width="200" />
+      ref="multipleTable"
+      :data="tableData"
+      tooltip-effect="dark"
+      style="width: 100%"
+      :header-cell-style="{background:'#EBEFF4'}"
+    >
+      <el-table-column align="center" prop="id" label="id" />
+      <el-table-column align="center" prop="name" label="角色名称" />
+      <el-table-column align="center" prop="seq" label="排序" />
+      <el-table-column align="center" prop="createTime" label="创建时间" width="200" />
       <el-table-column align="center" label="操作" width="300px">
         <template slot-scope="scope">
           <el-button
-            v-permission="button.role_delete"
             v-loading="loading"
             type="danger"
             size="mini"
-            @click="handleDelete(scope.row.role_id)"
+            @click="handleDelete(scope.row.id)"
           >删除</el-button>
           <el-button
-            v-permission="button.role_edit"
             v-loading="loading"
             type="primary"
             size="mini"
-            @click="handleUpdate(scope.row.role_id)"
+            @click="handleUpdate(scope.row)"
           >修改</el-button>
+          <el-button
+            v-loading="loading"
+            type="primary"
+            size="mini"
+            @click="handleJurisdiction(scope.row.id)"
+          >分配权限</el-button>
         </template>
       </el-table-column>
     </el-table>
     <div class="page-excel">
       <div class="page-container">
-        <!-- <el-pagination
-            background
-            layout="prev, pager, next"
-            :total="total"
-            :current-page.sync="query.currentPage"
-            @current-change="getTrainingList"
-        ></el-pagination>-->
         <el-pagination
           background
           align="left"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page.sync="currentPage4"
-          :page-sizes="[100, 200, 300, 400]"
-          :page-size="100"
+          :current-page.sync="listQuery.current"
+          :page-sizes="[10, 20, 30, 40]"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="400"
+          :total="total"
         ></el-pagination>
       </div>
     </div>
+
+    <!-- 新增系统角色 -->
+    <el-dialog :title="rolesTitle" width="30%" :visible.sync="dialogFormVisible">
+      <el-form :model="form" ref="rolesForm" class="rolesForm" :rules="rules"  label-width="80px">
+        <el-form-item label="角色名称"  prop="name">
+          <el-input v-model="form.name" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="角色描述" prop="descr">
+          <el-input v-model="form.descr" rows="3" type="textarea" />
+        </el-form-item>
+        <el-form-item label="排序"  prop="seq">
+          <el-input v-model="form.seq" autocomplete="off" type="number"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer" align="center">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitAddroles">提 交</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-// import { getRoleList, deleteRole } from '@/api/role'
-import Pagination from "@/components/Paginations";
+import {
+  getRoleList,
+  createRole,
+  updateRole,
+  deleteRole
+} from '@/api/role'
 import permission from "@/directive/permission";
 
 export default {
   name: "role",
-  components: {
-    Pagination
-  },
   directives: { permission },
   filters: {
     enableFilter(isEnable) {
@@ -118,53 +120,123 @@ export default {
         role_delete: "role_delete"
       },
       loading: false,
-      pages: {
-        per_page: 20,
-        total: 10
-      },
+      total: 0,
+      tableData: [],
       listQuery: {
-        page: 1,
-        row: 20,
-        role_name: undefined,
-        date: undefined
+        name: "",
+        current	: 1,
+        size: 10,
+        // column: "create_time", //排序字段 id   title  create_time
+        // asc: "true" //true升序  false降序
       },
-      rolesData: []
+      rolesData: [],
+      idEdit: false,
+      dialogFormVisible: false,
+      rolesTitle: '',
+      form: {
+        name: '',
+        descr: '',
+        seq: '',
+      },
+      rules: {
+        name: [
+          { required: true, message: '请输入角色名称', trigger: 'blur' }
+        ],
+        descr: [
+          { required: true, message: '请输入角色描述', trigger: 'blur' }
+        ],
+        seq: [
+          { required: true, message: '请输入排序', trigger: 'blur' }
+        ]
+      },
     };
   },
-  created() {
-    this.initData(this.listQuery);
+  mounted() {
+    // this.initData(this.listQuery);
+    this.getmanagerlist()
   },
   methods: {
-    dataBlock(res) {
-      this.pages = res.data.pages;
-      this.listQuery.page = this.pages.current_page + 1;
-      this.listQuery.row = this.pages.per_page;
-      this.rolesData = res.data.roles;
-    },
-    initData(params) {
-      getRoleList(params).then(res => {
-        this.dataBlock(res);
-      });
+    // 获取列表
+    getmanagerlist(){
+      getRoleList(this.listQuery).then(res=>{
+        console.log(res,'1111111111')
+        if(res.code == 0){
+          this.total = res.data.total;
+          this.tableData = res.data.rows;
+        }
+      })
     },
     handleSizeChange(val) {
-      this.listQuery.page = 1;
-      this.listQuery.row = val;
-      this.initData(this.listQuery);
+      this.listQuery.current = 1;
+      this.listQuery.size = val;
+      this.getmanagerlist();
     },
     handleCurrentChange(val) {
-      this.listQuery.page = val;
-      this.initData(this.listQuery);
+      console.log(val,'1111')
+      this.listQuery.current = val;
+      this.getmanagerlist()
     },
     handleFilter() {
-      this.listQuery.page = 1;
-      this.initData(this.listQuery);
+      this.listQuery.current = 1;
+      this.getmanagerlist()
     },
+    // 分配权限
+    handleJurisdiction(id) {
+      this.$router.push({ name: "RoleEdit", query: { id: id } });
+    },
+    // 新增角色
     handleCreate() {
-      this.$router.push({ name: "RoleAdd" });
+      // this.$router.push({ name: "RoleAdd" });
+      console.log("11111");
+      this.idEdit = true;
+      this.dialogFormVisible = true;
+    },
+    // 提交
+    submitAddroles(){
+      this.$refs.rolesForm.validate((valid) => {
+        if (valid) {
+          if(this.idEdit){
+            console.log('走新增')
+            createRole(this.form).then(res=>{
+              console.log(res,'11111')
+              if(res.code == 0){
+                this.$notify({
+                  title: '成功',
+                  message: '创建系统角色成功',
+                  type: 'success'
+                });
+                this.dialogFormVisible = false;
+                this.getmanagerlist()
+              }
+            })
+          }else{
+            console.log('走编辑');
+            updateRole(this.form).then(res=>{
+              console.log(res,'11111')
+              if(res.code == 0){
+                this.$notify({
+                  title: '成功',
+                  message: '修改系统角色成功',
+                  type: 'success'
+                });
+                this.dialogFormVisible = false;
+                this.getmanagerlist()
+              }
+            })
+          }
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
+      });
+      
     },
     // 修改
-    handleUpdate(id) {
-      this.$router.push({ name: "RoleEdit", query: { id: id } });
+    handleUpdate(row) {
+      // this.$router.push({ name: "RoleEdit", query: { id: id } });
+      this.idEdit = false;
+      this.dialogFormVisible = true;
+      this.form = { ...row}
     },
     // 删除
     handleDelete(id) {
@@ -173,15 +245,19 @@ export default {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
-      })
-        .then(() => {
+      }).then(() => {
           const data = {
-            role_id: id,
-            type: 1
+            id: id
           };
           deleteRole(data).then(res => {
-            Message.success(res.msg);
-            this.dataBlock(res);
+            if(res.code == 0){
+              this.$notify({
+                title: '成功',
+                message: '删除成功',
+                type: 'success'
+              });
+              this.getmanagerlist()
+            }
           });
         })
         .catch(() => {});
@@ -221,5 +297,8 @@ export default {
       }
     }
   }
+}
+.rolesForm /deep/ .el-input,.rolesForm /deep/ .el-textarea{
+  width: 400px;
 }
 </style>
