@@ -7,9 +7,9 @@
             <el-tab-pane label="故障报修" name="repair">
                 <repair v-if="repair"/>
             </el-tab-pane>
-            <el-tab-pane label="维修工单" name="customer">
+            <!-- <el-tab-pane label="维修工单" name="customer">
                 <customer v-if="customer"/>
-            </el-tab-pane>
+            </el-tab-pane> -->
             <el-tab-pane label="运维员" name="maintenance">
                 <maintenance v-if="maintenance"/>
             </el-tab-pane>
@@ -35,14 +35,13 @@
                 activeName: 'journal',
                 journal: true,
                 repair: false,
-                customer: false,
                 maintenance: false
             }
         },
         methods: {
             handleClick(tab, event) {
                 console.log(tab, event);
-                let tabsName = ['journal','repair','customer','maintenance']
+                let tabsName = ['journal','repair','maintenance']
                 tabsName.forEach(item => {
                     this[item] = false;
                     if(item == this.activeName){
