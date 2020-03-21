@@ -32,7 +32,6 @@
           show-checkbox
           node-key="id"
           :default-expand-all="true"
-          :default-checked-keys="roleForm.routers"
           :props="defaultProps"
           :check-strictly="true"
           @check-change="getCheckRouters"
@@ -76,8 +75,8 @@ export default {
       },
       roleForm: {
         ruleId: "",
-        routers: []
-        // buttons: []
+        routers: [],
+        buttons: []
       },
       rules: {
         role_name: [
@@ -87,6 +86,7 @@ export default {
       },
       routers: [],
       treeloading: true,
+      treedata: [],
       defaultProps: {
         children: "children",
         label: "descr"
@@ -124,60 +124,64 @@ export default {
       console.log(res, "11111111");
       if (res.code == 0) {
         this.routers = res.data.routers;
-        this.roleForm.routers = res.data.buttons;
+        let menus = res.data.menuList;
+        let buttons = res.data.buttonList;
+        this.treedata = menus.concat(buttons)
+        this.$nextTick(()=>{
+          this.$refs.routerTree.setCheckedNodes(this.treedata)
+        })
         this.treeloading = false;
+        this.routers.forEach(item => {
+          if (item.children.length) {
+            item.children.forEach(element => {
+              if (element.children.length) {
+                element.children.forEach(key => {
+                  key["level"] = 3;
+                });
+              }
+            });
+          }
+        });
       }
     });
-    // if (this.isEdit) {
-    //   const roleId = this.$route.query.id
-    //   getRole(roleId).then(res => {
-    //     this.roleForm = {
-    //       role_id: res.data.role_id,
-    //       role_name: res.data.role_name,
-    //       desc: res.data.desc,
-    //       routers: res.data.router_ids,
-    //       buttons: res.data.button_ids
-    //     }
-    //   })
-    // }
-    // getAdminRouterTree().then(res => {
-    //   this.routers = res.data.routers_tree
-    // })
-    // getSystemButtonAll(1).then(res => {
-    //   this.buttons = res.data
-    // })
   },
   methods: {
     getHeight() {
       this.contentStyleObj.height = window.innerHeight - 120 + "px";
     },
     submitForm(formName) {
-      let treechklds = this.$refs.routerTree.getCheckedKeys(true);
-      console.log(treechklds, "roleForm");
-
-      // authorization({
-      //   menus: this.roleForm.routers,
-      //   ruleId:this.roleForm.ruleId
-      // }).then(res=>{
-      //   console.log(res,'1111111')
-      //   if(res.code == 0){
-      //     this.$notify({
-      //       title: '成功',
-      //       message: '分配权限成功',
-      //       type: 'success'
-      //     });
-      //     this.$router.push({
-      //       path: "/systemconfig/role"
-      //     });
-      //   }
-      // })
+      console.log(this.roleForm, "roleForm");
+      authorization({
+        menus: this.roleForm.routers,
+        buttons: this.roleForm.buttons,
+        ruleId:this.roleForm.ruleId
+      }).then(res=>{
+        console.log(res,'1111111')
+        if(res.code == 0){
+          this.$notify({
+            title: '成功',
+            message: '分配权限成功',
+            type: 'success'
+          });
+          this.$router.push({
+            path: "/systemconfig/role"
+          });
+        }
+      })
     },
     resetForm(formName) {
       this.$refs[formName].resetFields();
     },
     // 选中路由权限
     getCheckRouters() {
-      this.roleForm.routers = this.$refs.routerTree.getCheckedKeys();
+      //一级二级
+      this.roleForm.routers = this.$refs.routerTree.getCheckedNodes().filter(item=>{
+        return item.level !== 3
+      }).map(item=> item.id);
+      //三级
+      this.roleForm.buttons = this.$refs.routerTree.getCheckedNodes().filter(item=>{
+        return item.level == 3
+      }).map(item=> item.id);
     },
     handleCheckAllChange(val) {
       if (val) {
