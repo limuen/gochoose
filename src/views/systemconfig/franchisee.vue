@@ -8,12 +8,12 @@
         <el-col :span="5">
           <div class="grid-content bg-purple">
             <span>大区</span>
-            <el-select v-model="value" placeholder="请选择大区">
+            <el-select v-model="listQuery.allianceId" placeholder="请选择大区">
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                v-for="item in AllianOptions"
+                :key="item.allianceId"
+                :label="item.allianceName"
+                :value="item.allianceId"
               ></el-option>
             </el-select>
           </div>
@@ -21,51 +21,12 @@
         <el-col :span="5">
           <div class="grid-content bg-purple">
             <span>加盟商名称</span>
-            <el-input v-model="value" placeholder="请输入加盟商名称"></el-input>
+            <el-input v-model="listQuery.allianceName" placeholder="请输入加盟商名称"></el-input>
           </div>
         </el-col>
-        <el-col :span="14">
+        <el-col :span="3">
           <div class="grid-content bg-purple">
-            <span>地区选择</span>
-            <el-select
-              v-model="provinceId"
-              placeholder="请选择省"
-              clearable
-              @change="getAreaList($event,'province')"
-            >
-              <el-option
-                v-for="item in provinceOptions"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              ></el-option>
-            </el-select>
-            <el-select
-              v-model="cityId"
-              placeholder="请选择市"
-              clearable
-              @change="getAreaList($event,'city')"
-            >
-              <el-option
-                v-for="item in cityOptions"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              ></el-option>
-            </el-select>
-            <el-select v-model="areaId" placeholder="请选择区" clearable>
-              <el-option
-                v-for="item in areaOptions"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              ></el-option>
-            </el-select>
-          </div>
-        </el-col>
-        <el-col :span="6">
-          <div class="grid-content bg-purple">
-            <el-button type="primary">查询</el-button>
+            <el-button type="primary" @click="handleFilter">查询</el-button>
           </div>
         </el-col>
       </el-row>
@@ -75,49 +36,38 @@
       <el-table
         ref="multipleTable"
         :data="tableData"
+        v-loading="loading"
         tooltip-effect="dark"
         style="width: 100%"
         :header-cell-style="{background:'#EBEFF4'}"
       >
-        <el-table-column label="运维单号" width="200" align="center"></el-table-column>
-        <el-table-column prop="车辆编号" label="车辆编号" width="120" align="center"></el-table-column>
-        <el-table-column prop="运维方式" label="运维方式" align="center"></el-table-column>
-        <el-table-column prop="维修部件" label="维修部件" align="center"></el-table-column>
-        <el-table-column prop="运维员" label="运维员" align="center"></el-table-column>
-        <el-table-column prop="运维手机" label="运维手机" align="center"></el-table-column>
-        <el-table-column prop="推送时间" label="推送时间" width="150" align="center"></el-table-column>
-        <el-table-column prop="完成时间" label="完成时间" width="150" align="center"></el-table-column>
-        <el-table-column prop="处理结果" label="处理结果" align="center"></el-table-column>
-        <el-table-column prop="处理时效" label="处理时效" align="center"></el-table-column>
-        <el-table-column prop="评分" label="评分" align="center"></el-table-column>
-        <el-table-column prop="处理结果图片与备注" label="处理结果图片与备注" width="200" align="center"></el-table-column>
-        <el-table-column label="操作" align="center" width="100" fixed="right">
+        <el-table-column prop="allianceName" label="加盟商名称" width="200" align="center"></el-table-column>
+        <el-table-column prop="regionName" label="所属大区" align="center"></el-table-column>
+        <el-table-column prop="运维方式" label="车辆编号前缀" align="center"></el-table-column>
+        <el-table-column prop="allianceContact" label="联系人" align="center"></el-table-column>
+        <el-table-column prop="contactPhone" label="联系电话" align="center"></el-table-column>
+        <el-table-column prop="address" label="联系地址" align="center"></el-table-column>
+        <el-table-column prop="provinceCityCounty" label="运营区域" align="center"></el-table-column>
+        <el-table-column prop="electrombileCount" label="车辆数量" width="150" align="center"></el-table-column>
+        <el-table-column label="操作" align="center" width="200" fixed="right" >
           <template slot-scope="scope">
-            <el-button type="text" @click="handleedit(scope.row.id)">编辑</el-button>
+            <el-button type="primary" size="mini" @click="handleedit(scope.row.id)">编辑</el-button>
+            <el-button type="danger" size="mini" @click="handleDelete(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
     <div class="page-excel">
       <div class="page-container">
-        <!-- <el-pagination
-            background
-            layout="prev, pager, next"
-            :total="total"
-            :current-page.sync="query.currentPage"
-            @current-change="getTrainingList"
-        ></el-pagination>-->
-
         <el-pagination
           background
           align="left"
-          @size-change="handleSizeChange"
+           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page.sync="currentPage4"
-          :page-sizes="[100, 200, 300, 400]"
-          :page-size="100"
+          :current-page.sync="listQuery.current"
+          :page-sizes="[10, 20, 30, 40]"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="400"
+          :total="total"
         ></el-pagination>
       </div>
     </div>
@@ -221,20 +171,28 @@
         <el-button type="primary" @click="dialogFormVisible = false">提 交</el-button>
       </div>
     </el-dialog>
-
-
-
-
-
   </div>
 </template>
 
 <script>
+import {
+  allianceListByRegionId,
+  allianceList
+} from '@/api/franchisee';
 export default {
   name: "franchisee",
   data() {
     return {
-      query: {},
+      AllianOptions: [], // 查询大区
+      listQuery: {
+        allianceId: "",
+        allianceName: "",
+        current	: 1,
+        size: 10,
+      },
+      tableData: [],
+      total: 0,
+      loading: true,
       value2: "",
       options: [
         {
@@ -259,7 +217,6 @@ export default {
         }
       ],
       value: "",
-      tableData: [],
       formLabelWidth: "120px",
       dialogFormVisible: false,
       form: {
@@ -275,12 +232,46 @@ export default {
       dialogtitle: "",
     };
   },
+  mounted() {
+    // 查询大区下的加盟商（搜索下拉用）
+    this.getallianList()
+    // 获取加盟商表格
+    this.getList()
+  },
   methods: {
+    // 查询大区下的加盟商（搜索下拉用）
+    getallianList() {
+      allianceListByRegionId().then(res=>{
+        console.log(res,'11111')
+        if(res.code == 0){
+          this.AllianOptions = res.data;
+        }
+      })
+    },
+    // 获取加盟商表格
+    getList() {
+      allianceList(this.listQuery).then(res=>{
+        console.log(res,'=============')
+         if(res.code == 0){
+          this.total = res.data.total;
+          this.tableData = res.data.rows;
+          this.loading = false;
+        }
+      })
+    },
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
+      this.listQuery.current = 1;
+      this.listQuery.size = val;
+      this.getList();
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
+      console.log(val,'1111')
+      this.listQuery.current = val;
+      this.getList()
+    },
+    handleFilter() {
+      this.listQuery.current = 1;
+      this.getList()
     },
     handleCreate() {
       this.dialogtitle = "新增加盟商"
@@ -348,7 +339,7 @@ export default {
   }
 }
 .franchisee-container .search-container /deep/ .el-input {
-  width: 185px;
+  width: 200px;
 }
 .franchisee-container .addredss-select /deep/ .el-select>.el-input{
   width: 160px;

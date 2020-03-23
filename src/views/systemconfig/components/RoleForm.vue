@@ -33,7 +33,7 @@
           node-key="id"
           :default-expand-all="true"
           :props="defaultProps"
-          :check-strictly="true"
+          :check-strictly="false"
           @check-change="getCheckRouters"
         />
         <el-button

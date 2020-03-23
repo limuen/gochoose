@@ -531,4 +531,7 @@ export default {
   background: #ccc;
   padding: 10px;
 }
+.journal-container /deep/ .el-dialog{
+  margin: 0 auto 50px;
+}
 </style>

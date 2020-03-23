@@ -13,7 +13,7 @@
             />
           </div>
         </el-col>
-        <el-col :span="5">
+        <el-col :span="4">
           <div class="grid-content bg-purple">
             <el-button type="primary" @click="handleFilter">查询</el-button>
             <el-button type="primary" @click="handleCreate" icon="el-icon-edit">新增系统角色</el-button>
@@ -26,6 +26,7 @@
       :data="tableData"
       tooltip-effect="dark"
       style="width: 100%"
+      v-loading="loading"
       :header-cell-style="{background:'#EBEFF4'}"
     >
       <el-table-column align="center" prop="id" label="id" />
@@ -35,19 +36,16 @@
       <el-table-column align="center" label="操作" width="300px">
         <template slot-scope="scope">
           <el-button
-            v-loading="loading"
             type="danger"
             size="mini"
             @click="handleDelete(scope.row.id)"
           >删除</el-button>
           <el-button
-            v-loading="loading"
             type="primary"
             size="mini"
             @click="handleUpdate(scope.row)"
           >修改</el-button>
           <el-button
-            v-loading="loading"
             type="primary"
             size="mini"
             @click="handleJurisdiction(scope.row.id)"
@@ -119,7 +117,7 @@ export default {
         role_edit: "role_edit",
         role_delete: "role_delete"
       },
-      loading: false,
+      loading: true,
       total: 0,
       tableData: [],
       listQuery: {
@@ -163,6 +161,7 @@ export default {
         if(res.code == 0){
           this.total = res.data.total;
           this.tableData = res.data.rows;
+          this.loading = false;
         }
       })
     },
@@ -240,7 +239,6 @@ export default {
     },
     // 删除
     handleDelete(id) {
-      this.loading = true;
       this.$confirm("确定要删除吗?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -261,7 +259,6 @@ export default {
           });
         })
         .catch(() => {});
-      this.loading = false;
     }
   }
 };

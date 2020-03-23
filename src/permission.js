@@ -34,7 +34,6 @@ router.beforeEach(async(to, from, next) => {
         try {
           // get user info 从queryUserMenu那直接返回信息
           const { routers, buttons } = await store.dispatch('user/queryUserMenu')
-          
           // generate accessible routes map based on roles
           const accessRoutes = await store.dispatch('permission/generateRoutes', { routers, buttons })
           // dynamically add accessible routes
