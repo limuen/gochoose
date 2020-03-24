@@ -35,7 +35,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
         const { data } = response
-        console.log(data,'11111')
+        // console.log(data,'11111')
         commit('SET_TOKEN', data.userName)
         setToken(data.userName)
         resolve()
@@ -49,7 +49,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       queryUserMenu().then(response => {
         const { data } = response
-        console.log(data,'queryUserMenu')
+        // console.log(data,'queryUserMenu')
         if (!data) {
           reject('验证失败，请重新登录。')
         }

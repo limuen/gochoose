@@ -25,7 +25,6 @@ export function filterAsyncRoutes(asyncRouter) {
         router.component = Layout
       } else { 
         const component = router.component
-        console.log(component,'component')
         router.component = () => import(`@/views${component}`)
       }
     }

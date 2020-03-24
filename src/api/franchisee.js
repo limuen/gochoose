@@ -3,7 +3,7 @@ import request from "@/utils/request";
 /**
  * @description   查询大区下的加盟商（搜索下拉用）
  * @author LiMuEn
- * @date 2020-03-23
+ * @date 2020-03-24
  * @export
  * @param {Object} params
  */
@@ -18,7 +18,7 @@ export function allianceListByRegionId(params) {
 /**
  * @description   加盟商管理分页查询返回总条数
  * @author LiMuEn
- * @date 2020-03-23
+ * @date 2020-03-24
  * @export
  * @param {Object} params
  * @param {Number} params.size         每页显示条数
@@ -31,5 +31,21 @@ export function allianceList(params) {
     url: "/alliance/queryManagerListPage",
     method: "get",
     params
+  })
+}
+
+
+/**
+ * @description   添加加盟商
+ * @author LiMuEn
+ * @date 2020-03-24
+ * @export
+ * @param {Object} params
+ */
+export function createalliance(data) {
+  return request({
+    url: " /alliance/insert",
+    method: "POST",
+    data
   })
 }
