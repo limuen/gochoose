@@ -1,19 +1,6 @@
 import request from "@/utils/request";
 
-/**
- * @description   查询大区下的加盟商（搜索下拉用）
- * @author LiMuEn
- * @date 2020-03-24
- * @export
- * @param {Object} params
- */
-export function allianceListByRegionId(params) {
-    return request({
-      url: "/alliance/allianceListByRegionId",
-      method: "get",
-      params
-    })
-  }
+
 
 /**
  * @description   加盟商管理分页查询返回总条数
@@ -31,9 +18,8 @@ export function allianceList(params) {
     url: "/alliance/queryManagerListPage",
     method: "get",
     params
-  })
+  });
 }
-
 
 /**
  * @description   添加加盟商
@@ -44,8 +30,52 @@ export function allianceList(params) {
  */
 export function createalliance(data) {
   return request({
-    url: " /alliance/insert",
+    url: "/alliance/insert",
     method: "POST",
     data
-  })
+  });
+}
+/**
+ * @description   根据主键查询
+ * @author LiMuEn
+ * @date 2020-03-25
+ * @export
+ * @param {Object} params
+ */
+export function selectByAllianceId(params) {
+  return request({
+    url: "/alliance/selectByAllianceId",
+    method: "GET",
+    params
+  });
+}
+
+/**
+ * @description   修改加盟商
+ * @author LiMuEn
+ * @date 2020-03-25
+ * @export
+ * @param {Object} params
+ */
+export function updatealliance(data) {
+  return request({
+    url: "/alliance/update",
+    method: "PUT",
+    data
+  });
+}
+
+/**
+ * @description   删除加盟商
+ * @author LiMuEn
+ * @date 2020-03-24
+ * @export
+ * @param {Object} params
+ */
+export function deletealliance(params) {
+  return request({
+    url: "/alliance/deleteById",
+    method: "GET",
+    params
+  });
 }

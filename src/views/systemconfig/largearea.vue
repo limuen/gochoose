@@ -78,7 +78,7 @@ export default {
   name: "grouping",
   data() {
     return {
-      loading: true,
+      loading: false,
       tableData: [],
       total: 0,
       listQuery: {
@@ -121,6 +121,7 @@ export default {
   },
   methods: {
     getlarList(){
+      this.loading = true;
       getlargeareaList(this.listQuery).then(res=>{
         console.log(res,'11111')
         if(res.code == 0){

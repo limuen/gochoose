@@ -8,12 +8,12 @@
         <el-col :span="5">
           <div class="grid-content bg-purple">
             <span>大区</span>
-            <el-select v-model="value" placeholder="请选择大区">
+            <el-select v-model="listQuery.regionId" @change="allianValue" placeholder="请选择大区">
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                v-for="item in AllianOptions"
+                :key="item.regionId"
+                :label="item.regionName"
+                :value="item.regionId"
               ></el-option>
             </el-select>
           </div>
@@ -21,51 +21,12 @@
         <el-col :span="5">
           <div class="grid-content bg-purple">
             <span>加盟商</span>
-            <el-select v-model="value" placeholder="请选择加盟商">
+            <el-select v-model="listQuery.allianceId" placeholder="请选择加盟商">
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
-            </el-select>
-          </div>
-        </el-col>
-        <el-col :span="14">
-          <div class="grid-content bg-purple">
-            <span>地区选择</span>
-            <el-select
-              v-model="provinceId"
-              placeholder="请选择省"
-              clearable
-              @change="getAreaList($event,'province')"
-            >
-              <el-option
-                v-for="item in provinceOptions"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              ></el-option>
-            </el-select>
-            <el-select
-              v-model="cityId"
-              placeholder="请选择市"
-              clearable
-              @change="getAreaList($event,'city')"
-            >
-              <el-option
-                v-for="item in cityOptions"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              ></el-option>
-            </el-select>
-            <el-select v-model="areaId" placeholder="请选择区" clearable>
-              <el-option
-                v-for="item in areaOptions"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
+                v-for="item in allianceOptions"
+                :key="item.allianceId"
+                :label="item.allianceName"
+                :value="item.allianceId"
               ></el-option>
             </el-select>
           </div>
@@ -73,18 +34,18 @@
         <el-col :span="5">
           <div class="grid-content bg-purple">
             <span>负责人</span>
-            <el-input v-model="value" placeholder="请输入负责人"></el-input>
+            <el-input v-model="listQuery.manageName" placeholder="请输入负责人"></el-input>
           </div>
         </el-col>
         <el-col :span="5">
           <div class="grid-content bg-purple">
             <span>电话</span>
-            <el-input v-model="value" placeholder="请输入电话"></el-input>
+            <el-input v-model="listQuery.managePhone" placeholder="请输入电话"></el-input>
           </div>
         </el-col>
         <el-col :span="24">
           <div class="grid-content bg-purple">
-            <el-button type="primary">查询</el-button>
+            <el-button type="primary"  @click="handleFilter">查询</el-button>
           </div>
         </el-col>
       </el-row>
@@ -92,91 +53,87 @@
 
     <div class="permission-table">
       <el-table
+        v-loading="loading"
         ref="multipleTable"
         :data="tableData"
         tooltip-effect="dark"
         style="width: 100%"
         :header-cell-style="{background:'#EBEFF4'}"
       >
-        <el-table-column label="运维单号" width="200" align="center"></el-table-column>
-        <el-table-column prop="车辆编号" label="车辆编号" width="120" align="center"></el-table-column>
-        <el-table-column prop="运维方式" label="运维方式" align="center"></el-table-column>
-        <el-table-column prop="维修部件" label="维修部件" align="center"></el-table-column>
-        <el-table-column prop="运维员" label="运维员" align="center"></el-table-column>
-        <el-table-column prop="运维手机" label="运维手机" align="center"></el-table-column>
-        <el-table-column prop="推送时间" label="推送时间" width="150" align="center"></el-table-column>
-        <el-table-column prop="完成时间" label="完成时间" width="150" align="center"></el-table-column>
-        <el-table-column prop="处理结果" label="处理结果" align="center"></el-table-column>
-        <el-table-column prop="处理时效" label="处理时效" align="center"></el-table-column>
-        <el-table-column prop="评分" label="评分" align="center"></el-table-column>
-        <el-table-column prop="处理结果图片与备注" label="处理结果图片与备注" width="200" align="center"></el-table-column>
-        <el-table-column label="操作" align="center" width="100" fixed="right">
+        <el-table-column type="index" width="50"></el-table-column>
+        <el-table-column prop="manageName" label="负责人" align="center"></el-table-column>
+        <el-table-column prop="managePhone" label="联系电话" align="center"></el-table-column>
+        <el-table-column prop="dutyList" label="责任区域" align="center"></el-table-column>
+        <el-table-column prop="allianceName" label="所属加盟商" align="center"></el-table-column>
+        <el-table-column label="操作" align="center" width="200" fixed="right">
           <template slot-scope="scope">
-            <el-button type="text" @click="handleedit(scope.row.id)">编辑</el-button>
+            <el-button type="primary" size="mini" @click="handleedit(scope.row)">编辑</el-button>
+            <el-button type="danger" size="mini" @click="handleDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
     <div class="page-excel">
       <div class="page-container">
-        <!-- <el-pagination
-            background
-            layout="prev, pager, next"
-            :total="total"
-            :current-page.sync="query.currentPage"
-            @current-change="getTrainingList"
-        ></el-pagination>-->
-
         <el-pagination
           background
           align="left"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page.sync="currentPage4"
-          :page-sizes="[100, 200, 300, 400]"
-          :page-size="100"
+          :current-page.sync="listQuery.current"
+          :page-sizes="[10, 20, 30, 40]"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="400"
+          :total="total"
         ></el-pagination>
       </div>
     </div>
 
     <!-- 新增修改区域管理 -->
-    <el-dialog :title="dialogtitle" width="40%" :visible.sync="dialogFormVisible">
-      <el-form :model="form" class="form">
-        <el-form-item label="加盟商" :label-width="formLabelWidth">
-          <el-select v-model="value" placeholder="请选择加盟商">
+    <el-dialog :title="dialogtitle" width="30%" :visible.sync="dialogFormVisible">
+      <el-form :model="form" class="form" label-width="120px" :rules="rules">
+        <el-form-item label="大区" prop="regionId">
+          <el-select v-model="form.regionId" @change="allianValuedialog" placeholder="请选择加盟商">
               <el-option
-                v-for="item in options"
+                v-for="item in AllianOptionsDialog"
+                :key="item.regionId"
+                :label="item.regionName"
+                :value="item.regionId"
+              ></el-option>
+            </el-select>
+        </el-form-item>
+        <el-form-item label="加盟商" prop="allianceId">
+          <el-select v-model="form.allianceId" placeholder="请选择加盟商">
+              <el-option
+                v-for="item in allianceOptionsDialog"
+                :key="item.allianceId"
+                :label="item.allianceName"
+                :value="item.allianceId"
+              ></el-option>
+            </el-select>
+        </el-form-item>
+        <el-form-item label="责任区域" prop="dutyList">
+          <el-select v-model="form.dutyList" multiple placeholder="请选择责任区域">
+              <el-option
+                v-for="item in bilityOptions"
                 :key="item.value"
                 :label="item.label"
                 :value="item.value"
               ></el-option>
             </el-select>
+            <!-- <i class="el-icon-refresh"></i> -->
         </el-form-item>
-        <el-form-item label="责任区域" :label-width="formLabelWidth">
-          <el-select v-model="value" placeholder="请选择责任区域">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
-            </el-select>
-            <i class="el-icon-refresh"></i>
+        <el-form-item label="联系人" prop="manageName">
+          <el-input v-model="form.manageName" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="联系人" :label-width="formLabelWidth">
-          <el-input v-model="form.name" autocomplete="off"></el-input>
+        <el-form-item label="联系电话" prop="managePhone">
+          <el-input v-model="form.managePhone" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="联系电话" :label-width="formLabelWidth">
-          <el-input v-model="form.name" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="联系地址" class="addredss-select" :label-width="formLabelWidth">
+        <el-form-item label="联系地址" class="addredss-select" prop="county">
           <el-select
-              v-model="provinceId"
+              v-model="form.province"
               placeholder="请选择省"
               clearable
-              @change="getAreaList($event,'province')"
+              @change="handleChooseProvinces"
             >
               <el-option
                 v-for="item in provinceOptions"
@@ -186,10 +143,10 @@
               ></el-option>
             </el-select>
             <el-select
-              v-model="cityId"
+              v-model="form.city"
               placeholder="请选择市"
               clearable
-              @change="getAreaList($event,'city')"
+              @change="handleChoosecity"
             >
               <el-option
                 v-for="item in cityOptions"
@@ -198,7 +155,7 @@
                 :value="item.id"
               ></el-option>
             </el-select>
-            <el-select v-model="areaId" placeholder="请选择区" clearable>
+            <el-select v-model="form.county" placeholder="请选择区" clearable>
               <el-option
                 v-for="item in areaOptions"
                 :key="item.id"
@@ -207,14 +164,11 @@
               ></el-option>
             </el-select>
         </el-form-item>
-        <el-form-item label="详细地址" :label-width="formLabelWidth">
-          <el-input v-model="form.name" autocomplete="off"></el-input>
+        <el-form-item label="详细地址"  prop="county">
+          <el-input v-model="form.address" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="登陆密码" :label-width="formLabelWidth">
-          <el-input v-model="form.name" show-password autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="备注说明" :label-width="formLabelWidth">
-          <el-input v-model="form.name" type="textarea" autocomplete="off"></el-input>
+        <el-form-item label="登陆密码">
+          <el-input v-model="form.password" show-password autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer" align="center">
@@ -229,86 +183,174 @@
 </template>
 
 <script>
+import { queryByCode } from "@/api/publicapi";
+import {
+  allRegion,
+  allianceListByRegionId,
+  queryManagerListPage,
+  createarea
+} from "@/api/region";
 export default {
   name: "region",
   data() {
     return {
-      query: {},
-      value2: "",
-      options: [
-        {
-          value: "选项1",
-          label: "黄金糕"
-        },
-        {
-          value: "选项2",
-          label: "双皮奶"
-        },
-        {
-          value: "选项3",
-          label: "蚵仔煎"
-        },
-        {
-          value: "选项4",
-          label: "龙须面"
-        },
-        {
-          value: "选项5",
-          label: "北京烤鸭"
-        }
-      ],
-      value: "",
+      AllianOptions: [], // 查询大区
+      allianceOptions: [], // 加盟商
+      AllianOptionsDialog: [], // 查询大区
+      allianceOptionsDialog: [], // 加盟商
+      provinceOptions: [], // 区
+      cityOptions: [], // 市
+      areaOptions: [], // 县
+      bilityOptions: [], //责任区域
+      loading: false,
+      listQuery: {
+        regionId: "",
+        allianceId: "",
+        manageName: "",
+        managePhone: "",
+        current: 1,
+        size: 10
+      },
       tableData: [],
-      formLabelWidth: "120px",
+      total: 0,
       dialogFormVisible: false,
       form: {
-        name: "",
-        region: "",
-        date1: "",
-        date2: "",
-        delivery: false,
-        type: [],
-        resource: "",
-        desc: ""
+        regionId: "",
+        allianceId: "",
+        dutyList: [],
+        manageName: "",
+        managePhone: "",
+        province: "",
+        city: "",
+        county: "",
+        address: "",
+        password: ""
+      },
+      rules: {
+        regionId: [
+          { required: true, message: "请选择大区", trigger: "change" }
+        ],
+        allianceId: [
+          { required: true, message: "请选择加盟商", trigger: "change" }
+        ],
+        dutyList: [
+          { required: true, message: "请选择责任区域", trigger: "change" }
+        ],
+        manageName: [
+          { required: true, message: "请输入负责人", trigger: "blur" }
+        ],
+        managePhone: [
+          { required: true, message: "请输入联系电话", trigger: "blur" },
+          {
+            pattern: /^1[3456789]\d{9}$/,
+            message: "请输入正确的手机号",
+            trigger: "blur"
+          }
+        ],
+        county: [
+          { required: true, message: "请选择联系地址", trigger: "change" }
+        ],
+        address: [
+          { required: true, message: "请输入详细地址", trigger: "blur" }
+        ]
       },
       dialogtitle: "",
     };
   },
+  mounted(){
+    // 查询大区下的加盟商（搜索下拉用）
+    this.getallianList()
+    this.getallianListDialog()
+    // 获取列表
+    this.getList()
+    // 获取城市
+    this.getprovinces();
+  },
   methods: {
+    // 查询大区下的加盟商（搜索下拉用）
+    getallianList() {
+      allRegion().then(res => {
+        if (res.code == 0) {
+          this.AllianOptions = res.data;
+        }
+      });
+    },
+    getallianListDialog() {
+      allRegion().then(res => {
+        if (res.code == 0) {
+          this.AllianOptionsDialog = res.data;
+        }
+      });
+    },
+    // 获取到大区的id去请求加盟商
+    allianValue(value){
+        allianceListByRegionId({regionId: value}).then(res=>{
+          console.log(res,'1111111111')
+          if(res.code == 0){
+            this.allianceOptions = res.data
+          }
+        })
+    },
+    allianValuedialog(value){
+        allianceListByRegionId({regionId: value}).then(res=>{
+          console.log(res,'1111111111')
+          if(res.code == 0){
+            this.allianceOptionsDialog = res.data
+          }
+        })
+    },
+    // 获取列表
+    getList() {
+      this.loading = true;
+      queryManagerListPage(this.listQuery).then(res => {
+        if (res.code == 0) {
+          this.total = res.data.total;
+          this.tableData = res.data.rows;
+          this.loading = false;
+        }
+      });
+    },
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
+      this.listQuery.current = 1;
+      this.listQuery.size = val;
+      this.getList();
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
+      this.listQuery.current = val;
+      this.getList();
+    },
+    handleFilter() {
+      this.listQuery.current = 1;
+      this.getList();
     },
     handleCreate() {
       this.dialogtitle = "新增区域管理"
       this.dialogFormVisible = true;
     },
-    getAreaList(val, key, editInit = true) {
-      if (key == "province" && editInit) {
-        this.form.cityId = "";
-        this.form.areaId = "";
-        this.cityOptions = [];
-        this.areaOptions = [];
-      }
-      if (key == "city" && editInit) {
-        this.form.areaId = "";
-        this.areaOptions = [];
-      }
-      if (!val) return;
-      let keyMap = {
-        init: "provinceOptions",
-        province: "cityOptions",
-        city: "areaOptions"
-      };
-      let query = key === "init" ? { level: 1 } : { pid: val };
-
-    //   queryArea(query)
-    //     .then(res => {
-    //       this[keyMap[key]] = res.data;
-    //     })
-    //     .catch(() => {});
+    // 新增地址
+    getProvincesList({ parent: params }, name) {
+      queryByCode({ parent: params }).then(res => {
+        if (res.code == 0) {
+          if (this[name]) {
+            this[name] = res.data;
+          }
+        }
+      });
+    },
+    // 获取省
+    getprovinces() {
+      this.getProvincesList({ parent: 0 }, "provinceOptions");
+    },
+    // 根据省获取市
+    handleChooseProvinces(v) {
+      this.form.city = "";
+      this.form.county = "";
+      this.getProvincesList({ parent: v }, "cityOptions");
+    },
+    // 根据市区获取县
+    handleChoosecity(v) {
+      this.form.county = "";
+      this.getProvincesList({ parent: v }, "areaOptions");
     },
   }
 };
@@ -355,12 +397,12 @@ export default {
   }
 }
 .region-container .search-container /deep/ .el-input {
-  width: 185px;
+  width: 200px;
 }
 .region-container .addredss-select /deep/ .el-select>.el-input{
   width: 160px;
 }
-.region-container .form /deep/ .el-input,.el-textarea {
-  width: 300px;
+.region-container .form /deep/ .el-input{
+  width: 350px;
 }
 </style>

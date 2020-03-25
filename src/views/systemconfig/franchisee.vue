@@ -8,12 +8,12 @@
         <el-col :span="5">
           <div class="grid-content bg-purple">
             <span>大区</span>
-            <el-select v-model="listQuery.allianceId" placeholder="请选择大区">
+            <el-select v-model="listQuery.regionId" placeholder="请选择大区">
               <el-option
                 v-for="item in AllianOptions"
-                :key="item.allianceId"
-                :label="item.allianceName"
-                :value="item.allianceId"
+                :key="item.regionId"
+                :label="item.regionName"
+                :value="item.regionId"
               ></el-option>
             </el-select>
           </div>
@@ -41,9 +41,10 @@
         style="width: 100%"
         :header-cell-style="{background:'#EBEFF4'}"
       >
+        <el-table-column type="index" width="50"></el-table-column>
         <el-table-column prop="allianceName" label="加盟商名称" width="200" align="center"></el-table-column>
         <el-table-column prop="regionName" label="所属大区" align="center"></el-table-column>
-        <el-table-column prop="运维方式" label="车辆编号前缀" align="center"></el-table-column>
+        <el-table-column prop="numberPrefix" label="车辆编号前缀" align="center"></el-table-column>
         <el-table-column prop="allianceContact" label="联系人" align="center"></el-table-column>
         <el-table-column prop="contactPhone" label="联系电话" align="center"></el-table-column>
         <el-table-column prop="address" label="联系地址" align="center">
@@ -60,8 +61,8 @@
         <el-table-column prop="electrombileCount" label="车辆数量" width="150" align="center"></el-table-column>
         <el-table-column label="操作" align="center" width="200" fixed="right">
           <template slot-scope="scope">
-            <el-button type="primary" size="mini" @click="handleedit(scope.row.id)">编辑</el-button>
-            <el-button type="danger" size="mini" @click="handleDelete(scope.row.id)">删除</el-button>
+            <el-button type="primary" size="mini" @click="handleedit(scope.row)">编辑</el-button>
+            <el-button type="danger" size="mini" @click="handleDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -82,28 +83,32 @@
     </div>
 
     <!-- 新增修改加盟商管理 -->
-    <el-dialog :title="dialogtitle" width="35%" :visible.sync="dialogFormVisible">
+    <el-dialog
+      :title="dialogtitle"
+      v-loading="dialogding"
+      width="32%"
+      :visible.sync="dialogFormVisible"
+    >
       <el-form :model="form" class="form" ref="form" :rules="rules" label-width="120px">
         <el-form-item label="大区" prop="regionId">
-          <el-select v-model="form.regionId" placeholder="请选择大区">
+          <el-select ref="allian" v-model="form.regionId" @change="changeval" placeholder="请选择大区">
             <el-option
-              v-for="item in AllianOptions"
-              :key="item.allianceId"
-              :label="item.allianceName"
-              :value="item.allianceId"
+              v-for="item in AllianOptionsDialog"
+              :key="item.regionId"
+              :label="item.regionName"
+              :value="item.regionId"
             ></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="加盟地区" class="addredss-select">
-          <!-- :prop="`${index}allianceCity`"
-            :rules="[
-              { required: true, message: '请选择省市县', trigger: 'change'}
-            ]" -->
           <el-form-item
             style="margin-bottom:20px;"
             v-for="(item,index) in form.areaList"
             :key="index"
-            
+            :prop="`areaList.${index}.allianceCity`"
+            :rules="[
+              { required: true, message: '请选择省市', trigger: 'change'}
+            ]"
           >
             <el-select
               v-model="item.allianceProvince"
@@ -131,7 +136,7 @@
                 :value="item.code"
               ></el-option>
             </el-select>
-            <el-select v-model="item.allianceCounty" placeholder="请选择区" clearable>
+            <el-select v-model="item.allianceCounty" placeholder="请选择区（可不选）" clearable>
               <el-option
                 v-for="item in areaList[index]"
                 :key="item.code"
@@ -139,11 +144,11 @@
                 :value="item.code"
               ></el-option>
             </el-select>
-            <el-button 
-              type="danger" 
-              v-if="form.areaList.length != 1" 
-              icon="el-icon-delete" 
-              circle 
+            <el-button
+              type="danger"
+              v-if="form.areaList.length != 1"
+              icon="el-icon-delete"
+              circle
               style="margin-left:10px;"
               @click="handledeleteindex(index)"
             ></el-button>
@@ -193,7 +198,7 @@
         <el-form-item label="客服电话" prop="servicePhone">
           <el-input v-model="form.servicePhone" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="联系地址" class="addredss-select" prop="province">
+        <el-form-item label="联系地址" class="addredss-select" prop="county">
           <el-select
             v-model="form.province"
             placeholder="请选择省"
@@ -245,28 +250,23 @@
 </template>
 
 <script>
+import { queryByCode } from "@/api/publicapi";
 import {
-  queryByCode
-} from '@/api/publicapi';
-import { 
-  allianceListByRegionId,
   allianceList,
-  createalliance
+  createalliance,
+  updatealliance,
+  deletealliance,
+  selectByAllianceId
 } from "@/api/franchisee";
+import {
+  allRegion,
+} from "@/api/region";
 export default {
   name: "franchisee",
   data() {
-    var validateareaList = (rule, value, callback) => {
-      console.log(rule,value)
-      // if (value.allianceProvince !="" && value.allianceCity !="" && value.allianceCounty !="" ) {
-      //   callback();
-      // } else {
-        
-      //   callback(new Error("请选择加盟地区"));
-      // }
-    };
     return {
       AllianOptions: [], // 查询大区
+      AllianOptionsDialog: [],
       listQuery: {
         allianceId: "",
         allianceName: "",
@@ -275,7 +275,9 @@ export default {
       },
       tableData: [],
       total: 0,
-      loading: true,
+      isEdit: false,
+      loading: false,
+      dialogding: false,
       dialogFormVisible: false,
       provinceOptions: [], //多选新增加盟商省
       cityList: [[]], //多选新增加盟商市
@@ -285,6 +287,7 @@ export default {
       areaListRadio: [], //县
       form: {
         regionId: "",
+        regionName: "",
         areaList: [
           {
             allianceProvince: "",
@@ -312,7 +315,7 @@ export default {
           { required: true, message: "请选择大区", trigger: "change" }
         ],
         areaList: [
-          { required: true, validator: validateareaList, trigger: "change" }
+          { required: true, message: "请选择省市", trigger: "change" }
         ],
         numberPrefix: [
           { required: true, message: "请输入编号前缀", trigger: "blur" }
@@ -343,7 +346,7 @@ export default {
         servicePhone: [
           { required: true, message: "请输入客服电话", trigger: "blur" }
         ],
-        province: [
+        county: [
           { required: true, message: "请选择联系地址", trigger: "change" }
         ],
         address: [
@@ -359,26 +362,32 @@ export default {
     // 获取加盟商表格
     this.getList();
     // 获取城市
-    this.getprovinces()
+    this.getprovinces();
   },
   methods: {
     // 查询大区下的加盟商（搜索下拉用）
     getallianList() {
-      allianceListByRegionId().then(res => {
-        console.log(res, "11111");
+      allRegion().then(res => {
         if (res.code == 0) {
+          console.log(res,)
           this.AllianOptions = res.data;
         }
       });
     },
     // 获取加盟商表格
     getList() {
+      this.loading = true;
       allianceList(this.listQuery).then(res => {
         if (res.code == 0) {
           this.total = res.data.total;
           this.tableData = res.data.rows;
           this.loading = false;
         }
+      });
+    },
+    changeval() {
+      this.$nextTick(() => {
+        this.form.regionName = this.$refs.allian.selectedLabel;
       });
     },
     handleSizeChange(val) {
@@ -394,74 +403,151 @@ export default {
       this.listQuery.current = 1;
       this.getList();
     },
+    // 新增
     handleCreate() {
       this.dialogtitle = "新增加盟商";
       this.dialogFormVisible = true;
+      this.isEdit = false;
+      allRegion().then(res => {
+        if (res.code == 0) {
+          this.AllianOptionsDialog = res.data;
+        }
+      });
+      this.$nextTick(() => {
+        this.$refs.form.resetFields();
+        this.form.password = "";
+        this.form.province = "";
+        this.form.city = "";
+        this.form.areaList = [
+          {
+            allianceProvince: "",
+            allianceCity: "",
+            allianceCounty: ""
+          }
+        ];
+      });
+    },
+    // 修改
+    handleedit(row) {
+      this.dialogding = true;
+      this.dialogtitle = "修改加盟商";
+      this.dialogFormVisible = true;
+      this.isEdit = true;
+      selectByAllianceId({ allianceId: row.allianceId }).then(res => {
+        console.log(res, "1111111");
+        if (res.code == 0) {
+          this.getProvincesList({ parent: res.data.province }, "cityListRadio");
+          this.getProvincesList({ parent: res.data.city }, "areaListRadio");
+          res.data.areaList.forEach((item, index) => {
+            console.log(item, index, "111111");
+            this.getLocalList(
+              { parent: item.allianceProvince },
+              "cityOptions",
+              index
+            );
+            if (item.allianceCounty != 0) {
+              this.getLocalList(
+                { parent: item.allianceCity },
+                "areaOptions",
+                index
+              );
+            } else {
+              item.allianceCounty = "";
+            }
+          });
+          this.form = { ...res.data };
+          this.dialogding = false;
+        }
+      });
+    },
+    // 表格删除
+    handleDelete(row) {
+      this.$confirm("此操作将永久删除, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          deletealliance({ id: row.allianceId }).then(res => {
+            if (res.code == 0) {
+              this.$message({
+                type: "success",
+                message: "删除成功!"
+              });
+              this.getList();
+            }
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
     },
     // 新增加盟地区
     addDomain() {
       this.form.areaList.push({
-          allianceProvince: "",
-          allianceCity: "",
-          allianceCounty: ""
+        allianceProvince: "",
+        allianceCity: "",
+        allianceCounty: ""
       });
     },
     // 新增加盟地区删除
-    handledeleteindex(index){
+    handledeleteindex(index) {
       this.form.areaList.splice(index, 1);
-      this.cityList.splice(index,1)
-      this.areaList.splice(index,1)
+      this.cityList.splice(index, 1);
+      this.areaList.splice(index, 1);
     },
     // 获取加盟商新增下拉列表数据
-    getLocalList({parent:params}, name,index) {
-      queryByCode({parent:params}).then(res => {
+    getLocalList({ parent: params }, name, index) {
+      queryByCode({ parent: params }).then(res => {
         if (res.code == 0) {
-          console.log(index,res.data,'----------')
-          if(name == 'cityOptions'){
-            this.$set(this.cityList, index, res.data || [] )
-          }else if(name == 'areaOptions'){
-            this.$set(this.areaList, index, res.data || [] )
-          }else{
-            this[name] = res.data || []
+          // console.log(index,res.data,'----------')
+          if (name == "cityOptions") {
+            this.$set(this.cityList, index, res.data || []);
+          } else if (name == "areaOptions") {
+            this.$set(this.areaList, index, res.data || []);
+          } else {
+            this[name] = res.data || [];
           }
         }
       });
     },
     // 获取省
     getprovinces() {
-      this.getLocalList({parent: 0}, "provinceOptions", 0);
-      this.getProvincesList({parent: 0}, "provinceList")
+      this.getLocalList({ parent: 0 }, "provinceOptions", 0);
+      this.getProvincesList({ parent: 0 }, "provinceList");
     },
     // 根据省获取市
-    handleChooseProvinces(v,cityIndex) {
-      this.form.areaList.forEach((item,index)=>{
+    handleChooseProvinces(v, cityIndex) {
+      this.form.areaList.forEach((item, index) => {
         this.form.areaList[cityIndex].allianceCity = "";
         this.form.areaList[cityIndex].allianceCounty = "";
-      })
-      console.log(v,cityIndex)
-      this.getLocalList({parent: v}, "cityOptions", cityIndex);
+      });
+      console.log(v, cityIndex);
+      this.getLocalList({ parent: v }, "cityOptions", cityIndex);
     },
     // 根据市区获取县
-    handleChooseCity(v,areaIndex) {
-      this.form.areaList.forEach((item,index)=>{
+    handleChooseCity(v, areaIndex) {
+      this.form.areaList.forEach((item, index) => {
         this.form.areaList[areaIndex].allianceCounty = "";
-      })
-      console.log(v,areaIndex)
-      this.getLocalList({ parent: v }, "areaOptions",areaIndex);
+      });
+      console.log(v, areaIndex);
+      this.getLocalList({ parent: v }, "areaOptions", areaIndex);
     },
     // 新增地址
-    getProvincesList({parent:params}, name) {
-      queryByCode({parent:params}).then(res => {
+    getProvincesList({ parent: params }, name) {
+      queryByCode({ parent: params }).then(res => {
         if (res.code == 0) {
           if (this[name]) {
-              this[name] = res.data;
-            }
+            this[name] = res.data;
+          }
         }
       });
     },
     // 根据省获取市
     handleChooseProvincesRadio(v) {
-      console.log(v,'111111')
       this.form.city = "";
       this.form.county = "";
       this.getProvincesList({ parent: v }, "cityListRadio");
@@ -472,18 +558,59 @@ export default {
       this.getProvincesList({ parent: v }, "areaListRadio");
     },
     submitform() {
-      this.$refs.form.validate(valid => {
+      if (this.isEdit) {
+        this.$refs.form.validate(valid => {
         if (valid) {
-          // alert("submit!");
-          // console.log(this.form,'11111111')
-          createalliance(this.form).then(res=>{
-
+          updatealliance(this.form).then(res=>{
+            console.log(res,'请求成功')
+            if(res.code == 0){
+              this.$notify({
+                title: '成功',
+                message: '修改成功',
+                type: 'success'
+              });
+              this.getList()
+              this.form.regionName = "";
+              this.dialogFormVisible = false;
+            }else{
+              this.$notify.error({
+                title: '错误',
+                message: res.message
+              });
+            }
           })
         } else {
           console.log("error submit!!");
           return false;
         }
       });
+      } else {
+        this.$refs.form.validate(valid => {
+          if (valid) {
+            createalliance(this.form).then(res => {
+              console.log(res, "请求成功");
+              if (res.code == 0) {
+                this.$notify({
+                  title: "成功",
+                  message: "创建成功",
+                  type: "success"
+                });
+                this.getList();
+                this.form.regionName = "";
+                this.dialogFormVisible = false;
+              } else {
+                this.$notify.error({
+                  title: "错误",
+                  message: res.message
+                });
+              }
+            });
+          } else {
+            console.log("error submit!!");
+            return false;
+          }
+        });
+      }
     }
   }
 };
@@ -530,8 +657,7 @@ export default {
 .franchisee-container /deep/ .el-dialog {
   margin: 0 auto 50px;
 }
-.franchisee-container .form /deep/ .el-input,
-.el-textarea {
-  width: 400px;
+.franchisee-container .form /deep/ .el-input{
+  width: 350px;
 }
 </style>
