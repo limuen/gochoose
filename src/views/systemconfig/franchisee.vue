@@ -372,7 +372,7 @@ export default {
           console.log(res,)
           this.AllianOptions = res.data;
         }
-      });
+      }).catch(() => {});
     },
     // 获取加盟商表格
     getList() {
@@ -383,7 +383,7 @@ export default {
           this.tableData = res.data.rows;
           this.loading = false;
         }
-      });
+      }).catch(() => {});
     },
     changeval() {
       this.$nextTick(() => {
@@ -412,7 +412,7 @@ export default {
         if (res.code == 0) {
           this.AllianOptionsDialog = res.data;
         }
-      });
+      }).catch(() => {});
       this.$nextTick(() => {
         this.$refs.form.resetFields();
         this.form.password = "";
@@ -458,7 +458,7 @@ export default {
           this.form = { ...res.data };
           this.dialogding = false;
         }
-      });
+      }).catch(() => {});
     },
     // 表格删除
     handleDelete(row) {
@@ -512,7 +512,7 @@ export default {
             this[name] = res.data || [];
           }
         }
-      });
+      }).catch(() => {});
     },
     // 获取省
     getprovinces() {
@@ -544,7 +544,7 @@ export default {
             this[name] = res.data;
           }
         }
-      });
+      }).catch(() => {});
     },
     // 根据省获取市
     handleChooseProvincesRadio(v) {
@@ -578,7 +578,7 @@ export default {
                 message: res.message
               });
             }
-          })
+          }).catch(() => {});
         } else {
           console.log("error submit!!");
           return false;
@@ -604,7 +604,7 @@ export default {
                   message: res.message
                 });
               }
-            });
+            }).catch(() => {});
           } else {
             console.log("error submit!!");
             return false;

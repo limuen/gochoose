@@ -207,7 +207,7 @@ export default {
                 this.dialogFormVisible = false;
                 this.getmanagerlist()
               }
-            })
+            }).catch(() => {});
           }else{
             console.log('走编辑');
             updateRole(this.form).then(res=>{
@@ -221,7 +221,7 @@ export default {
                 this.dialogFormVisible = false;
                 this.getmanagerlist()
               }
-            })
+            }).catch(() => {});
           }
         } else {
           console.log('error submit!!');

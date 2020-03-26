@@ -143,7 +143,7 @@ export default {
           }
         });
       }
-    });
+    }).catch(() => {});
   },
   methods: {
     getHeight() {
@@ -167,7 +167,7 @@ export default {
             path: "/systemconfig/role"
           });
         }
-      })
+      }).catch(() => {});
     },
     resetForm(formName) {
       this.$refs[formName].resetFields();

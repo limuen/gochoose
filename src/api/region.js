@@ -49,9 +49,9 @@ export function queryManagerListPage(params) {
 /**
  * @description   新增
  * @author LiMuEn
- * @date 2020-03-25
+ * @date 2020-03-26
  * @export
- * @param {Object} params
+ * @param {Object} data
  */
 export function createarea(data) {
     return request({
@@ -61,3 +61,50 @@ export function createarea(data) {
     });
 }
 
+/**
+ * @description   修改
+ * @author LiMuEn
+ * @date 2020-03-26
+ * @export
+ * @param {Object} data
+ */
+export function updatearea(data) {
+    return request({
+        url: "/areaManage/update",
+        method: "PUT",
+        data
+    });
+}
+
+
+/**
+ * @description   删除
+ * @author LiMuEn
+ * @date 2020-03-26
+ * @export
+ * @param {Object} params
+ */
+export function deleteById(params) {
+    return request({
+        url: "/areaManage/deleteById",
+        method: "GET",
+        params
+    });
+}
+
+
+
+/**
+ * @description   根据主键查询
+ * @author LiMuEn
+ * @date 2020-03-26
+ * @export
+ * @param {Object} params
+ */
+export function selectByAreaManageId(params) {
+    return request({
+        url: "/areaManage/selectByAreaManageId",
+        method: "GET",
+        params
+    });
+}

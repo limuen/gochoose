@@ -129,7 +129,7 @@ export default {
           this.tableData = res.data.rows;
           this.loading = false;
         }
-      })
+      }).catch(() => {});
     },
     handleSizeChange(val) {
       this.listQuery.current = 1;
@@ -182,7 +182,7 @@ export default {
                   message: res.message
                 });
               }
-            })
+            }).catch(() => {});
           } else {
             console.log('error submit!!');
             return false;
@@ -208,7 +208,7 @@ export default {
                   message: res.message
                 });
               }
-            })
+            }).catch(() => {});
           } else {
             console.log('error submit!!');
             return false;
@@ -217,31 +217,6 @@ export default {
       }
       
     },
-    getAreaList(val, key, editInit = true) {
-      if (key == "province" && editInit) {
-        this.form.cityId = "";
-        this.form.areaId = "";
-        this.cityOptions = [];
-        this.areaOptions = [];
-      }
-      if (key == "city" && editInit) {
-        this.form.areaId = "";
-        this.areaOptions = [];
-      }
-      if (!val) return;
-      let keyMap = {
-        init: "provinceOptions",
-        province: "cityOptions",
-        city: "areaOptions"
-      };
-      let query = key === "init" ? { level: 1 } : { pid: val };
-
-      //   queryArea(query)
-      //     .then(res => {
-      //       this[keyMap[key]] = res.data;
-      //     })
-      //     .catch(() => {});
-    }
   }
 };
 </script>
