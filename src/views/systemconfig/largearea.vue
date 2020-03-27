@@ -13,6 +13,7 @@
         style="width: 100%"
         :header-cell-style="{background:'#EBEFF4'}"
       >
+        <el-table-column type="index" width="50"></el-table-column>
         <el-table-column prop="regionName" label="大区" width="200" align="center"></el-table-column>
         <el-table-column prop="regionCharge" label="负责人" align="center"></el-table-column>
         <el-table-column prop="chargePhone" label="手机号" align="center"></el-table-column>
@@ -42,8 +43,15 @@
     </div>
 
     <!-- 新增编辑大区 -->
-    <el-dialog :title="dialogtitle" width="35%" :visible.sync="dialogFormVisible">
-      <el-form :model="form"  :rules="rules" ref="Form" label-width="120px">
+    <el-dialog
+      :title="dialogtitle"
+      width="35%"
+      v-loading="loading"
+      :close-on-click-modal="false"
+      :before-close="cancelsubmitfotm"
+      :visible.sync="dialogFormVisible"
+    >
+      <el-form :model="form" :rules="rules" ref="Form" label-width="120px">
         <el-form-item label="大区名称" prop="regionName">
           <el-input v-model="form.regionName" autocomplete="off"></el-input>
         </el-form-item>
@@ -61,7 +69,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer" align="center">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button @click="cancelsubmitfotm">取 消</el-button>
         <el-button type="primary" @click="submitform">提 交</el-button>
       </div>
     </el-dialog>
@@ -72,18 +80,20 @@
 import {
   getlargeareaList,
   createlargearea,
-  updatelargearea
+  updatelargearea,
+  selectByRegionId
 } from "@/api/largearea";
 export default {
   name: "grouping",
   data() {
     return {
       loading: false,
+      dialogding: false,
       tableData: [],
       total: 0,
       listQuery: {
-        current	: 1,
-        size: 10,
+        current: 1,
+        size: 10
       },
       isEdit: false,
       dialogFormVisible: false,
@@ -92,18 +102,18 @@ export default {
         regionCharge: "",
         chargePhone: "",
         regionAddress: "",
-        regionPassword: "",
+        regionPassword: ""
       },
       dialogtitle: "",
       rules: {
         regionName: [
-          { required: true, message: '请输入大区名称', trigger: 'blur' }
+          { required: true, message: "请输入大区名称", trigger: "blur" }
         ],
         regionCharge: [
-          { required: true, message: '请输入大区负责人名称', trigger: 'blur' }
+          { required: true, message: "请输入大区负责人名称", trigger: "blur" }
         ],
         chargePhone: [
-          { required: true, message: '请输入负责人电话', trigger: 'blur' },
+          { required: true, message: "请输入负责人电话", trigger: "blur" },
           {
             pattern: /^1[3456789]\d{9}$/,
             message: "请输入正确的手机号",
@@ -111,25 +121,27 @@ export default {
           }
         ],
         regionAddress: [
-          { required: true, message: '请输入联系地址', trigger: 'blur' }
-        ],
-      },
+          { required: true, message: "请输入联系地址", trigger: "blur" }
+        ]
+      }
     };
   },
-  mounted(){
-    this.getlarList()
+  mounted() {
+    this.getlarList();
   },
   methods: {
-    getlarList(){
+    getlarList() {
       this.loading = true;
-      getlargeareaList(this.listQuery).then(res=>{
-        console.log(res,'11111')
-        if(res.code == 0){
-          this.total = res.data.total;
-          this.tableData = res.data.rows;
-          this.loading = false;
-        }
-      }).catch(() => {});
+      getlargeareaList(this.listQuery)
+        .then(res => {
+          console.log(res, "11111");
+          if (res.code == 0) {
+            this.total = res.data.total;
+            this.tableData = res.data.rows;
+            this.loading = false;
+          }
+        })
+        .catch(() => {});
     },
     handleSizeChange(val) {
       this.listQuery.current = 1;
@@ -139,84 +151,100 @@ export default {
     },
     handleCurrentChange(val) {
       this.listQuery.current = val;
-      this.getlarList()
+      this.getlarList();
       console.log(`当前页: ${val}`);
     },
     // 新增
     handleCreate() {
       this.isEdit = false;
-      this.dialogtitle = "新增大区"
+      this.dialogtitle = "新增大区";
+      this.form.regionPassword = "";
       this.dialogFormVisible = true;
       this.$nextTick(()=>{
         this.$refs.Form.resetFields();
-        this.form.regionPassword = "";
       })
+    },
+    cancelsubmitfotm(){
+      this.$refs.Form.resetFields();
+      this.dialogFormVisible = false;
     },
     // 编辑
     handleedit(row) {
-      console.log(row,'11111')
+      this.dialogding = true;
       this.isEdit = true;
-      this.dialogtitle = "编辑大区"
-      this.form = {...row};
+      this.dialogtitle = "编辑大区";
       this.dialogFormVisible = true;
+      selectByRegionId({
+        regionId:row.regionId
+      }).then(res=>{
+        if(res.code == 0){
+          this.form = Object.assign({}, res.data)
+          this.dialogding = false;
+        }
+      })
     },
     // 新增修改提交
     submitform() {
-      if(this.isEdit){
-        console.log('编辑')
-        this.$refs.Form.validate((valid) => {
+      if (this.isEdit) {
+        console.log("编辑");
+        this.$refs.Form.validate(valid => {
           if (valid) {
-            updatelargearea(this.form).then(res=>{
-              console.log(res,'新增')
-              if(res.code == 0){
-                this.$notify({
-                  title: '成功',
-                  message: '新增大区成功',
-                  type: 'success'
-                });
-                this.dialogFormVisible = false;
-                this.getlarList();
-              }else{
-                this.$notify.error({
-                  title: '错误',
-                  message: res.message
-                });
-              }
-            }).catch(() => {});
+            updatelargearea(this.form)
+              .then(res => {
+                console.log(res, "新增");
+                if (res.code == 0) {
+                  this.$notify({
+                    title: "成功",
+                    message: "新增大区成功",
+                    type: "success"
+                  });
+                  this.$refs.Form.resetFields();
+                  this.dialogFormVisible = false;
+                  this.getlarList();
+                } else {
+                  this.$notify.error({
+                    title: "错误",
+                    message: res.message
+                  });
+                }
+              })
+              .catch(() => {});
           } else {
-            console.log('error submit!!');
+            console.log("error submit!!");
             return false;
           }
         });
-      }else{
-        console.log('新增')
-        this.$refs.Form.validate((valid) => {
+      } else {
+        console.log("新增");
+        this.$refs.Form.validate(valid => {
           if (valid) {
-            createlargearea(this.form).then(res=>{
-              console.log(res,'新增')
-              if(res.code == 0){
-                this.$notify({
-                  title: '成功',
-                  message: '新增大区成功',
-                  type: 'success'
-                });
-                this.dialogFormVisible = false;
-                this.getlarList();
-              }else{
-                this.$notify.error({
-                  title: '错误',
-                  message: res.message
-                });
-              }
-            }).catch(() => {});
+            createlargearea(this.form)
+              .then(res => {
+                console.log(res, "新增");
+                if (res.code == 0) {
+                  this.$notify({
+                    title: "成功",
+                    message: "新增大区成功",
+                    type: "success"
+                  });
+                  this.$refs.Form.resetFields();
+                  this.dialogFormVisible = false;
+                  this.getlarList();
+                } else {
+                  this.$notify.error({
+                    title: "错误",
+                    message: res.message
+                  });
+                }
+              })
+              .catch(() => {});
           } else {
-            console.log('error submit!!');
+            console.log("error submit!!");
             return false;
           }
         });
       }
-      
-    },
+    }
   }
 };
 </script>

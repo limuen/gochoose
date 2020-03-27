@@ -86,6 +86,8 @@
     <el-dialog
       :title="dialogtitle"
       v-loading="dialogding"
+      :close-on-click-modal="false"
+      :before-close="cancelsubmitfotm"
       width="32%"
       :visible.sync="dialogFormVisible"
     >
@@ -242,7 +244,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer" align="center">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button @click="cancelsubmitfotm">取 消</el-button>
         <el-button type="primary" @click="submitform">提 交</el-button>
       </div>
     </el-dialog>
@@ -258,9 +260,7 @@ import {
   deletealliance,
   selectByAllianceId
 } from "@/api/franchisee";
-import {
-  allRegion,
-} from "@/api/region";
+import { allRegion } from "@/api/region";
 export default {
   name: "franchisee",
   data() {
@@ -367,25 +367,28 @@ export default {
   methods: {
     // 查询大区下的加盟商（搜索下拉用）
     getallianList() {
-      allRegion().then(res => {
-        if (res.code == 0) {
-          console.log(res,)
-          this.AllianOptions = res.data;
-        }
-      }).catch(() => {});
+      allRegion()
+        .then(res => {
+          if (res.code == 0) {
+            this.AllianOptions = res.data;
+          }
+        })
+        .catch(() => {});
     },
     // 获取加盟商表格
     getList() {
       this.loading = true;
-      allianceList(this.listQuery).then(res => {
-        if (res.code == 0) {
-          this.total = res.data.total;
-          this.tableData = res.data.rows;
-          this.loading = false;
-        }
-      }).catch(() => {});
+      allianceList(this.listQuery)
+        .then(res => {
+          if (res.code == 0) {
+            this.total = res.data.total;
+            this.tableData = res.data.rows;
+            this.loading = false;
+          }
+        })
+        .catch(() => {});
     },
-    changeval() {
+    changeval(value) {
       this.$nextTick(() => {
         this.form.regionName = this.$refs.allian.selectedLabel;
       });
@@ -403,28 +406,36 @@ export default {
       this.listQuery.current = 1;
       this.getList();
     },
+    cancelsubmitfotm() {
+      this.$nextTick(() => {
+        this.$refs.form.resetFields();
+      });
+      this.dialogFormVisible = false;
+    },
     // 新增
     handleCreate() {
       this.dialogtitle = "新增加盟商";
       this.dialogFormVisible = true;
       this.isEdit = false;
-      allRegion().then(res => {
-        if (res.code == 0) {
-          this.AllianOptionsDialog = res.data;
+      allRegion()
+        .then(res => {
+          if (res.code == 0) {
+            this.AllianOptionsDialog = res.data;
+          }
+        })
+        .catch(() => {});
+      this.form.password = "";
+      this.form.province = "";
+      this.form.city = "";
+      this.form.areaList = [
+        {
+          allianceProvince: "",
+          allianceCity: "",
+          allianceCounty: ""
         }
-      }).catch(() => {});
+      ];
       this.$nextTick(() => {
         this.$refs.form.resetFields();
-        this.form.password = "";
-        this.form.province = "";
-        this.form.city = "";
-        this.form.areaList = [
-          {
-            allianceProvince: "",
-            allianceCity: "",
-            allianceCounty: ""
-          }
-        ];
       });
     },
     // 修改
@@ -433,32 +444,43 @@ export default {
       this.dialogtitle = "修改加盟商";
       this.dialogFormVisible = true;
       this.isEdit = true;
-      selectByAllianceId({ allianceId: row.allianceId }).then(res => {
-        console.log(res, "1111111");
-        if (res.code == 0) {
-          this.getProvincesList({ parent: res.data.province }, "cityListRadio");
-          this.getProvincesList({ parent: res.data.city }, "areaListRadio");
-          res.data.areaList.forEach((item, index) => {
-            console.log(item, index, "111111");
-            this.getLocalList(
-              { parent: item.allianceProvince },
-              "cityOptions",
-              index
+      selectByAllianceId({ allianceId: row.allianceId })
+        .then(res => {
+          console.log(res, "1111111");
+          if (res.code == 0) {
+            allRegion()
+            .then(res => {
+              if (res.code == 0) {
+                this.AllianOptionsDialog = res.data;
+              }
+            })
+            .catch(() => {});
+            this.getProvincesList(
+              { parent: res.data.province },
+              "cityListRadio"
             );
-            if (item.allianceCounty != 0) {
+            this.getProvincesList({ parent: res.data.city }, "areaListRadio");
+            res.data.areaList.forEach((item, index) => {
               this.getLocalList(
-                { parent: item.allianceCity },
-                "areaOptions",
+                { parent: item.allianceProvince },
+                "cityOptions",
                 index
               );
-            } else {
-              item.allianceCounty = "";
-            }
-          });
-          this.form = { ...res.data };
-          this.dialogding = false;
-        }
-      }).catch(() => {});
+              if (item.allianceCounty != 0) {
+                this.getLocalList(
+                  { parent: item.allianceCity },
+                  "areaOptions",
+                  index
+                );
+              } else {
+                item.allianceCounty = "";
+              }
+            });
+            this.form = { ...res.data };
+            this.dialogding = false;
+          }
+        })
+        .catch(() => {});
     },
     // 表格删除
     handleDelete(row) {
@@ -501,18 +523,19 @@ export default {
     },
     // 获取加盟商新增下拉列表数据
     getLocalList({ parent: params }, name, index) {
-      queryByCode({ parent: params }).then(res => {
-        if (res.code == 0) {
-          // console.log(index,res.data,'----------')
-          if (name == "cityOptions") {
-            this.$set(this.cityList, index, res.data || []);
-          } else if (name == "areaOptions") {
-            this.$set(this.areaList, index, res.data || []);
-          } else {
-            this[name] = res.data || [];
+      queryByCode({ parent: params })
+        .then(res => {
+          if (res.code == 0) {
+            if (name == "cityOptions") {
+              this.$set(this.cityList, index, res.data || []);
+            } else if (name == "areaOptions") {
+              this.$set(this.areaList, index, res.data || []);
+            } else {
+              this[name] = res.data || [];
+            }
           }
-        }
-      }).catch(() => {});
+        })
+        .catch(() => {});
     },
     // 获取省
     getprovinces() {
@@ -525,7 +548,6 @@ export default {
         this.form.areaList[cityIndex].allianceCity = "";
         this.form.areaList[cityIndex].allianceCounty = "";
       });
-      console.log(v, cityIndex);
       this.getLocalList({ parent: v }, "cityOptions", cityIndex);
     },
     // 根据市区获取县
@@ -533,18 +555,19 @@ export default {
       this.form.areaList.forEach((item, index) => {
         this.form.areaList[areaIndex].allianceCounty = "";
       });
-      console.log(v, areaIndex);
       this.getLocalList({ parent: v }, "areaOptions", areaIndex);
     },
     // 新增地址
     getProvincesList({ parent: params }, name) {
-      queryByCode({ parent: params }).then(res => {
-        if (res.code == 0) {
-          if (this[name]) {
-            this[name] = res.data;
+      queryByCode({ parent: params })
+        .then(res => {
+          if (res.code == 0) {
+            if (this[name]) {
+              this[name] = res.data;
+            }
           }
-        }
-      }).catch(() => {});
+        })
+        .catch(() => {});
     },
     // 根据省获取市
     handleChooseProvincesRadio(v) {
@@ -560,51 +583,53 @@ export default {
     submitform() {
       if (this.isEdit) {
         this.$refs.form.validate(valid => {
-        if (valid) {
-          updatealliance(this.form).then(res=>{
-            console.log(res,'请求成功')
-            if(res.code == 0){
-              this.$notify({
-                title: '成功',
-                message: '修改成功',
-                type: 'success'
-              });
-              this.getList()
-              this.form.regionName = "";
-              this.dialogFormVisible = false;
-            }else{
-              this.$notify.error({
-                title: '错误',
-                message: res.message
-              });
-            }
-          }).catch(() => {});
-        } else {
-          console.log("error submit!!");
-          return false;
-        }
-      });
+          if (valid) {
+            updatealliance(this.form)
+              .then(res => {
+                if (res.code == 0) {
+                  this.$notify({
+                    title: "成功",
+                    message: "修改成功",
+                    type: "success"
+                  });
+                  this.getList();
+                  this.form.regionName = "";
+                  this.dialogFormVisible = false;
+                } else {
+                  this.$notify.error({
+                    title: "错误",
+                    message: res.message
+                  });
+                }
+              })
+              .catch(() => {});
+          } else {
+            console.log("error submit!!");
+            return false;
+          }
+        });
       } else {
         this.$refs.form.validate(valid => {
           if (valid) {
-            createalliance(this.form).then(res => {
-              console.log(res, "请求成功");
-              if (res.code == 0) {
-                this.$notify({
-                  title: "成功",
-                  message: "创建成功",
-                  type: "success"
-                });
-                this.getList();
-                this.form.regionName = "";
-                this.dialogFormVisible = false;
-              } else {
-                this.$notify.error({
-                  title: "错误",
-                  message: res.message
-                });
-              }
-            }).catch(() => {});
+            createalliance(this.form)
+              .then(res => {
+                if (res.code == 0) {
+                  this.$notify({
+                    title: "成功",
+                    message: "创建成功",
+                    type: "success"
+                  });
+                  this.getList();
+                  this.form.regionName = "";
+                  this.dialogFormVisible = false;
+                } else {
+                  this.$notify.error({
+                    title: "错误",
+                    message: res.message
+                  });
+                }
+              })
+              .catch(() => {});
           } else {
             console.log("error submit!!");
             return false;
@@ -657,7 +682,7 @@ export default {
 .franchisee-container /deep/ .el-dialog {
   margin: 0 auto 50px;
 }
-.franchisee-container .form /deep/ .el-input{
+.franchisee-container .form /deep/ .el-input {
   width: 350px;
 }
 </style>

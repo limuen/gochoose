@@ -16,3 +16,19 @@ export function queryByCode(params) {
     params
   })
 }
+
+
+/**
+ * @description   上传图片
+ * @author LiMuEn
+ * @date 2020-03-24
+ * @export
+ * @param {Object} data
+ */
+export function uploadoss(data) {
+  return request({
+    url: "/upload/oss",
+    method: "post",
+    data
+  })
+}

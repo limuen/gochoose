@@ -1,8 +1,8 @@
 <template>
   <div class="staff-container">
-    <div class="create-button">
+    <!-- <div class="create-button">
         <el-button type="primary" @click="handleCreate" icon="el-icon-edit">新增员工</el-button>
-    </div>  
+    </div>   -->
     <div class="search-container">
       <el-row :gutter="24">
         <el-col :span="6">
@@ -69,37 +69,6 @@
             <el-input v-model="value" placeholder="请输入电话"></el-input>
           </div>
         </el-col>
-        <el-col :span="12">
-          <div class="grid-content bg-purple">
-            <span>地区选择</span>
-            <el-select
-              v-model="provinceId"
-              placeholder="请选择省"
-              clearable
-              @change="getAreaList($event,'province')"
-            >
-              <el-option
-                v-for="item in provinceOptions"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              ></el-option>
-            </el-select>
-            <el-select
-              v-model="cityId"
-              placeholder="请选择市"
-              clearable
-              @change="getAreaList($event,'city')"
-            >
-              <el-option
-                v-for="item in cityOptions"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              ></el-option>
-            </el-select>
-          </div>
-        </el-col>
         
         <el-col :span="24">
           <div class="grid-content bg-purple">
@@ -129,69 +98,22 @@
         <el-table-column prop="处理时效" label="处理时效" align="center"></el-table-column>
         <el-table-column prop="评分" label="评分" align="center"></el-table-column>
         <el-table-column prop="处理结果图片与备注" label="处理结果图片与备注" width="200" align="center"></el-table-column>
-        <el-table-column label="操作" align="center" width="100" fixed="right">
-          <template slot-scope="scope">
-            <el-button type="text" @click="handleedit(scope.row.id)">编辑</el-button>
-          </template>
-        </el-table-column>
       </el-table>
     </div>
     <div class="page-excel">
       <div class="page-container">
-        <!-- <el-pagination
-            background
-            layout="prev, pager, next"
-            :total="total"
-            :current-page.sync="query.currentPage"
-            @current-change="getTrainingList"
-        ></el-pagination>-->
-
         <el-pagination
           background
           align="left"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page.sync="currentPage4"
-          :page-sizes="[100, 200, 300, 400]"
-          :page-size="100"
+          :current-page.sync="listQuery.current"
+          :page-sizes="[10, 20, 30, 40]"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="400"
+          :total="total"
         ></el-pagination>
       </div>
     </div>
-
-
-    <!-- 新增编辑员工 -->
-    <el-dialog :title="dialogtitle" width="35%" :visible.sync="dialogFormVisible">
-      <el-form :model="form">
-        <el-form-item label="员工姓名" :label-width="formLabelWidth">
-          <el-input v-model="form.name" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="负责人" :label-width="formLabelWidth">
-          <el-select v-model="value" placeholder="请选择负责人">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
-            </el-select>
-        </el-form-item>
-        <el-form-item label="联系电话" :label-width="formLabelWidth">
-          <el-input v-model="form.name" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="登陆密码" :label-width="formLabelWidth">
-          <el-input v-model="form.name" show-password autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="备注说明" :label-width="formLabelWidth">
-          <el-input v-model="form.name" type="textarea" show-password autocomplete="off"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer" align="center">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">提 交</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
@@ -200,45 +122,17 @@ export default {
   name: "staff",
   data() {
     return {
-      query: {},
-      value2: "",
-      options: [
-        {
-          value: "选项1",
-          label: "黄金糕"
-        },
-        {
-          value: "选项2",
-          label: "双皮奶"
-        },
-        {
-          value: "选项3",
-          label: "蚵仔煎"
-        },
-        {
-          value: "选项4",
-          label: "龙须面"
-        },
-        {
-          value: "选项5",
-          label: "北京烤鸭"
-        }
-      ],
-      value: "",
-      tableData: [],
-      formLabelWidth: "120px",
-      dialogFormVisible: false,
-      form: {
-        name: "",
-        region: "",
-        date1: "",
-        date2: "",
-        delivery: false,
-        type: [],
-        resource: "",
-        desc: ""
+      listQuery: {
+        regionId: "",
+        allianceId: "",
+        areaId: "",
+        operationName: "",
+        operationPhone: "",
+        current: 1,
+        size: 10
       },
-      dialogtitle: "",
+      total: 0,
+      tableData: [],
     };
   },
   methods: {
@@ -247,35 +141,6 @@ export default {
     },
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`);
-    },
-    handleCreate() {
-      this.dialogtitle = "新增员工"
-      this.dialogFormVisible = true;
-    },
-    getAreaList(val, key, editInit = true) {
-      if (key == "province" && editInit) {
-        this.form.cityId = "";
-        this.form.areaId = "";
-        this.cityOptions = [];
-        this.areaOptions = [];
-      }
-      if (key == "city" && editInit) {
-        this.form.areaId = "";
-        this.areaOptions = [];
-      }
-      if (!val) return;
-      let keyMap = {
-        init: "provinceOptions",
-        province: "cityOptions",
-        city: "areaOptions"
-      };
-      let query = key === "init" ? { level: 1 } : { pid: val };
-
-    //   queryArea(query)
-    //     .then(res => {
-    //       this[keyMap[key]] = res.data;
-    //     })
-    //     .catch(() => {});
     },
   }
 };
@@ -314,6 +179,6 @@ export default {
   }
 }
 .staff-container .search-container /deep/ .el-input {
-  width: 185px;
+  width: 200px;
 }
 </style>

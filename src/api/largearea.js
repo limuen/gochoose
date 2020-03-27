@@ -50,11 +50,28 @@ export function createlargearea(data) {
  * @param {String} data.regionPassword    密码
  */
 export function updatelargearea(data) {
-    return request({
-      url: "/region/update",
-      method: "PUT",
-      data
-    })
-  }
+  return request({
+    url: "/region/update",
+    method: "PUT",
+    data
+  })
+}
+
+
+
+/**
+ * @description   添加大区管理
+ * @author LiMuEn
+ * @date 2020-03-23
+ * @export
+ * @param {Object} params
+ */
+export function selectByRegionId(params) {
+  return request({
+    url: "/region/selectByRegionId",
+    method: "GET",
+    params
+  })
+}
 
 
