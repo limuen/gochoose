@@ -80,6 +80,7 @@
         :data="tableData"
         tooltip-effect="dark"
         style="width: 100%"
+        v-loading="loading"
         :header-cell-style="{background:'#EBEFF4'}"
       >
         <el-table-column type="index" width="50"></el-table-column>
@@ -210,9 +211,9 @@
           </el-checkbox-group>
         </el-form-item>
         <el-form-item label="开启派单" prop="sendorderStatus">
-          <el-radio-group v-model="form.sendorderStatus">
-            <el-radio :label="0">开启</el-radio>
-            <el-radio :label="1">关闭</el-radio>
+          <el-radio-group v-model="form.sendorderStatus" >
+            <el-radio :label="0" border>开启</el-radio>
+            <el-radio :label="1" border>关闭</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="派单时间" class="item-datepick" required>
@@ -553,6 +554,7 @@ export default {
       this.$nextTick(() => {
         this.form.regionName = this.$refs.reginoName.selectedLabel;
       });
+      this.bilityOptions = []
       this.form.allianceId = "";
       this.form.dutyModelList = [];
       this.form.dutyModelList2 = [];
@@ -671,7 +673,6 @@ export default {
                     type: "success"
                   });
                   this.getList();
-                  this.getList();
                   this.form.password = "";
                   this.form.dutyModelList = [];
                   this.form.roleModelList = [];
@@ -702,7 +703,6 @@ export default {
                 roleName: roleModel.roleName
               });
             });
-            console.log(this.form, "提交的form");
             createmochaitmo(this.form)
               .then(res => {
                 if (res.code == 0) {
@@ -716,7 +716,6 @@ export default {
                   this.form.dutyModelList = [];
                   this.form.roleModelList = [];
                   this.dialogFormVisible = false;
-                  console.log(this.form, "提交完成的form");
                 }
               })
               .catch(() => {});

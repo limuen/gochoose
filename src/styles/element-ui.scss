@@ -82,3 +82,17 @@
 .el-range-separator {
   box-sizing: content-box;
 }
+
+// .el-menu-item.is-active::before {
+//   content: " ";
+//   top: 0;
+//   left: 0;
+//   bottom: 0;
+//   width: 4px;
+//   background: #1e90ef;
+//   position: absolute;
+// }
+.el-menu-item.is-active {
+  background-color: #409eff;
+  color:#fff;
+}

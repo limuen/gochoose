@@ -69,7 +69,7 @@
     </div>
 
     <!-- 新增系统角色 -->
-    <el-dialog :title="rolesTitle" width="30%" :visible.sync="dialogFormVisible">
+    <el-dialog :title="rolesTitle" width="30%"  :visible.sync="dialogFormVisible">
       <el-form :model="form" ref="rolesForm" class="rolesForm" :rules="rules"  label-width="80px">
         <el-form-item label="角色名称"  prop="name">
           <el-input v-model="form.name" autocomplete="off"></el-input>

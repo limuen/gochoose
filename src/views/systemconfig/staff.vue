@@ -1,19 +1,21 @@
 <template>
   <div class="staff-container">
-    <!-- <div class="create-button">
-        <el-button type="primary" @click="handleCreate" icon="el-icon-edit">新增员工</el-button>
-    </div>   -->
     <div class="search-container">
       <el-row :gutter="24">
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>大区</span>
-            <el-select v-model="value" placeholder="请选择大区">
+            <el-select
+                v-model="listQuery.regionId"
+                clearable
+                @change="allianValue"
+                placeholder="请选择大区"
+              >
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                v-for="item in AllianOptions"
+                :key="item.regionId"
+                :label="item.regionName"
+                :value="item.regionId"
               ></el-option>
             </el-select>
           </div>
@@ -21,38 +23,16 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>加盟商</span>
-            <el-select v-model="value" placeholder="请选择加盟商">
+             <el-select
+              v-model="listQuery.allianceId"
+              clearable
+              placeholder="请选择加盟商"
+            >
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
-            </el-select>
-          </div>
-        </el-col>
-        <el-col :span="6">
-          <div class="grid-content bg-purple">
-            <span>责任区域</span>
-            <el-select v-model="value" placeholder="请选择责任区域">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
-            </el-select>
-          </div>
-        </el-col>
-        <el-col :span="6">
-          <div class="grid-content bg-purple">
-            <span>运营角色</span>
-            <el-select v-model="value" placeholder="请选择运营角色">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                v-for="item in allianceOptions"
+                :key="item.allianceId"
+                :label="item.allianceName"
+                :value="item.allianceId"
               ></el-option>
             </el-select>
           </div>
@@ -60,19 +40,19 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>姓名</span>
-            <el-input v-model="value" placeholder="请输入姓名"></el-input>
+            <el-input v-model="listQuery.userName" placeholder="请输入姓名"></el-input>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>电话</span>
-            <el-input v-model="value" placeholder="请输入电话"></el-input>
+            <el-input v-model="listQuery.phoneNumber" placeholder="请输入电话"></el-input>
           </div>
         </el-col>
         
         <el-col :span="24">
           <div class="grid-content bg-purple">
-            <el-button type="primary">查询</el-button>
+            <el-button type="primary" @click="handleFilter">查询</el-button>
           </div>
         </el-col>
       </el-row>
@@ -84,20 +64,15 @@
         :data="tableData"
         tooltip-effect="dark"
         style="width: 100%"
+        v-loading="loading"
         :header-cell-style="{background:'#EBEFF4'}"
       >
-        <el-table-column label="运维单号" width="200" align="center"></el-table-column>
-        <el-table-column prop="车辆编号" label="车辆编号" width="120" align="center"></el-table-column>
-        <el-table-column prop="运维方式" label="运维方式" align="center"></el-table-column>
-        <el-table-column prop="维修部件" label="维修部件" align="center"></el-table-column>
-        <el-table-column prop="运维员" label="运维员" align="center"></el-table-column>
-        <el-table-column prop="运维手机" label="运维手机" align="center"></el-table-column>
-        <el-table-column prop="推送时间" label="推送时间" width="150" align="center"></el-table-column>
-        <el-table-column prop="完成时间" label="完成时间" width="150" align="center"></el-table-column>
-        <el-table-column prop="处理结果" label="处理结果" align="center"></el-table-column>
-        <el-table-column prop="处理时效" label="处理时效" align="center"></el-table-column>
-        <el-table-column prop="评分" label="评分" align="center"></el-table-column>
-        <el-table-column prop="处理结果图片与备注" label="处理结果图片与备注" width="200" align="center"></el-table-column>
+        <el-table-column type="index" width="50"></el-table-column>
+        <el-table-column prop="userName" label="姓名" align="center"></el-table-column>
+        <el-table-column prop="phoneNumber" label="联系电话" align="center"></el-table-column>
+        <el-table-column prop="ruleNames" label="运维角色" align="center"></el-table-column>
+        <el-table-column prop="regionName" label="责任区域" align="center"></el-table-column>
+        <el-table-column prop="franchiseeName" label="所属加盟商" align="center"></el-table-column>
       </el-table>
     </div>
     <div class="page-excel">
@@ -118,29 +93,80 @@
 </template>
 
 <script>
+import { staffqueryManagerListPage } from '@/api/mochaitmo';
+import { allRegion,allianceListByRegionId } from "@/api/region";
 export default {
   name: "staff",
   data() {
     return {
+      AllianOptions: [], // 查询大区
+      allianceOptions: [], // 加盟商
       listQuery: {
         regionId: "",
         allianceId: "",
-        areaId: "",
-        operationName: "",
-        operationPhone: "",
+        userName: "",
+        phoneNumber: "",
         current: 1,
         size: 10
       },
       total: 0,
       tableData: [],
+      loading: false,
     };
   },
+  mounted() {
+    // 查询大区
+    this.getallianList();
+    this.getList() 
+  },
   methods: {
+    // 查询大区
+    getallianList() {
+      allRegion()
+        .then(res => {
+          if (res.code == 0) {
+            this.AllianOptions = res.data;
+          }
+        })
+        .catch(() => {});
+    },
+    // 获取到大区的id去请求加盟商
+    allianValue(value) {
+      this.listQuery.allianceId = "";
+      allianceListByRegionId({ regionId: value })
+        .then(res => {
+          if (res.code == 0) {
+            this.allianceOptions = res.data;
+          }
+        })
+        .catch(() => {});
+    },
+    // 获取列表
+    getList() {
+      this.loading = true;
+      staffqueryManagerListPage(this.listQuery)
+        .then(res => {
+          console.log(res, "11111");
+          if (res.code == 0) {
+            this.total = res.data.total;
+            this.tableData = res.data.rows;
+            this.loading = false;
+          }
+        })
+        .catch(() => {});
+    },
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
+      this.listQuery.current = 1;
+      this.listQuery.size = val;
+      this.getList();
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
+      this.listQuery.current = val;
+      this.getList();
+    },
+    handleFilter() {
+      this.listQuery.current = 1;
+      this.getList();
     },
   }
 };

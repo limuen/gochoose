@@ -343,6 +343,7 @@ export default {
       this.$nextTick(() => {
         this.form.regionName = this.$refs.reginoName.selectedLabel;
       });
+      this.bilityOptions = [];
       this.form.allianceId = "";
       this.form.dutyList = [];
       this.form.dutyList2 = [];

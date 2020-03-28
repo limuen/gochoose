@@ -95,3 +95,20 @@ export function deleteById(params) {
         params
     });
 }
+
+
+/**
+ * @description   根据主键查询
+ * @author LiMuEn
+ * @date 2020-03-27
+ * @export
+ * @param {Object} params
+ */
+
+export function staffqueryManagerListPage(params) {
+    return request({
+        url: "/managerUser/queryManagerListPage",
+        method: "GET",
+        params
+    });
+}
