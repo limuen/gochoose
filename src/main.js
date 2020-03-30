@@ -12,6 +12,8 @@ import App from './App'
 import store from './store'
 import router from './router'
 
+import Int from '@/directive/input-filter'
+Vue.use(Int)
 import './icons' // icon
 import './permission' // permission control
 import './utils/error-log' // error log
