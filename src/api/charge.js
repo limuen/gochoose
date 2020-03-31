@@ -33,3 +33,51 @@ export function createCharge(data) {
         data
     })
 }
+
+
+/**
+ * @description   根据主键查询
+ * @author LiMuEn
+ * @date 2020-03-31
+ * @export
+ * @param {Object} params
+ */
+export function findById(params) {
+    return request({
+        url: "/chargeSetUp/findById",
+        method: "GET",
+        params
+    })
+}
+
+
+/**
+ * @description   根据主键查询
+ * @author LiMuEn
+ * @date 2020-03-31
+ * @export
+ * @param {Object} data
+ */
+export function update(data) {
+    return request({
+        url: "/chargeSetUp/update",
+        method: "PUT",
+        data
+    })
+}
+
+
+/**
+ * @description   根据主键查询
+ * @author LiMuEn
+ * @date 2020-03-31
+ * @export
+ * @param {Object} data
+ */
+export function deletecharge(params) {
+    return request({
+        url: "/chargeSetUp/delete",
+        method: "DELETE",
+        params
+    })
+}

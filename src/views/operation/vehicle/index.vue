@@ -20,14 +20,12 @@
 <script>
     import Journal from "./components/journal";
     import repair from "./components/repair";
-    import customer from "./components/customer";
     import maintenance from './components/maintenance';
     export default {
         name: 'vehicle',
         components: {
             Journal,
             repair,
-            customer,
             maintenance
         },
         data() {

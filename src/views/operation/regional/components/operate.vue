@@ -7,13 +7,19 @@
       <el-row :gutter="24">
         <el-col :span="6">
           <div class="grid-content bg-purple">
-            <span>运营商</span>
-            <el-select v-model="value" placeholder="请选择状态">
+            <span>大区</span>
+            <el-select
+              v-model="listQuery.largeAreaId"
+              clearable
+              @change="allianValue"
+              placeholder="请选择大区"
+              @clear="clearValue"
+            >
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                v-for="item in AllianOptions"
+                :key="item.regionId"
+                :label="item.regionName"
+                :value="item.regionId"
               ></el-option>
             </el-select>
           </div>
@@ -21,12 +27,12 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>加盟商</span>
-            <el-select v-model="value" placeholder="请选择状态">
+            <el-select v-model="listQuery.franchiseeId" clearable placeholder="请选择加盟商">
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                v-for="item in allianceOptions"
+                :key="item.allianceId"
+                :label="item.allianceName"
+                :value="item.allianceId"
               ></el-option>
             </el-select>
           </div>
@@ -34,12 +40,12 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>区域名称</span>
-            <el-input v-model="value" placeholder="请输入区域名称"></el-input>
+            <el-input v-model="listQuery.regionName" placeholder="请输入区域名称"></el-input>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="grid-content bg-purple">
-            <el-button type="primary">查询</el-button>
+            <el-button type="primary" @click="handleFilter">查询</el-button>
           </div>
         </el-col>
       </el-row>
@@ -51,27 +57,19 @@
         :data="tableData"
         tooltip-effect="dark"
         style="width: 100%"
+        v-loading="loading"
         :header-cell-style="{background:'#EBEFF4'}"
       >
-        <el-table-column label="运维单号" width="200" align="center"></el-table-column>
-        <el-table-column prop="车辆编号" label="车辆编号" width="120" align="center"></el-table-column>
-        <el-table-column prop="运维方式" label="运维方式" align="center"></el-table-column>
-        <el-table-column prop="维修部件" label="维修部件" align="center"></el-table-column>
-        <el-table-column prop="运维员" label="运维员" align="center"></el-table-column>
-        <el-table-column prop="运维手机" label="运维手机" align="center"></el-table-column>
-        <el-table-column prop="推送时间" label="推送时间" width="150" align="center"></el-table-column>
-        <el-table-column prop="完成时间" label="完成时间" width="150" align="center"></el-table-column>
-        <el-table-column prop="处理结果" label="处理结果" align="center"></el-table-column>
-        <el-table-column prop="处理时效" label="处理时效" align="center"></el-table-column>
-        <el-table-column prop="评分" label="评分" align="center"></el-table-column>
-        <el-table-column prop="处理结果图片与备注" label="处理结果图片与备注" width="200" align="center"></el-table-column>
-        <el-table-column label="操作" align="center" width="100" fixed="right">
+        <el-table-column type="index" width="50"></el-table-column>
+        <el-table-column prop="regionName" label="区域名称" align="center"></el-table-column>
+        <el-table-column prop="parkSpotNum" label="停车点" align="center"></el-table-column>
+        <el-table-column prop="dispatchFee" label="调度费" align="center"></el-table-column>
+        <el-table-column prop="franchiseeName" label="加盟商" align="center"></el-table-column>
+        <el-table-column prop="largeAreaName" label="大区" align="center"></el-table-column>
+        <el-table-column label="操作" align="center" width="250" fixed="right">
           <template slot-scope="scope">
-            <el-button type="text" @click="handleedit(scope.row.id)">忽略</el-button>
-            <el-button type="text" @click="handleedit(scope.row.id)">设为待处理</el-button>
-            <el-button type="text" @click="handleedit(scope.row.id)">工单指派</el-button>
-            <el-button type="text" @click="handleedit(scope.row.id)">运维日志</el-button>
-            <el-button type="text" @click="handleedit(scope.row.id)">给奖励</el-button>
+            <el-button type="primary" size="mini" @click="handleedit(scope.row)">编辑</el-button>
+            <el-button type="primary" size="mini" @click="handleedit(scope.row)">区域</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -82,16 +80,18 @@
         align="left"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
-        :current-page.sync="currentPage4"
-        :page-sizes="[100, 200, 300, 400]"
-        :page-size="100"
+        :current-page.sync="listQuery.current"
+        :page-sizes="[10, 20, 30, 40]"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="400"
+        :total="total"
       ></el-pagination>
     </div>
 
+
+    <operateDialog ref="operateDialog" :dialogtitle="dialogtitle"></operateDialog>
+
     <!-- 新增编辑区域 -->
-    <el-dialog :title="dialogtitle" class="opearteform" :visible.sync="dialogForm">
+    <!-- <el-dialog :title="dialogtitle" class="opearteform" :visible.sync="dialogForm">
       <el-row :gutter="24">
         <el-form :model="form">
           <el-col :span="12">
@@ -245,46 +245,38 @@
         说明:
         运营区域，是指把一个加盟商的车辆限制在多个区域内进行借还，用户在区域外还车会产生区域外调度费，一个加盟商可以设置多个运营区域。
       </div>
-    </el-dialog>
+    </el-dialog> -->
   </div>
 </template>
 
 <script>
 import AMap from "AMap";
+import { OpearteListPage } from '@/api/operationRegional';
+import { allRegion, allianceListByRegionId } from "@/api/region";
+import operateDialog from '../mapDialog/operateDialog';
 export default {
   name: "operate",
+  components: {
+    operateDialog
+  },
   data() {
     return {
-      isFullscreen: false,
-      isFullscreenmap: false,
-      query: {},
-      value2: "",
-      options: [
-        {
-          value: "选项1",
-          label: "黄金糕"
-        },
-        {
-          value: "选项2",
-          label: "双皮奶"
-        },
-        {
-          value: "选项3",
-          label: "蚵仔煎"
-        },
-        {
-          value: "选项4",
-          label: "龙须面"
-        },
-        {
-          value: "选项5",
-          label: "北京烤鸭"
-        }
-      ],
-      value: "",
+      AllianOptions: [], // 查询大区
+      allianceOptions: [], // 加盟商
+      listQuery: {
+        largeAreaId: "",
+        franchiseeId: "",
+        regionName: "",
+        current: 1,
+        size: 10
+      },
+      total: 0,
       tableData: [],
-      checkList: ["选中且禁用", "复选框 A"],
-      dialogFormVisible: false,
+      loading: false,
+      isEdit: false,
+      // isFullscreen: false,
+      // isFullscreenmap: false,
+      // dialogFormVisible: false,
       form: {
         name: "",
         region: "",
@@ -333,342 +325,392 @@ export default {
     
   },
   mounted() {
-    // this.clickOn();
+    // 查询大区
+    this.getallianList()
+    // 获取列表
+    this.getList()
   },
   methods: {
+    // 获取列表
+    getList() {
+      this.loading = true;
+      OpearteListPage(this.listQuery)
+        .then(res => {
+          console.log(res, "11111");
+          if (res.code == 0) {
+            this.total = res.data.total;
+            this.tableData = res.data.rows;
+            this.loading = false;
+          }
+        })
+        .catch(() => {});
+    },
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
+      this.listQuery.current = 1;
+      this.listQuery.size = val;
+      this.getList();
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
+      this.listQuery.current = val;
+      this.getList();
     },
-    
+    handleFilter() {
+      this.listQuery.current = 1;
+      this.getList();
+    },
+    // 查询大区
+    getallianList() {
+      allRegion()
+        .then(res => {
+          if (res.code == 0) {
+            this.AllianOptions = res.data;
+          }
+        })
+        .catch(() => {});
+    },
+    clearValue() {
+      this.allianceOptions = [];
+    },
+    // 获取到大区的id去请求加盟商
+    allianValue(value) {
+      this.listQuery.franchiseeId = "";
+      this.allianceOptions = [];
+      allianceListByRegionId({ regionId: value })
+        .then(res => {
+          if (res.code == 0) {
+            this.allianceOptions = res.data;
+          }
+        })
+        .catch(() => {});
+    },
     // 创建
     handleCreate() {
       this.dialogtitle = "新建运营区域";
-      this.dialogForm = true;
-      if ((this.activeName = "Visible")) {
-        this.$nextTick(() => {
-          this.init();
-          this.searchAddress = "";
-          this.maplading = false;
-        });
-      }
-    },
-    querySearch(queryString, cb) {
-      let that = this;
-      AMap.plugin('AMap.Autocomplete', function(){
-        // 实例化Autocomplete
-        var autoOptions = {
-          //city 限定城市，默认全国
-          city: '全国'
-        }
-        var autoComplete= new AMap.Autocomplete(autoOptions);
-        autoComplete.search(queryString, function(status, result) {
-          // 搜索成功时，result即是对应的匹配数据
-          console.log(result,'1111')
-          if(result.info === 'OK'){
-            cb(result.tips)
-          }else{
-            that.$notify.error({
-              title: '错误',
-              message: '服务器出小差了，请重新搜索'
-            });
-          }
-          
-        })
+      this.$refs.operateDialog.dialogFormVisible = true;
+      this.$nextTick(()=> {
+        this.$refs.operateDialog.init()
       })
+      // this.dialogForm = true;
+      // if ((this.activeName = "Visible")) {
+      //   this.$nextTick(() => {
+      //     this.$refs.operateDialog.dialogFormVisible = true;
+      //     this.$refs.operateDialog.init();
+      //     // this.init();
+      //     // this.searchAddress = "";
+      //     // this.maplading = false;
+      //   });
+      // }
     },
-    // select(e) {
-    //   this.map.placeSearch.setCity(e.poi.adcode);
-    //   this.map.placeSearch.search(e.poi.name); //关键字查询查询
+    // querySearch(queryString, cb) {
+    //   let that = this;
+    //   AMap.plugin('AMap.Autocomplete', function(){
+    //     // 实例化Autocomplete
+    //     var autoOptions = {
+    //       //city 限定城市，默认全国
+    //       city: '全国'
+    //     }
+    //     var autoComplete= new AMap.Autocomplete(autoOptions);
+    //     autoComplete.search(queryString, function(status, result) {
+    //       // 搜索成功时，result即是对应的匹配数据
+    //       console.log(result,'1111')
+    //       if(result.info === 'OK'){
+    //         cb(result.tips)
+    //       }else{
+    //         that.$notify.error({
+    //           title: '错误',
+    //           message: '服务器出小差了，请重新搜索'
+    //         });
+    //       }
+          
+    //     })
+    //   })
     // },
-    handleSelect(item) {
-      console.log(item);
-      this.searchAddress = item.name;
-      this.location = item.location;
-      this.map.setCenter(item.location);
-    },
+    // handleSelect(item) {
+    //   console.log(item);
+    //   this.searchAddress = item.name;
+    //   this.location = item.location;
+    //   this.map.setCenter(item.location);
+    // },
     // 切换tabs
-    handleClick(tab, event) {
-      console.log(tab, event);
-      if (this.activeName == "Actual" && this.polygon == null) {
-        this.activeName = "Visible";
-        this.$message({
-          message: "必须先画完用户可见区域才能画实际区域",
-          type: "warning"
-        });
-        this.viewok = false;
-      } else {
-        console.log(this.polygon,'1111')
-        this.viewok = true;
-        this.$nextTick(() => {
-          this.initmapActual();
-          this.mapActuallading = false;
-        });
-      }
-    },
-    // 地图
-    init() {
-      console.log("loadmap");
-      this.markers = [];
-      this.polylines = [];
-      this.markarr = [];
-      let that = this;
-      that.map = new AMap.Map("container", {
-        resizeEnable: true,
-        zoom: 14
-      });
-      // 工具条控件
-      console.log(this.map, "111");
-      this.map.plugin(["AMap.ToolBar"], function() {
-        that.map.addControl(new AMap.ToolBar());
-      });
-      // 地图类型切换
-      this.map.plugin(["AMap.MapType"], function() {
-        that.map.addControl(new AMap.MapType());
-      });
-      this.clickOn();
-    },
-    showInfoClick(e) {
-      console.log(e, "1111");
-      console.log(
-        "您在 [ " +
-          e.lnglat.getLng() +
-          "," +
-          e.lnglat.getLat() +
-          " ] 的位置单击了地图！"
-      );
-      if (this.polygon) {
-        this.polygon.setMap(null);
-        this.polygon = null;
-      }
-      // 创建点覆盖物
-      this.marker = new AMap.Marker({
-        position: [e.lnglat.getLng(), e.lnglat.getLat()],
-        // position: [e.lnglat.getLat(), e.lnglat.getLng()],
-        offset: new AMap.Pixel(-13, -30)
-      });
-      this.markers.push(this.marker);
-      this.markarr.push([e.lnglat.getLng(), e.lnglat.getLat()]);
-      this.marker.setMap(this.map);
-      this.polyline = new AMap.Polyline({
-        path: this.markarr,
-        isOutline: false,
-        outlineColor: "#ffeeff",
-        borderWeight: 1,
-        strokeColor: "#67c23a",
-        strokeOpacity: 1,
-        strokeWeight: 3,
-        // 折线样式还支持 'dashed'
-        strokeStyle: "solid",
-        // strokeStyle是dashed时有效
-        // strokeDasharray: [10, 5],
-        lineJoin: "round",
-        lineCap: "round",
-        zIndex: 50
-      });
-      this.polylines.push(this.polyline);
-      this.polyline.setMap(this.map);
-    },
-    clickOn() {
-      this.map.on("click", this.showInfoClick);
-    },
-    // 初始化第二个地图
-    initmapActual(e) {
-      console.log("container1");
-      this.markersActual = [];
-      this.polylinesActual = [];
-      this.markarrActual = [];
-      let that = this;
-      that.mapActual = new AMap.Map("container1", {
-        resizeEnable: true,
-        zoom: 14
-      });
-      console.log(this.location,'111111')
-      this.mapActual.setCenter(this.location);
-      // 工具条控件
-      console.log(that.mapActual, "111");
-      that.mapActual.plugin(["AMap.ToolBar"], function() {
-        that.mapActual.addControl(new AMap.ToolBar());
-      });
-      // 地图类型切换
-      that.mapActual.plugin(["AMap.MapType"], function() {
-        that.mapActual.addControl(new AMap.MapType());
-      });
+    // handleClick(tab, event) {
+    //   console.log(tab, event);
+    //   if (this.activeName == "Actual" && this.polygon == null) {
+    //     this.activeName = "Visible";
+    //     this.$message({
+    //       message: "必须先画完用户可见区域才能画实际区域",
+    //       type: "warning"
+    //     });
+    //     this.viewok = false;
+    //   } else {
+    //     console.log(this.polygon,'1111')
+    //     this.viewok = true;
+    //     this.$nextTick(() => {
+    //       this.initmapActual();
+    //       this.mapActuallading = false;
+    //     });
+    //   }
+    // },
+    // // 地图
+    // init() {
+    //   console.log("loadmap");
+    //   this.markers = [];
+    //   this.polylines = [];
+    //   this.markarr = [];
+    //   let that = this;
+    //   that.map = new AMap.Map("container", {
+    //     resizeEnable: true,
+    //     zoom: 14
+    //   });
+    //   // 工具条控件
+    //   console.log(this.map, "111");
+    //   this.map.plugin(["AMap.ToolBar"], function() {
+    //     that.map.addControl(new AMap.ToolBar());
+    //   });
+    //   // 地图类型切换
+    //   this.map.plugin(["AMap.MapType"], function() {
+    //     that.map.addControl(new AMap.MapType());
+    //   });
+    //   this.clickOn();
+    // },
+    // showInfoClick(e) {
+    //   console.log(e, "1111");
+    //   console.log(
+    //     "您在 [ " +
+    //       e.lnglat.getLng() +
+    //       "," +
+    //       e.lnglat.getLat() +
+    //       " ] 的位置单击了地图！"
+    //   );
+    //   if (this.polygon) {
+    //     this.polygon.setMap(null);
+    //     this.polygon = null;
+    //   }
+    //   // 创建点覆盖物
+    //   this.marker = new AMap.Marker({
+    //     position: [e.lnglat.getLng(), e.lnglat.getLat()],
+    //     // position: [e.lnglat.getLat(), e.lnglat.getLng()],
+    //     offset: new AMap.Pixel(-13, -30)
+    //   });
+    //   this.markers.push(this.marker);
+    //   this.markarr.push([e.lnglat.getLng(), e.lnglat.getLat()]);
+    //   this.marker.setMap(this.map);
+    //   this.polyline = new AMap.Polyline({
+    //     path: this.markarr,
+    //     isOutline: false,
+    //     outlineColor: "#ffeeff",
+    //     borderWeight: 1,
+    //     strokeColor: "#67c23a",
+    //     strokeOpacity: 1,
+    //     strokeWeight: 3,
+    //     // 折线样式还支持 'dashed'
+    //     strokeStyle: "solid",
+    //     // strokeStyle是dashed时有效
+    //     // strokeDasharray: [10, 5],
+    //     lineJoin: "round",
+    //     lineCap: "round",
+    //     zIndex: 50
+    //   });
+    //   this.polylines.push(this.polyline);
+    //   this.polyline.setMap(this.map);
+    // },
+    // clickOn() {
+    //   this.map.on("click", this.showInfoClick);
+    // },
+    // // 初始化第二个地图
+    // initmapActual(e) {
+    //   console.log("container1");
+    //   this.markersActual = [];
+    //   this.polylinesActual = [];
+    //   this.markarrActual = [];
+    //   let that = this;
+    //   that.mapActual = new AMap.Map("container1", {
+    //     resizeEnable: true,
+    //     zoom: 14
+    //   });
+    //   console.log(this.location,'111111')
+    //   this.mapActual.setCenter(this.location);
+    //   // 工具条控件
+    //   console.log(that.mapActual, "111");
+    //   that.mapActual.plugin(["AMap.ToolBar"], function() {
+    //     that.mapActual.addControl(new AMap.ToolBar());
+    //   });
+    //   // 地图类型切换
+    //   that.mapActual.plugin(["AMap.MapType"], function() {
+    //     that.mapActual.addControl(new AMap.MapType());
+    //   });
       
-      // 绘制折线
-      this.marker = new AMap.Marker({
-        position: this.markarr,
-        // position: [e.lnglat.getLat(), e.lnglat.getLng()],
-        offset: new AMap.Pixel(-13, -30)
-      });
-      this.polyline = new AMap.Polyline({
-        path: this.markarr,
-        isOutline: false,
-        borderWeight: 1,
-        strokeColor: "#67c23a",
-        strokeOpacity: 1,
-        strokeWeight: 3,
-        strokeStyle: "solid",
-        // strokeStyle是dashed时有效
-        // strokeDasharray: [10, 5],
-        lineJoin: "round",
-        lineCap: "round",
-        zIndex: 50
-      });
-      this.polyline.setMap(that.mapActual);
-      this.polygonActual = new AMap.Polygon({
-        path: this.markarr,
-        fillColor: "#67c23a",
-        fillOpacity: 0.4,
-        strokeOpacity: 1,
-        strokeColor: "#67c23a",
-        strokeWeight: 3
-      });
-      that.mapActual.add(this.polygonActual);
-      this.clickOnActual();
-    },
-    // 第二个地图点击画区域
-    ActualClick(e) {
-      console.log(e, "1111");
-      console.log(
-        "您在 [ " +
-          e.lnglat.getLng() +
-          "," +
-          e.lnglat.getLat() +
-          " ] 的位置单击了地图！"
-      );
-      if (this.polygonact) {
-        this.polygonact.setMap(null);
-        this.polygonact = null;
-      }
-      // 创建点覆盖物
-      this.markerActual = new AMap.Marker({
-        position: [e.lnglat.getLng(), e.lnglat.getLat()],
-        // position: [e.lnglat.getLat(), e.lnglat.getLng()],
-        offset: new AMap.Pixel(-13, -30)
-      });
-      this.markersActual.push(this.markerActual);
-      this.markarrActual.push([e.lnglat.getLng(), e.lnglat.getLat()]);
-      this.markerActual.setMap(this.mapActual);
-      this.polylineActual = new AMap.Polyline({
-        path: this.markarrActual,
-        isOutline: false,
-        borderWeight: 1,
-        strokeColor: "#f56c6c",
-        strokeOpacity: 1,
-        strokeWeight: 3,
-        // 折线样式还支持 'dashed'
-        strokeStyle: "solid",
-        // strokeStyle是dashed时有效
-        // strokeDasharray: [10, 5],
-        lineJoin: "round",
-        lineCap: "round",
-        zIndex: 50
-      });
-      this.polylinesActual.push(this.polylineActual);
-      this.polylineActual.setMap(this.mapActual);
-    },
-    clickOnActual() {
-      this.mapActual.on("click", this.ActualClick);
-    },
-    // 放大缩小地图
-    clickmap() {
-      if(this.isFullscreenmap === false){
-        this.isFullscreenmap = true;
-        this.isActive = true
-      }else{
-        this.isFullscreenmap = false;
-        this.isActive = false
-      }
-    },
-    // 上一步
-    previous() {
-      if (this.polygon) {
-        this.polygon.setMap(null);
-        this.polygon = null;
-      }
-      if (this.markarr.length != 0) {
-        this.markarr.pop();
-        this.markers[this.markarr.length].setMap(null);
-        this.markers.pop();
-        this.polylines[this.markarr.length].setMap(null);
-        this.polylines.pop();
-      }
-    },
-    // 重做
-    redo() {
-      this.map.clearMap();
-      this.markers = [];
-      this.polylines = [];
-      this.markarr = [];
-      this.polygon = null;
-      // this.polygon.setMap(null)
-    },
-    // 绘制完成
-    markerfn() {
-      if (!this.polygon) {
-        this.polygon = new AMap.Polygon({
-          path: this.markarr,
-          fillColor: "#67c23a",
-          fillOpacity: 0.4,
-          strokeOpacity: 1,
-          strokeColor: "#67c23a",
-          strokeWeight: 3
-        });
-        this.map.add(this.polygon);
-      }else{
-        console.log(this.polygon,'走这里了')
-      }
-    },
-    // 放大缩小地图
-    clickActualmap() {
-      if(this.isFullscreen === false){
-        this.isFullscreen = true
-        this.isActiveActual = true
-      }else{
-        this.isFullscreen = false
-        this.isActiveActual = false
-      }
-    },
-    // 第二个地图重做
-    redoActual() {
-      this.mapActual.clearMap();
-      this.markersActual = [];
-      this.polylinesActual = [];
-      this.markarrActual = [];
-      this.polygonact = null;
-      this.initmapActual()
-    },
-    // 第二个地图上一步
-    previousActual() {
-      if (this.polygonact) {
-        this.polygonact.setMap(null);
-        this.polygonact = null;
-      }
-      if (this.markarrActual.length != 0) {
-        this.markarrActual.pop();
-        this.markersActual[this.markarrActual.length].setMap(null);
-        this.markersActual.pop();
-        this.polylinesActual[this.markarrActual.length].setMap(null);
-        this.polylinesActual.pop();
-      }
-    },
-    // 第二个地图绘制完成
-    markerfnActual() {
-      if (!this.polygonact) {
-        this.polygonact = new AMap.Polygon({
-          path: this.markarrActual,
-          fillColor: "#f56c6c",
-          fillOpacity: 0.4,
-          strokeOpacity: 1,
-          strokeColor: "#f56c6c",
-          strokeWeight: 3
-        });
-        this.mapActual.add(this.polygonact);
-      }
-    }
+    //   // 绘制折线
+    //   this.marker = new AMap.Marker({
+    //     position: this.markarr,
+    //     // position: [e.lnglat.getLat(), e.lnglat.getLng()],
+    //     offset: new AMap.Pixel(-13, -30)
+    //   });
+    //   this.polyline = new AMap.Polyline({
+    //     path: this.markarr,
+    //     isOutline: false,
+    //     borderWeight: 1,
+    //     strokeColor: "#67c23a",
+    //     strokeOpacity: 1,
+    //     strokeWeight: 3,
+    //     strokeStyle: "solid",
+    //     // strokeStyle是dashed时有效
+    //     // strokeDasharray: [10, 5],
+    //     lineJoin: "round",
+    //     lineCap: "round",
+    //     zIndex: 50
+    //   });
+    //   this.polyline.setMap(that.mapActual);
+    //   this.polygonActual = new AMap.Polygon({
+    //     path: this.markarr,
+    //     fillColor: "#67c23a",
+    //     fillOpacity: 0.4,
+    //     strokeOpacity: 1,
+    //     strokeColor: "#67c23a",
+    //     strokeWeight: 3
+    //   });
+    //   that.mapActual.add(this.polygonActual);
+    //   this.clickOnActual();
+    // },
+    // // 第二个地图点击画区域
+    // ActualClick(e) {
+    //   console.log(e, "1111");
+    //   console.log(
+    //     "您在 [ " +
+    //       e.lnglat.getLng() +
+    //       "," +
+    //       e.lnglat.getLat() +
+    //       " ] 的位置单击了地图！"
+    //   );
+    //   if (this.polygonact) {
+    //     this.polygonact.setMap(null);
+    //     this.polygonact = null;
+    //   }
+    //   // 创建点覆盖物
+    //   this.markerActual = new AMap.Marker({
+    //     position: [e.lnglat.getLng(), e.lnglat.getLat()],
+    //     // position: [e.lnglat.getLat(), e.lnglat.getLng()],
+    //     offset: new AMap.Pixel(-13, -30)
+    //   });
+    //   this.markersActual.push(this.markerActual);
+    //   this.markarrActual.push([e.lnglat.getLng(), e.lnglat.getLat()]);
+    //   this.markerActual.setMap(this.mapActual);
+    //   this.polylineActual = new AMap.Polyline({
+    //     path: this.markarrActual,
+    //     isOutline: false,
+    //     borderWeight: 1,
+    //     strokeColor: "#f56c6c",
+    //     strokeOpacity: 1,
+    //     strokeWeight: 3,
+    //     // 折线样式还支持 'dashed'
+    //     strokeStyle: "solid",
+    //     // strokeStyle是dashed时有效
+    //     // strokeDasharray: [10, 5],
+    //     lineJoin: "round",
+    //     lineCap: "round",
+    //     zIndex: 50
+    //   });
+    //   this.polylinesActual.push(this.polylineActual);
+    //   this.polylineActual.setMap(this.mapActual);
+    // },
+    // clickOnActual() {
+    //   this.mapActual.on("click", this.ActualClick);
+    // },
+    // // 放大缩小地图
+    // clickmap() {
+    //   if(this.isFullscreenmap === false){
+    //     this.isFullscreenmap = true;
+    //     this.isActive = true
+    //   }else{
+    //     this.isFullscreenmap = false;
+    //     this.isActive = false
+    //   }
+    // },
+    // // 上一步
+    // previous() {
+    //   if (this.polygon) {
+    //     this.polygon.setMap(null);
+    //     this.polygon = null;
+    //   }
+    //   if (this.markarr.length != 0) {
+    //     this.markarr.pop();
+    //     this.markers[this.markarr.length].setMap(null);
+    //     this.markers.pop();
+    //     this.polylines[this.markarr.length].setMap(null);
+    //     this.polylines.pop();
+    //   }
+    // },
+    // // 重做
+    // redo() {
+    //   this.map.clearMap();
+    //   this.markers = [];
+    //   this.polylines = [];
+    //   this.markarr = [];
+    //   this.polygon = null;
+    //   // this.polygon.setMap(null)
+    // },
+    // // 绘制完成
+    // markerfn() {
+    //   if (!this.polygon) {
+    //     this.polygon = new AMap.Polygon({
+    //       path: this.markarr,
+    //       fillColor: "#67c23a",
+    //       fillOpacity: 0.4,
+    //       strokeOpacity: 1,
+    //       strokeColor: "#67c23a",
+    //       strokeWeight: 3
+    //     });
+    //     this.map.add(this.polygon);
+    //   }else{
+    //     console.log(this.polygon,'走这里了')
+    //   }
+    // },
+    // // 放大缩小地图
+    // clickActualmap() {
+    //   if(this.isFullscreen === false){
+    //     this.isFullscreen = true
+    //     this.isActiveActual = true
+    //   }else{
+    //     this.isFullscreen = false
+    //     this.isActiveActual = false
+    //   }
+    // },
+    // // 第二个地图重做
+    // redoActual() {
+    //   this.mapActual.clearMap();
+    //   this.markersActual = [];
+    //   this.polylinesActual = [];
+    //   this.markarrActual = [];
+    //   this.polygonact = null;
+    //   this.initmapActual()
+    // },
+    // // 第二个地图上一步
+    // previousActual() {
+    //   if (this.polygonact) {
+    //     this.polygonact.setMap(null);
+    //     this.polygonact = null;
+    //   }
+    //   if (this.markarrActual.length != 0) {
+    //     this.markarrActual.pop();
+    //     this.markersActual[this.markarrActual.length].setMap(null);
+    //     this.markersActual.pop();
+    //     this.polylinesActual[this.markarrActual.length].setMap(null);
+    //     this.polylinesActual.pop();
+    //   }
+    // },
+    // // 第二个地图绘制完成
+    // markerfnActual() {
+    //   if (!this.polygonact) {
+    //     this.polygonact = new AMap.Polygon({
+    //       path: this.markarrActual,
+    //       fillColor: "#f56c6c",
+    //       fillOpacity: 0.4,
+    //       strokeOpacity: 1,
+    //       strokeColor: "#f56c6c",
+    //       strokeWeight: 3
+    //     });
+    //     this.mapActual.add(this.polygonact);
+    //   }
+    // }
   }
 };
 </script>
@@ -699,82 +741,82 @@ export default {
         }
       }
     }
-    .opearteform {
-      .bg-size-color {
-        span {
-          color: red;
-        }
-      }
-      .gdmap,.gdmapActual{
-        position: relative;
-        width: 100%;
-        height: 400px;
-        .location-search {
-          position: absolute;
-          top: 20px;
-          padding: 5px;
-          background: #fff;
-          width: 320px;
-          left: 50%;
-          margin-left: -160px;
-          z-index: 9;
-        }
-        #container,
-        #container1 {
-          width: 100%;
-          height: 100%;
-        }
-        .action-area-map-action {
-          width: 64px;
-          height: 320px;
-          position: absolute;
-          text-align: center;
-          display: flex;
-          flex-direction: column;
-          right: 0;
-          background: #fff;
-          box-shadow: 0 0px 2px 0px rgba(0, 0, 0, 0.2);
-          bottom: 0;
-          padding-bottom: 16px;
-          ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            li {
-              width: 100%;
-              height: 65px;
-              &:hover {
-                background: #ccc;
-              }
-            }
-            cursor: pointer;
-            i {
-              display: block;
-              text-align: center;
-              font-size: 30px;
-              padding-top: 10px;
-              margin-bottom: -10px;
-            }
-            span {
-              display: block;
-              -o-user-select: none;
-              -moz-user-select: none; /*火狐 firefox*/
-              -webkit-user-select: none; /*webkit浏览器*/
-              -ms-user-select: none; /*IE10+*/
-              -khtml-user-select: none; /*早期的浏览器*/
-              user-select: none;
-            }
-            svg {
-              font-size: 30px;
-              align-items: center;
-              justify-content: center;
-              line-height: 65px;
-              margin-top: 20px;
-            }
-          }
-        }
-      }
-    }
+    // .opearteform {
+    //   .bg-size-color {
+    //     span {
+    //       color: red;
+    //     }
+    //   }
+    //   .gdmap,.gdmapActual{
+    //     position: relative;
+    //     width: 100%;
+    //     height: 400px;
+    //     .location-search {
+    //       position: absolute;
+    //       top: 20px;
+    //       padding: 5px;
+    //       background: #fff;
+    //       width: 320px;
+    //       left: 50%;
+    //       margin-left: -160px;
+    //       z-index: 9;
+    //     }
+    //     #container,
+    //     #container1 {
+    //       width: 100%;
+    //       height: 100%;
+    //     }
+    //     .action-area-map-action {
+    //       width: 64px;
+    //       height: 320px;
+    //       position: absolute;
+    //       text-align: center;
+    //       display: flex;
+    //       flex-direction: column;
+    //       right: 0;
+    //       background: #fff;
+    //       box-shadow: 0 0px 2px 0px rgba(0, 0, 0, 0.2);
+    //       bottom: 0;
+    //       padding-bottom: 16px;
+    //       ul {
+    //         list-style: none;
+    //         padding: 0;
+    //         margin: 0;
+    //         li {
+    //           width: 100%;
+    //           height: 65px;
+    //           &:hover {
+    //             background: #ccc;
+    //           }
+    //         }
+    //         cursor: pointer;
+    //         i {
+    //           display: block;
+    //           text-align: center;
+    //           font-size: 30px;
+    //           padding-top: 10px;
+    //           margin-bottom: -10px;
+    //         }
+    //         span {
+    //           display: block;
+    //           -o-user-select: none;
+    //           -moz-user-select: none; /*火狐 firefox*/
+    //           -webkit-user-select: none; /*webkit浏览器*/
+    //           -ms-user-select: none; /*IE10+*/
+    //           -khtml-user-select: none; /*早期的浏览器*/
+    //           user-select: none;
+    //         }
+    //         svg {
+    //           font-size: 30px;
+    //           align-items: center;
+    //           justify-content: center;
+    //           line-height: 65px;
+    //           margin-top: 20px;
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
   }
 }
 .operate-container .search-container /deep/ .el-input {
@@ -783,18 +825,18 @@ export default {
 .operate-container /deep/ .page-container {
   justify-content: flex-start;
 }
-.operate-container .gdmap #container /deep/ .amap-maptype-list,
-.operate-container .gdmapActual #container1 /deep/ .amap-maptype-list{
-  display: none !important;
-}
+// .operate-container .gdmap #container /deep/ .amap-maptype-list,
+// .operate-container .gdmapActual #container1 /deep/ .amap-maptype-list{
+//   display: none !important;
+// }
 
-.operate-container .gdmap.active,
-.operate-container .gdmapActual.active{
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 9999999;
-}
+// .operate-container .gdmap.active,
+// .operate-container .gdmapActual.active{
+//   position: fixed;
+//   left: 0;
+//   top: 0;
+//   width: 100%;
+//   height: 100%;
+//   z-index: 9999999;
+// }
 </style>

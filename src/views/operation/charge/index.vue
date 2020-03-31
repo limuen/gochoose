@@ -106,7 +106,13 @@
     </div>
 
     <!-- 新增收费标准 -->
-    <el-dialog :title="dialogtitle" width="33%" :visible.sync="dialogFormVisible">
+    <el-dialog
+      :title="dialogtitle"
+      width="33%"
+      :close-on-click-modal="false"
+      :before-close="cancelsubmitfotm"
+      :visible.sync="dialogFormVisible"
+    >
       <el-form :model="form" label-width="120px" class="form" ref="form" :rules="rules">
         <el-form-item label="大区" prop="largeAreaId">
           <el-select
@@ -147,8 +153,20 @@
             <el-radio :label="2" border>按时间+里程计费</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="起步价" class="editPrice" v-if="form.feeType == 2" prop="startPrice"  :key="`${form.feeType}startPrice`">
-          <el-input placeholder="请输入内容" type="number" v-number="2" :min="0" v-model="form.startPrice">
+        <el-form-item
+          label="起步价"
+          class="editPrice"
+          v-if="form.feeType == 2"
+          prop="startPrice"
+          :key="`${form.feeType}startPrice`"
+        >
+          <el-input
+            placeholder="请输入内容"
+            type="number"
+            v-number="2"
+            :min="0"
+            v-model="form.startPrice"
+          >
             <template slot="append">元</template>
           </el-input>
         </el-form-item>
@@ -163,7 +181,7 @@
           class="editPrice elselect-bg"
           required
           v-if="form.feeType == 1 || form.feeType == 2"
-           :key="`${form.feeType}price`"
+          :key="`${form.feeType}price`"
         >
           <el-col :span="8">
             <el-form-item prop="price">
@@ -206,7 +224,13 @@
         <el-form-item class="forminfo" :label-width="formlabelinfo">
           说明：<span>1</span> 元/ <span>15</span> 分钟
         </el-form-item>-->
-        <el-form-item label="里程单价" required class="editPrice" v-if="form.feeType == 2"  :key="`${form.feeType}mileagePrice`">
+        <el-form-item
+          label="里程单价"
+          required
+          class="editPrice"
+          v-if="form.feeType == 2"
+          :key="`${form.feeType}mileagePrice`"
+        >
           <el-col :span="8">
             <el-form-item prop="mileagePrice">
               <el-input
@@ -227,7 +251,7 @@
                 placeholder="请输入里程单位"
                 type="number"
                 class="elinput-price"
-                v-number="0"
+                v-number="1"
                 v-model="form.mileagePriceUnitValue"
               >
                 <template slot="append">千米</template>
@@ -235,7 +259,13 @@
             </el-form-item>
           </el-col>
         </el-form-item>
-        <el-form-item label="最高限额" class="editPrice elselect-bg" required v-if="form.feeType == 1"  :key="`${form.feeType}maxLimitAmountUnitTime`">
+        <el-form-item
+          label="最高限额"
+          class="editPrice elselect-bg"
+          required
+          v-if="form.feeType == 1"
+          :key="`${form.feeType}maxLimitAmountUnitTime`"
+        >
           <el-col :span="6">
             <el-form-item prop="maxLimitAmountUnitTime">
               <el-input
@@ -278,14 +308,18 @@
         <el-form-item class="forminfo" :label-width="formlabelinfo">
           说明：收 <span>2.5</span>元/ <span>2</span>千米
         </el-form-item>-->
-        <el-form-item label="免费时常" prop="freeDuration" v-if="form.feeType == 1"  :key="`${form.feeType}freeDuration`">
+        <el-form-item
+          label="免费时常"
+          prop="freeDuration"
+          v-if="form.feeType == 1"
+          :key="`${form.feeType}freeDuration`"
+        >
           前
-          <el-input v-model="form.freeDuration" style="width:80px;" v-number="0"  autocomplete="off"></el-input>
-          分钟免费
+          <el-input v-model="form.freeDuration" style="width:80px;" v-number="0" autocomplete="off"></el-input>分钟免费
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer" align="center">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button @click="cancelsubmitfotm">取 消</el-button>
         <el-button type="primary" @click="submitform">确 定</el-button>
       </div>
     </el-dialog>
@@ -294,8 +328,14 @@
 
 <script>
 import { allRegion, allianceListByRegionId } from "@/api/region";
-import { queryManagerListPage, createCharge } from "@/api/charge";
-import number from '@/directive/input-filter'
+import {
+  queryManagerListPage,
+  createCharge,
+  findById,
+  update,
+  deletecharge
+} from "@/api/charge";
+import number from "@/directive/input-filter";
 export default {
   name: "charge",
   directives: { number },
@@ -453,6 +493,7 @@ export default {
     },
     allianValuedialog(value) {
       this.allianceOptions = [];
+      this.form.franchiseeId = "";
       allianceListByRegionId({ regionId: value })
         .then(res => {
           if (res.code == 0) {
@@ -466,18 +507,17 @@ export default {
     },
     // 弹窗切换清空消息
     changeradio(value) {
-      console.log(value,'111111')
-      if(value == 1){
+      if (value == 1) {
         this.form.startPrice = ""; //起步价
         this.form.price = ""; // 基本单价
         this.form.unitTime = ""; //基本单价时间
         this.form.mileagePrice = ""; // 里程单价
         this.form.mileagePriceUnit = ""; //里程单位
         this.form.mileagePriceUnitValue = ""; //里程单位数值
-      }else{
+      } else {
         this.form.freeDuration = ""; // 免费时长
-        this.form.maxLimitAmount = "";//最高限额
-        this.form.maxLimitAmountUnitTime = "" //最高限额单位时间
+        this.form.maxLimitAmount = ""; //最高限额
+        this.form.maxLimitAmountUnitTime = ""; //最高限额单位时间
         this.form.price = ""; // 基本单价
         this.form.unitTime = ""; //基本单价时间
       }
@@ -513,27 +553,131 @@ export default {
       this.dialogFormVisible = true;
       this.isEdit = false;
       this.dialogtitle = "新增收费标准";
+      this.allianceOptionsDialog = [];
+      this.form.startPrice = "";
+      this.form.price = "";
+      this.form.unit = 1;
+      this.form.unitTime = "";
+      this.form.mileagePrice = "";
+      this.form.mileagePriceUnit = "";
+      this.form.mileagePriceUnitValue = "";
+      this.form.freeDuration = "";
+      this.form.maxLimitAmount = "";
+      this.form.maxLimitAmountUnit = 2;
+      this.form.maxLimitAmountUnitTime = "";
+      delete this.form.id
+      delete this.form.largeAreaName
       this.$nextTick(() => {
         this.$refs.form.resetFields();
       });
-      console.log(this.form, "11111111111");
+      console.log(this.form,'111111')
+    },
+    cancelsubmitfotm() {
+      this.$nextTick(() => {
+        this.$refs.form.resetFields();
+      });
+      this.dialogFormVisible = false;
+    },
+    // 编辑
+    handleedit(row) {
+      this.dialogtitle = "修改收费标准";
+      this.dialogFormVisible = true;
+      this.isEdit = true;
+      this.dialogding = true;
+      findById({
+        id: row.id
+      }).then(res => {
+        console.log(res, "11111111");
+        if (res.code == 0) {
+          // if (res.data.feeType == 1) {
+          //   res.data.price = res.data.price / 100;
+          //   res.data.maxLimitAmount = res.data.maxLimitAmount / 100;
+          // } else {
+          //   res.data.startPrice = res.data.startPrice / 100;
+          //   res.data.price = res.data.price / 100;
+          //   res.data.mileagePrice = res.data / 100;
+          // }
+          allianceListByRegionId({ regionId: res.data.largeAreaId })
+            .then(res => {
+              if (res.code == 0) {
+                this.allianceOptionsDialog = res.data;
+              }
+            })
+            .catch(() => {});
+          this.form = Object.assign(this.form, res.data);
+        }
+      });
+    },
+
+    // 表格删除
+    handleDelete(row) {
+      this.$confirm("此操作将永久删除, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          deletecharge({ id: row.id }).then(res => {
+            if (res.code == 0) {
+              this.$message({
+                type: "success",
+                message: "删除成功!"
+              });
+              this.getList();
+            }
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
     },
     submitform() {
       if (this.isEdit) {
-
-      }else{
         this.$refs.form.validate(valid => {
           if (valid) {
-            console.log(this.form,'1111111')
-            if(this.form.feeType == 1){
-              this.form.price = this.form.price*100;
-              this.form.maxLimitAmount = this.form.maxLimitAmount*100;
-              console.log(this.form.price)
-            }else{
-              this.form.startPrice = this.form.startPrice*100;
-              this.form.price = this.form.price*100;
-              this.form.mileagePrice = this.form.mileagePrice*100;
-            }
+            console.log(this.form, "1111111");
+            // if (this.form.feeType == 1) {
+            //   this.form.price = this.form.price * 100;
+            //   this.form.maxLimitAmount = this.form.maxLimitAmount * 100;
+            //   console.log(this.form.price);
+            // } else {
+            //   this.form.startPrice = this.form.startPrice * 100;
+            //   this.form.price = this.form.price * 100;
+            //   this.form.mileagePrice = this.form.mileagePrice * 100;
+            // }
+            update(this.form)
+              .then(res => {
+                if (res.code == 0) {
+                  this.$notify({
+                    title: "成功",
+                    message: "修改成功",
+                    type: "success"
+                  });
+                  this.getList();
+                  this.dialogFormVisible = false;
+                }
+              })
+              .catch(() => {});
+          } else {
+            return false;
+          }
+        });
+      } else {
+        this.$refs.form.validate(valid => {
+          if (valid) {
+            console.log(this.form, "1111111");
+            // if (this.form.feeType == 1) {
+            //   this.form.price = this.form.price * 100;
+            //   this.form.maxLimitAmount = this.form.maxLimitAmount * 100;
+            //   console.log(this.form.price);
+            // } else {
+            //   this.form.startPrice = this.form.startPrice * 100;
+            //   this.form.price = this.form.price * 100;
+            //   this.form.mileagePrice = this.form.mileagePrice * 100;
+            // }
             createCharge(this.form)
               .then(res => {
                 if (res.code == 0) {
@@ -552,7 +696,7 @@ export default {
           }
         });
       }
-    },
+    }
   }
 };
 </script>
