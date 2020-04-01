@@ -1,11 +1,16 @@
 <template>
   <div class="operateDialog">
-    <el-dialog :title="dialogtitle" width="40%" class="opearteform" :visible.sync="dialogFormVisible">
+    <el-dialog
+      :title="dialogtitle"
+      width="40%"
+      class="opearteform"
+      :visible.sync="dialogFormVisible"
+    >
       <el-row :gutter="24">
-        <el-form :model="form">
+        <el-form :model="form" ref="form" :rules="rules">
           <el-col :span="12">
             <div class="grid-content bg-purple">
-              <el-form-item label="大区" :label-width="formLabelWidth">
+              <el-form-item label="大区" :label-width="formLabelWidth" prop="largeAreaId">
                 <el-select
                   v-model="form.largeAreaId"
                   clearable
@@ -25,7 +30,7 @@
           </el-col>
           <el-col :span="12">
             <div class="grid-content bg-purple">
-              <el-form-item label="加盟商" :label-width="formLabelWidth">
+              <el-form-item label="加盟商" :label-width="formLabelWidth" prop="franchiseeId">
                 <el-select v-model="form.franchiseeId" clearable placeholder="请选择加盟商">
                   <el-option
                     v-for="item in allianceOptions"
@@ -39,21 +44,26 @@
           </el-col>
           <el-col :span="12">
             <div class="grid-content bg-purple">
-              <el-form-item label="区域名称" :label-width="formLabelWidth">
+              <el-form-item label="区域名称" :label-width="formLabelWidth" prop="regionName">
                 <el-input v-model="form.regionName" autocomplete="off"></el-input>
               </el-form-item>
             </div>
           </el-col>
           <el-col :span="12">
             <div class="grid-content bg-purple">
-              <el-form-item label="调度费" :label-width="formLabelWidth">
-                <el-input v-model="form.dispatchFee" autocomplete="off"></el-input>
+              <el-form-item label="调度费" :label-width="formLabelWidth" prop="dispatchFee">
+                <el-input v-model="form.dispatchFee" v-number="2" autocomplete="off"></el-input>
               </el-form-item>
             </div>
           </el-col>
           <el-col :span="24">
             <div class="grid-content bg-purple">
-              <el-form-item label="区域配置说明：" class="bg-size-color" :label-width="formLabelWidth">
+              <el-form-item
+                label="区域配置说明："
+                class="bg-size-color"
+                :label-width="formLabelWidth"
+                required
+              >
                 设备是否出区域，以实际区域为准。
                 <span>用户可见区域</span>请比实际区域稍小一点。必须先画完用户可见区域才能画
                 <span>实际区域</span>。
@@ -155,7 +165,7 @@
       </el-row>
       <div slot="footer" class="dialog-footer" align="center">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">保 存</el-button>
+        <el-button type="primary" @click="handleSub">保 存</el-button>
       </div>
       <div
         slot="footer"
@@ -173,13 +183,19 @@
 <script>
 import AMap from "AMap";
 import { allRegion, allianceListByRegionId } from "@/api/region";
+// import { findById } from '@/api/operationRegional';
+import number from "@/directive/input-filter";
 export default {
   name: "operateDialog",
   props: {
     dialogtitle: {
       type: String
+    },
+    isEdit: {
+      type: Boolean
     }
   },
+  directives: { number },
   data() {
     return {
       AllianOptions: [], // 查询大区
@@ -189,6 +205,8 @@ export default {
       dialogFormVisible: false,
       formLabelWidth: "120px",
       activeName: "Visible",
+      actualRegionModelList: [], //实际区域的经纬度列表
+      seeingRegionModelList: [], //用户区域的经纬度列表
       form: {
         largeAreaId: "",
         franchiseeId: "",
@@ -196,6 +214,20 @@ export default {
         dispatchFee: "",
         actualRegionModelList: [], //实际区域的经纬度列表
         seeingRegionModelList: [] //用户区域的经纬度列表
+      },
+      rules: {
+        largeAreaId: [
+          { required: true, message: "请选择大区", trigger: "change" }
+        ],
+        franchiseeId: [
+          { required: true, message: "请选择加盟商", trigger: "change" }
+        ],
+        regionName: [
+          { required: true, message: "请输入区域名称", trigger: "blur" }
+        ],
+        dispatchFee: [
+          { required: true, message: "请输入调度费", trigger: "blur" }
+        ]
       },
       maplading: true,
       mapActuallading: true,
@@ -223,20 +255,21 @@ export default {
       markarrActual: [],
       markersActual: [],
       polylinesActual: [],
-      isActiveActual: false // 全屏
+      isActiveActual: false, // 全屏
+      mapData: {}
     };
   },
   mounted() {
     // 查询大区
     this.getallianList();
-    this.createdTrue()
+    this.createdTrue();
   },
   methods: {
-      // 进来初始化地图
+    // 进来初始化地图
     createdTrue() {
-        // this.init();
-        // debugger
-        this.searchAddress = "";
+      // this.init();
+      // debugger
+      this.searchAddress = "";
     },
     handleClick(tab, event) {
       if (this.activeName == "Actual" && this.polygon == null) {
@@ -250,7 +283,95 @@ export default {
         console.log(this.polygon, "1111");
         this.viewok = true;
         this.$nextTick(() => {
-          this.initmapActual();
+          if (!this.isEdit) {
+            console.log("加载地图");
+            this.initmapActual();
+          } else {
+            console.log("不加载地图");
+            this.mapActual.clearMap();
+            this.initmapActual();
+            this.polyline = null;
+            this.polygonActual = null;
+            // 绘制折线
+            this.marker = new AMap.Marker({
+              position: this.markarr,
+              // position: [e.lnglat.getLat(), e.lnglat.getLng()],
+              offset: new AMap.Pixel(-13, -30)
+            });
+            if (!this.polyline && !this.polygonActual) {
+              console.log(this, "this===============");
+              this.polyline = new AMap.Polyline({
+                path: this.markarr,
+                isOutline: false,
+                borderWeight: 1,
+                strokeColor: "#67c23a",
+                strokeOpacity: 1,
+                strokeWeight: 3,
+                strokeStyle: "solid",
+                // strokeStyle是dashed时有效
+                // strokeDasharray: [10, 5],
+                lineJoin: "round",
+                lineCap: "round",
+                zIndex: 50
+              });
+              this.polyline.setMap(this.mapActual);
+              this.polygonActual = new AMap.Polygon({
+                path: this.markarr,
+                fillColor: "#67c23a",
+                fillOpacity: 0.4,
+                strokeOpacity: 1,
+                strokeColor: "#67c23a",
+                strokeWeight: 3
+              });
+              this.mapActual.add(this.polygonActual);
+              this.markersActual = [];
+              this.polylinesActual = [];
+              this.markarrActual = [];
+              // 洗数据实际区域
+              this.mapData.actualRegionModelList.forEach((item, index) => {
+                console.log(item);
+                this.markarrActual.push([item.lng, item.lat]);
+              });
+              // 创建点覆盖物
+              this.markarrActual.forEach((item, index) => {
+                console.log(item, "================");
+                this.markerActual = new AMap.Marker({
+                  position: [item[0], item[1]],
+                  offset: new AMap.Pixel(-13, -30)
+                });
+                this.mapActual.add(this.markerActual);
+              });
+              this.markersActual.push(this.markerActual);
+              this.polylineActual = new AMap.Polyline({
+                path: this.markarrActual,
+                isOutline: false,
+                borderWeight: 1,
+                strokeColor: "#f56c6c",
+                strokeOpacity: 1,
+                strokeWeight: 3,
+                // 折线样式还支持 'dashed'
+                strokeStyle: "solid",
+                // strokeStyle是dashed时有效
+                // strokeDasharray: [10, 5],
+                lineJoin: "round",
+                lineCap: "round",
+                zIndex: 50
+              });
+              this.polylinesActual.push(this.polylineActual);
+              this.polylineActual.setMap(this.mapActual);
+              this.polygonact = new AMap.Polygon({
+                path: this.markarrActual,
+                fillColor: "#f56c6c",
+                fillOpacity: 0.4,
+                strokeOpacity: 1,
+                strokeColor: "#f56c6c",
+                strokeWeight: 3
+              });
+              this.mapActual.add(this.polygonact);
+            } else {
+              console.log(this.polyline);
+            }
+          }
           this.mapActuallading = false;
         });
       }
@@ -270,7 +391,7 @@ export default {
     },
     // 获取到大区的id去请求加盟商
     allianValue(value) {
-      this.listQuery.franchiseeId = "";
+      this.form.franchiseeId = "";
       this.allianceOptions = [];
       allianceListByRegionId({ regionId: value })
         .then(res => {
@@ -324,6 +445,10 @@ export default {
       });
       this.markers.push(this.marker);
       this.markarr.push([e.lnglat.getLng(), e.lnglat.getLat()]);
+      this.seeingRegionModelList.push({
+        lng: e.lnglat.getLng(),
+        lat: e.lnglat.getLat()
+      });
       this.marker.setMap(this.map);
       this.polyline = new AMap.Polyline({
         path: this.markarr,
@@ -424,6 +549,10 @@ export default {
       });
       this.markersActual.push(this.markerActual);
       this.markarrActual.push([e.lnglat.getLng(), e.lnglat.getLat()]);
+      this.actualRegionModelList.push({
+        lng: e.lnglat.getLng(),
+        lat: e.lnglat.getLat()
+      });
       this.markerActual.setMap(this.mapActual);
       this.polylineActual = new AMap.Polyline({
         path: this.markarrActual,
@@ -497,6 +626,8 @@ export default {
         this.markers.pop();
         this.polylines[this.markarr.length].setMap(null);
         this.polylines.pop();
+        this.form.seeingRegionModelList.pop();
+        this.seeingRegionModelList.pop();
       }
     },
     // 重做
@@ -506,11 +637,14 @@ export default {
       this.polylines = [];
       this.markarr = [];
       this.polygon = null;
+      this.form.seeingRegionModelList = [];
+      this.seeingRegionModelList = [];
       // this.polygon.setMap(null)
     },
     // 绘制完成
     markerfn() {
       if (!this.polygon) {
+        console.log("新增");
         this.polygon = new AMap.Polygon({
           path: this.markarr,
           fillColor: "#67c23a",
@@ -520,8 +654,7 @@ export default {
           strokeWeight: 3
         });
         this.map.add(this.polygon);
-      } else {
-        console.log(this.polygon, "走这里了");
+        this.form.seeingRegionModelList = this.form.seeingRegionModelList.concat(this.seeingRegionModelList)
       }
     },
     // 放大缩小地图
@@ -540,6 +673,8 @@ export default {
       this.markersActual = [];
       this.polylinesActual = [];
       this.markarrActual = [];
+      this.actualRegionModelList = [];
+      this.form.actualRegionModelList = [];
       this.polygonact = null;
       this.initmapActual();
     },
@@ -555,6 +690,12 @@ export default {
         this.markersActual.pop();
         this.polylinesActual[this.markarrActual.length].setMap(null);
         this.polylinesActual.pop();
+        this.actualRegionModelList.pop();
+        this.form.actualRegionModelList.pop();
+        console.log(
+          this.actualRegionModelList,
+          this.form.actualRegionModelList
+        );
       }
     },
     // 第二个地图绘制完成
@@ -569,7 +710,138 @@ export default {
           strokeWeight: 3
         });
         this.mapActual.add(this.polygonact);
+        this.form.actualRegionModelList = this.form.actualRegionModelList.concat(this.actualRegionModelList);
       }
+    },
+    handleSub() {
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          console.log(this.form.actualRegionModelList);
+          console.log(this.form.seeingRegionModelList);
+          if (
+            this.form.actualRegionModelList.length >= 4 &&
+            this.form.seeingRegionModelList.length >= 4
+          ) {
+            this.$emit("handleSub", this.form);
+          } else {
+            this.$notify.error({
+              title: "错误",
+              message: "请完善区域"
+            });
+          }
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
+      });
+    },
+    // 获取数据
+    sendInfo(data) {
+      console.log(data, "传递进来的data");
+      this.mapData = Object.assign(this.mapData,data)
+      allianceListByRegionId({ regionId: data.largeAreaId })
+        .then(res => {
+          if (res.code == 0) {
+            this.allianceOptions = res.data;
+          }
+        })
+        .catch(() => {});
+      this.$nextTick(() => {
+        this.init();
+        this.markers = [];
+        this.polylines = [];
+        this.markarr = [];
+        // 洗数据用户可见区域
+        data.seeingRegionModelList.forEach((item, index) => {
+          console.log(item);
+          this.markarr.push([item.lng, item.lat]);
+        });
+        // 创建点覆盖物
+        this.markarr.forEach((item, index) => {
+          console.log(item, "================");
+          this.marker = new AMap.Marker({
+            position: [item[0], item[1]],
+            offset: new AMap.Pixel(-13, -30)
+          });
+          this.map.add(this.marker);
+        });
+        this.markers.push(this.marker);
+        console.log(this.markers, "111111");
+        // this.marker.setMap(this.map);
+
+        this.polyline = new AMap.Polyline({
+          path: this.markarr,
+          isOutline: false,
+          outlineColor: "#ffeeff",
+          borderWeight: 1,
+          strokeColor: "#67c23a",
+          strokeOpacity: 1,
+          strokeWeight: 3,
+          strokeStyle: "solid",
+          lineJoin: "round",
+          lineCap: "round",
+          zIndex: 50
+        });
+        this.polylines.push(this.polyline);
+        this.polyline.setMap(this.map);
+        this.polygon = new AMap.Polygon({
+          path: this.markarr,
+          fillColor: "#67c23a",
+          fillOpacity: 0.4,
+          strokeOpacity: 1,
+          strokeColor: "#67c23a",
+          strokeWeight: 3
+        });
+        this.map.add(this.polygon);
+
+        // 加载第二个地图
+        this.initmapActual();
+        this.markersActual = [];
+        this.polylinesActual = [];
+        this.markarrActual = [];
+        // 洗数据实际区域
+        data.actualRegionModelList.forEach((item, index) => {
+          console.log(item);
+          this.markarrActual.push([item.lng, item.lat]);
+        });
+        // 创建点覆盖物
+        this.markarrActual.forEach((item, index) => {
+          console.log(item, "================");
+          this.markerActual = new AMap.Marker({
+            position: [item[0], item[1]],
+            offset: new AMap.Pixel(-13, -30)
+          });
+          this.mapActual.add(this.markerActual);
+        });
+        this.markersActual.push(this.markerActual);
+        this.polylineActual = new AMap.Polyline({
+          path: this.markarrActual,
+          isOutline: false,
+          borderWeight: 1,
+          strokeColor: "#f56c6c",
+          strokeOpacity: 1,
+          strokeWeight: 3,
+          // 折线样式还支持 'dashed'
+          strokeStyle: "solid",
+          // strokeStyle是dashed时有效
+          // strokeDasharray: [10, 5],
+          lineJoin: "round",
+          lineCap: "round",
+          zIndex: 50
+        });
+        this.polylinesActual.push(this.polylineActual);
+        this.polylineActual.setMap(this.mapActual);
+        this.polygonact = new AMap.Polygon({
+          path: this.markarrActual,
+          fillColor: "#f56c6c",
+          fillOpacity: 0.4,
+          strokeOpacity: 1,
+          strokeColor: "#f56c6c",
+          strokeWeight: 3
+        });
+        this.mapActual.add(this.polygonact);
+      });
+      this.form = Object.assign(this.form, data);
     }
   }
 };
