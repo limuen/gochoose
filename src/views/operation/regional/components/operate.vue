@@ -69,7 +69,8 @@
         <el-table-column label="操作" align="center" width="250" fixed="right">
           <template slot-scope="scope">
             <el-button type="primary" size="mini" @click="handleedit(scope.row)">编辑</el-button>
-            <el-button type="primary" size="mini" @click="handleedit(scope.row)">区域</el-button>
+            <el-button type="primary" size="mini" @click="handleSeeRegion(scope.row)">区域</el-button>
+            <el-button type="primary" size="mini" @click="handleMapcomponent(scope.row)">组件</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -90,6 +91,9 @@
 
     <operateDialog ref="operateDialog" :isEdit="isEdit" :dialogtitle="dialogtitle" @handleSub="handleSub"></operateDialog>
 
+    <OpearteModelList ref="OpearteModelList" :dialogtitle="dialogtitle" ></OpearteModelList>
+
+    <opearteDialogMap ref="opearteDialogMap" :isEdit="isEdit" :dialogtitle="dialogtitle"></opearteDialogMap>    
 
 
   </div>
@@ -97,13 +101,17 @@
 
 <script>
 import AMap from "AMap";
-import { OpearteListPage,createRegional,findById,updateRegion } from '@/api/operationRegional';
+import { OpearteListPage,createRegional,findById,updateRegion,findPositionModelList } from '@/api/operationRegional';
 import { allRegion, allianceListByRegionId } from "@/api/region";
 import operateDialog from '../mapDialog/operateDialog';
+import OpearteModelList from '../mapDialog/OpearteModelList';
+import opearteDialogMap from '../mapDialog/opearteDialogMap';
 export default {
   name: "operate",
   components: {
-    operateDialog
+    operateDialog,
+    OpearteModelList,
+    opearteDialogMap
   },
   data() {
     return {
@@ -177,6 +185,14 @@ export default {
     this.getList()
   },
   methods: {
+    // 测试组件是否完善
+    handleMapcomponent(row) {
+      this.dialogtitle = "测试地图组件";
+      this.isEdit = false
+      this.$nextTick(() => {
+        this.$refs.opearteDialogMap.dialogFormVisible = true;
+      })
+    },
     // 获取列表
     getList() {
       this.loading = true;
@@ -245,9 +261,24 @@ export default {
       findById({id:row.id}).then(res=>{
         if(res.code == 0){
           this.$refs.operateDialog.dialogFormVisible = true;
-          this.$refs.operateDialog.sendInfo(res.data);
+          this.$nextTick(()=>{
+            this.$refs.operateDialog.sendInfo(res.data);
+          })
         }
       })
+    },
+    handleSeeRegion(row) {
+      console.log(row,'运行区域')
+      this.dialogtitle = "运营区域"
+      findPositionModelList({
+        largeAreaId: row.largeAreaId,
+        franchiseeId: row.franchiseeId
+      }).then(res=>{
+        this.$refs.OpearteModelList.dialogFormVisible = true;
+          this.$nextTick(()=>{
+            this.$refs.OpearteModelList.sendInfo(res.data);
+          })
+      }).catch(() =>{})
     },
     // 表单提交
     handleSub(form) {

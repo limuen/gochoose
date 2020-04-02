@@ -59,7 +59,7 @@ export function findById(params) {
  * @author LiMuEn
  * @date 2020-03-31
  * @export
- * @param {Object} params
+ * @param {Object} data
  */
 
 export function updateRegion(data) {
@@ -67,5 +67,22 @@ export function updateRegion(data) {
         url: "/operateRegion/update",
         method: "PUT",
         data
+    });
+}
+
+
+/**
+ * @description   获取已有运营区域
+ * @author LiMuEn
+ * @date 2020-03-31
+ * @export
+ * @param {Object} params
+ */
+
+export function findPositionModelList(params) {
+    return request({
+        url: "/operateRegion/findPositionModelList",
+        method: "GET",
+        params
     });
 }

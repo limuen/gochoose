@@ -103,7 +103,7 @@
                             <i class="el-icon-question"></i>
                             <span>帮助</span>
                           </li>
-                          <li @click="previous">
+                          <li ref="mapshangyibu">
                             <i class="el-icon-question"></i>
                             <span>上一步</span>
                           </li>
@@ -256,7 +256,8 @@ export default {
       markersActual: [],
       polylinesActual: [],
       isActiveActual: false, // 全屏
-      mapData: {}
+      mapData: {},
+      ismapEdit: false,
     };
   },
   mounted() {
@@ -280,15 +281,13 @@ export default {
         });
         this.viewok = false;
       } else {
-        console.log(this.polygon, "1111");
         this.viewok = true;
         this.$nextTick(() => {
           if (!this.isEdit) {
             console.log("加载地图");
             this.initmapActual();
           } else {
-            console.log("不加载地图");
-            this.mapActual.clearMap();
+            console.log("不加载地图",this.ismapEdit);
             this.initmapActual();
             this.polyline = null;
             this.polygonActual = null;
@@ -298,8 +297,7 @@ export default {
               // position: [e.lnglat.getLat(), e.lnglat.getLng()],
               offset: new AMap.Pixel(-13, -30)
             });
-            if (!this.polyline && !this.polygonActual) {
-              console.log(this, "this===============");
+            if (!this.polyline && !this.polygonActual && !this.ismapEdit) {
               this.polyline = new AMap.Polyline({
                 path: this.markarr,
                 isOutline: false,
@@ -334,7 +332,6 @@ export default {
               });
               // 创建点覆盖物
               this.markarrActual.forEach((item, index) => {
-                console.log(item, "================");
                 this.markerActual = new AMap.Marker({
                   position: [item[0], item[1]],
                   offset: new AMap.Pixel(-13, -30)
@@ -369,7 +366,8 @@ export default {
               });
               this.mapActual.add(this.polygonact);
             } else {
-              console.log(this.polyline);
+              // this.initmapActual();
+              // console.log('走这里了重新加载地图',);
             }
           }
           this.mapActuallading = false;
@@ -403,17 +401,22 @@ export default {
     },
     // 地图
     async init() {
-      console.log("loadmap");
       this.markers = [];
       this.polylines = [];
       this.markarr = [];
+      this.polygon = null;
+      this.markersActual = [];
+      this.polylinesActual = [];
+      this.markarrActual = [];
+      this.$nextTick(()=>{
+        this.$refs.form.resetFields();
+      })
       let that = this;
       that.map = new AMap.Map("container", {
         resizeEnable: true,
         zoom: 14
       });
       // 工具条控件
-      console.log(that.map, "加载了");
       this.map.plugin(["AMap.ToolBar"], function() {
         that.map.addControl(new AMap.ToolBar());
       });
@@ -425,7 +428,6 @@ export default {
       this.maplading = false;
     },
     showInfoClick(e) {
-      console.log(e, "1111");
       console.log(
         "您在 [ " +
           e.lnglat.getLng() +
@@ -437,6 +439,9 @@ export default {
         this.polygon.setMap(null);
         this.polygon = null;
       }
+      this.$nextTick(()=>{
+        this.$refs.mapshangyibu.addEventListener("click", this.previous);
+      })
       // 创建点覆盖物
       this.marker = new AMap.Marker({
         position: [e.lnglat.getLng(), e.lnglat.getLat()],
@@ -468,13 +473,13 @@ export default {
       });
       this.polylines.push(this.polyline);
       this.polyline.setMap(this.map);
+      // console.log(this.seeingRegionModelList,'this.seeingRegionModelList')
     },
     clickOn() {
       this.map.on("click", this.showInfoClick);
     },
     // 初始化第二个地图
     initmapActual(e) {
-      console.log("container1");
       this.markersActual = [];
       this.polylinesActual = [];
       this.markarrActual = [];
@@ -483,10 +488,9 @@ export default {
         resizeEnable: true,
         zoom: 14
       });
-      console.log(this.location, "111111");
+      // console.log(this.location, "111111");
       this.mapActual.setCenter(this.location);
       // 工具条控件
-      console.log(that.mapActual, "111");
       that.mapActual.plugin(["AMap.ToolBar"], function() {
         that.mapActual.addControl(new AMap.ToolBar());
       });
@@ -529,7 +533,6 @@ export default {
     },
     // 第二个地图点击画区域
     ActualClick(e) {
-      console.log(e, "1111");
       console.log(
         "您在 [ " +
           e.lnglat.getLng() +
@@ -599,7 +602,6 @@ export default {
       });
     },
     handleSelect(item) {
-      console.log(item);
       this.searchAddress = item.name;
       this.location = item.location;
       this.map.setCenter(item.location);
@@ -620,7 +622,8 @@ export default {
         this.polygon.setMap(null);
         this.polygon = null;
       }
-      if (this.markarr.length != 0) {
+      // console.log(this.isEdit,'this.isEdit')
+      if (this.markarr.length != 0 && this.seeingRegionModelList.length) {
         this.markarr.pop();
         this.markers[this.markarr.length].setMap(null);
         this.markers.pop();
@@ -644,7 +647,6 @@ export default {
     // 绘制完成
     markerfn() {
       if (!this.polygon) {
-        console.log("新增");
         this.polygon = new AMap.Polygon({
           path: this.markarr,
           fillColor: "#67c23a",
@@ -655,6 +657,10 @@ export default {
         });
         this.map.add(this.polygon);
         this.form.seeingRegionModelList = this.form.seeingRegionModelList.concat(this.seeingRegionModelList)
+        this.ismapEdit = true;
+      }
+      if(this.isEdit){
+        this.redoActual()
       }
     },
     // 放大缩小地图
@@ -684,7 +690,7 @@ export default {
         this.polygonact.setMap(null);
         this.polygonact = null;
       }
-      if (this.markarrActual.length != 0) {
+      if (this.markarrActual.length != 0 && this.actualRegionModelList.length) {
         this.markarrActual.pop();
         this.markersActual[this.markarrActual.length].setMap(null);
         this.markersActual.pop();
@@ -711,19 +717,19 @@ export default {
         });
         this.mapActual.add(this.polygonact);
         this.form.actualRegionModelList = this.form.actualRegionModelList.concat(this.actualRegionModelList);
+        this.ismapEdit = false;
       }
     },
     handleSub() {
       this.$refs.form.validate(valid => {
         if (valid) {
-          console.log(this.form.actualRegionModelList);
-          console.log(this.form.seeingRegionModelList);
           if (
             this.form.actualRegionModelList.length >= 4 &&
             this.form.seeingRegionModelList.length >= 4
           ) {
             this.$emit("handleSub", this.form);
           } else {
+            console.log(this.form.actualRegionModelList,this.form.seeingRegionModelList)
             this.$notify.error({
               title: "错误",
               message: "请完善区域"
@@ -746,19 +752,19 @@ export default {
           }
         })
         .catch(() => {});
-      this.$nextTick(() => {
+        
+      // this.$nextTick(() => {
+        
         this.init();
         this.markers = [];
         this.polylines = [];
         this.markarr = [];
         // 洗数据用户可见区域
         data.seeingRegionModelList.forEach((item, index) => {
-          console.log(item);
           this.markarr.push([item.lng, item.lat]);
         });
         // 创建点覆盖物
         this.markarr.forEach((item, index) => {
-          console.log(item, "================");
           this.marker = new AMap.Marker({
             position: [item[0], item[1]],
             offset: new AMap.Pixel(-13, -30)
@@ -766,7 +772,6 @@ export default {
           this.map.add(this.marker);
         });
         this.markers.push(this.marker);
-        console.log(this.markers, "111111");
         // this.marker.setMap(this.map);
 
         this.polyline = new AMap.Polyline({
@@ -801,12 +806,10 @@ export default {
         this.markarrActual = [];
         // 洗数据实际区域
         data.actualRegionModelList.forEach((item, index) => {
-          console.log(item);
           this.markarrActual.push([item.lng, item.lat]);
         });
         // 创建点覆盖物
         this.markarrActual.forEach((item, index) => {
-          console.log(item, "================");
           this.markerActual = new AMap.Marker({
             position: [item[0], item[1]],
             offset: new AMap.Pixel(-13, -30)
@@ -840,8 +843,11 @@ export default {
           strokeWeight: 3
         });
         this.mapActual.add(this.polygonact);
-      });
-      this.form = Object.assign(this.form, data);
+      // });
+        setTimeout(() => {
+            this.form = {...this.mapData}
+        }, 100);
+        console.log(this.form,'this.form')
     }
   }
 };

@@ -25,6 +25,23 @@ Vue.use(Element, {
   size: Cookies.get('size') || 'medium' // set element-ui default size
 })
 
+// 自动化
+let Modules = [
+  require.context('./components/Amap', true, /\.vue$/),
+]
+Modules.forEach(el=>{
+  el.keys().forEach(fileName => {
+    const componentConfig = el(fileName);
+    const componentName = fileName.replace(/^\.\//,'').replace(/\.vue$/,'');
+    const component = Vue.component(
+        componentName.replace(/\//,'-'),
+        componentConfig.default || componentConfig
+    )
+  })
+})
+
+
+
 // register global utility filters
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])
