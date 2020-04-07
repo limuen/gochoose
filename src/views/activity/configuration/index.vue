@@ -2,14 +2,14 @@
     <div class="configuration-container">
         <el-tabs v-model="activeName" @tab-click="handleClick">
             <el-tab-pane label="骑行打折" name="discount">
-                <discount />
+                <discount v-if="discount"/>
             </el-tab-pane>
             <el-tab-pane label="新用户券" name="appoint">
-                <appoint />
+                <appoint v-if="appoint"/>
             </el-tab-pane>
-            <el-tab-pane label="充值活动" name="recharge">
-                <recharge />
-            </el-tab-pane>
+            <!-- <el-tab-pane label="充值活动" name="recharge">
+                <recharge v-if="recharge"/>
+            </el-tab-pane> -->
         </el-tabs>
     </div>
 </template>
@@ -37,12 +37,21 @@
         },
         data() {
             return {
-                activeName: 'discount'
+                activeName: 'discount',
+                discount: true,
+                appoint: false,
             }
         },
         methods: {
             handleClick(tab, event) {
                 console.log(tab, event);
+                let tabsName = ['discount','appoint']
+                tabsName.forEach(item => {
+                    this[item] = false;
+                    if(item == this.activeName){
+                        this[item] = true
+                    }
+                })
             }
         }
     }

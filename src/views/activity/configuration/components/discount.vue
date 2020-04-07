@@ -8,13 +8,12 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>大区</span>
-            <el-select v-model="listQuery.regionId" clearable placeholder="请选择大区">
+            <el-select v-model="listQuery.regionId" @change="allianValue" clearable placeholder="请选择大区">
               <el-option
                 v-for="item in AllianOptions"
                 :key="item.regionId"
                 :label="item.regionName"
                 :value="item.regionId"
-                @change="allianValue"
               ></el-option>
             </el-select>
           </div>
@@ -84,7 +83,7 @@
 
         <el-col :span="12">
           <div class="grid-content bg-purple">
-            <el-button type="primary">查询</el-button>
+            <el-button type="primary" @click="handleFilter">查询</el-button>
           </div>
         </el-col>
       </el-row>
@@ -113,10 +112,10 @@
         <el-table-column prop="applyTime" width="210" label="申请日期" align="center"></el-table-column>
         <el-table-column label="操作" align="center" width="400" fixed="right">
           <template slot-scope="scope">
-            <el-button type="primary" size="mini" >申请</el-button>
-            <el-button type="primary" size="mini" >审核</el-button>
-            <el-button type="primary" size="mini" @click="handleStatus(scope.row.id,0)">启用</el-button>
-            <el-button type="warning" size="mini" @click="handleStatus(scope.row.id,2)">禁用</el-button>
+            <el-button type="primary" size="mini" @click="handleStatus(scope.row.discountId,1,'申请')">申请</el-button>
+            <el-button type="primary" size="mini" @click="handleexamine(scope.row.discountId)">审核</el-button>
+            <el-button type="primary" size="mini" @click="handleStatus(scope.row.discountId,3,'启用')">启用</el-button>
+            <el-button type="warning" size="mini" @click="handleStatus(scope.row.discountId,4,'停止')">停止</el-button>
             <el-button type="primary" size="mini" @click="handleedit(scope.row)">编辑</el-button>
           </template>
         </el-table-column>
@@ -226,7 +225,7 @@
 </template>
 
 <script>
-import { queryManagerListPage,insert,findById,updateActivity } from "@/api/activity";
+import { queryManagerListPage,insert,findById,updateActivity,updateByStatus } from "@/api/activity";
 import { allRegion, allianceListByRegionId } from "@/api/region";
 import number from "@/directive/input-filter";
 export default {
@@ -255,7 +254,8 @@ export default {
         { value: 3, type: "进行中启用中" },
         { value: 4, type: "进行中已停止" },
         { value: 5, type: "已结束使用中" },
-        { value: 6, type: "已结束已停止" }
+        { value: 6, type: "已结束已停止" },
+        { value: 7, type: "审核不通过" }
       ],
       isEdit: false,
       tableData: [],
@@ -403,6 +403,68 @@ export default {
       this.$nextTick(() => {
         this.$refs.form.resetFields();
       });
+    },
+    handleStatus(discountId, status, name) {
+      this.$confirm(`是否${name}`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          updateByStatus({ discountId, status })
+          .then(res => {
+            // this.getList();
+            if(res.code == 0){
+              this.$message({
+                type: 'success',
+                message: `${name}成功!`
+              });
+              this.getList();
+            }
+          })
+          .catch(() => {});
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: `已取消${name}`
+          });          
+        });
+    },
+    // 审核
+    handleexamine(discountId){
+      let status;
+      this.$confirm(`是否审核通过`, '提示', {
+          distinguishCancelAndClose: true,
+          confirmButtonText: '通过',
+          cancelButtonText: '不通过',
+          type: 'warning'
+        }).then(() => {
+          status = 3
+          updateByStatus({ discountId, status })
+          .then(res => {
+            // this.getList();
+            if(res.code == 0){
+              this.$message({
+                type: 'success',
+                message: `审核通过成功!`
+              });
+              this.getList();
+            }
+          })
+          .catch(() => {});
+        }).catch(() => {
+          status = 7;
+          updateByStatus({ discountId, status })
+          .then(res => {
+            if(res.code == 0){
+              this.$message({
+                type: 'success',
+                message: `审核不通过成功!`
+              });
+              this.getList();
+            }
+          })
+          .catch(() => {});       
+        });
     },
     // 编辑
     handleedit(row) {

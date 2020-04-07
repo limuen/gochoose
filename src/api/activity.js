@@ -63,3 +63,34 @@ export function updateActivity(data) {
     })
 }
 
+
+/**
+ * @description   活动管理骑行打折分页查询返回总条数
+ * @author LiMuEn
+ * @date 2020-04-7
+ * @export
+ * @param {Object} params
+ */
+export function updateByStatus(params) {
+    return request({
+        url: "/activityDiscount/updateByStatus",
+        method: "GET",
+        params
+    })
+}
+
+
+/**
+ * @description   活动管理新用户券分页查询返回总条数
+ * @author LiMuEn
+ * @date 2020-04-7
+ * @export
+ * @param {Object} params
+ */
+export function NewListPage(params) {
+    return request({
+        url: "/activityNew/queryManagerListPage",
+        method: "GET",
+        params
+    })
+}
