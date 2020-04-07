@@ -11,8 +11,8 @@
       :trigger-on-focus="false"
       @select="handleSelect"
     ></el-autocomplete>
-    <div v-if="!this.Tabsactive"  id="container"></div>
-    <div v-else id="container1"></div>
+    <div id="container"></div>
+    <!-- <div v-else id="container1"></div> -->
     <div class="action-area-map-action">
       <ul>
         <li @click="clickmap">
@@ -46,11 +46,11 @@ export default {
     Tabsactive: {
       type: Boolean,
       required: true
-    },
-    strokeColor: {
-      type: String,
-      required: true
     }
+    // strokeColor: {
+    //   type: String,
+    //   required: true
+    // }
   },
   name: "Aamp",
   data() {
@@ -59,10 +59,17 @@ export default {
       location: "", //地图搜索定位
       isFullscreenmap: false, // 地图放大
       isActive: false, // 全屏
+      map: null,
+      // 数据
+      marker: null,
+      polyline: null,
+      polygonActual: null,
+      drawData: [],
+      strokeColor: "", // 线颜色
+      fillColor: "", // 区域颜色
       // 用户可见区域
       Mapobject: {
         seeingRegion: {
-          map: null,
           marker: null, //marker
           polyline: null,
           polygon: null,
@@ -73,7 +80,6 @@ export default {
           seeingRegionModelList: [] //用户区域的经纬度列表
         }, //用户可见区域的经纬度列表
         actualRegion: {
-          map: null,
           marker: null, //marker
           polyline: null,
           polygon: null,
@@ -87,39 +93,113 @@ export default {
     };
   },
   watch: {
-    Tabsactive: function() {
-      console.log(this.Tabsactive, "地图离里面的Tabsactive");
+    Tabsactive: {
+      handler(newValue, oldValue) {
+        console.log(this.Tabsactive, "地图离里面的Tabsactive");
+        if (this.map) {
+          this.map.clearMap();
+        }
+        if (this.Tabsactive == true) {
+          console.log(
+            "切换到了实际区域重新拿用户可见区域绘制地图",
+            this.Mapobject.seeingRegion
+          );
+          this.drawMap(this.Mapobject.seeingRegion);
+          this.drawMap(this.Mapobject.actualRegion, true);
+        } else {
+          console.log(this.Mapobject.seeingRegion.polygon);
+          this.drawMap(this.Mapobject.seeingRegion, true);
+        }
+      },
+      immediate: true
     }
   },
   mounted() {
     // 加载地图
-    this.$nextTick(() =>{
-      this.initMap();
-    })
-    
-    console.log(this.Tabsactive, "Tabsactive");
+    // this.$nextTick(() =>{
+    //   this.initMap();
+    // })
+    this.init();
+
+    // console.log(this.Tabsactive, "Tabsactive");
   },
   methods: {
+    // 拿到数据绘制地图
+    drawMap(region, isMarker) {
+      console.log(region.markerarr);
+      if (region.markerarr.length == 0) {
+        return false;
+      }
+      if (isMarker) {
+        // 创建点覆盖物
+        region.markerarr.forEach(item => {
+          if (Array.isArray(item)) {
+            this.marker = new AMap.Marker({
+              position: [item[0], item[1]],
+              offset: new AMap.Pixel(-13, -30)
+            });
+            this.map.add(this.marker);
+          } else {
+            this.marker = new AMap.Marker({
+              position: [item.lng, item.lat],
+              offset: new AMap.Pixel(-13, -30)
+            });
+            this.map.add(this.marker);
+          }
+        });
+      }
+      console.log(region.seeingRegionModelList, "region.seeingRegionModelList");
+      if (region.seeingRegionModelList) {
+        // 绘制折线
+        region.polyline = new AMap.Polyline({
+          path: region.markerarr,
+          isOutline: false,
+          borderWeight: 1,
+          strokeColor: "#67c23a",
+          strokeOpacity: 1,
+          strokeWeight: 3,
+          strokeStyle: "solid",
+          // strokeStyle是dashed时有效
+          // strokeDasharray: [10, 5],
+          lineJoin: "round",
+          lineCap: "round",
+          zIndex: 50
+        });
+        region.polyline.setMap(this.map);
+        region.polygon = new AMap.Polygon({
+          path: region.markerarr,
+          fillColor: "#67c23a",
+          fillOpacity: 0.4,
+          strokeOpacity: 1,
+          strokeColor: "#67c23a",
+          strokeWeight: 3
+        });
+        this.map.add(region.polygon);
+      }
+    },
     // 加载地图
     initMap() {
-      this.init(this.Mapobject.seeingRegion,"container")
-      this.init(this.Mapobject.actualRegion,"container1")
-      this.clickTwo()
-      this.clickOn()
+      // this.init(this.Mapobject.seeingRegion,"container")
+      // this.init(this.Mapobject.actualRegion,"container1")
+      // this.clickTwo()
+      // this.clickOn()
+      // this.init()
     },
-    init(thatmap,Mapid) {
-      thatmap.map = new AMap.Map(Mapid, {
+    init() {
+      let that = this;
+      that.map = new AMap.Map("container", {
         resizeEnable: true,
         zoom: 14
       });
       // 工具条控件
-      thatmap.map.plugin(["AMap.ToolBar"], function() {
-        thatmap.map.addControl(new AMap.ToolBar());
+      that.map.plugin(["AMap.ToolBar"], function() {
+        that.map.addControl(new AMap.ToolBar());
       });
       // 地图类型切换
-      thatmap.map.plugin(["AMap.MapType"], function() {
-        thatmap.map.addControl(new AMap.MapType());
+      that.map.plugin(["AMap.MapType"], function() {
+        that.map.addControl(new AMap.MapType());
       });
+      this.clickOn();
     },
     // 模糊搜索匹配
     querySearch(queryString, cb) {
@@ -160,21 +240,20 @@ export default {
       }
     },
     clickOn() {
-        this.Mapobject.seeingRegion.map.on("click", this.seeingRegionFn);
+      this.map.on("click", this.showInfoClick);
     },
-    clickTwo() {
-        this.Mapobject.actualRegion.map.on("click", this.actualRegionFn);
-    },
+    // clickTwo() {
+    //   this.Mapobject.actualRegion.map.on("click", this.actualRegionFn);
+    // },
     // 用户可见区域
-    seeingRegionFn(e) {
-      this.showInfoClick(e, this.Mapobject.seeingRegion);
-    },
-    // 实际区域
-    actualRegionFn(e) {
-      this.showInfoClick(e, this.Mapobject.actualRegion);
-    },
-    showInfoClick(e, region) {
-      console.log(region,'region')
+    // seeingRegionFn(e) {
+    //   this.showInfoClick(e, this.Mapobject.seeingRegion);
+    // },
+    // // 实际区域
+    // actualRegionFn(e) {
+    //   this.showInfoClick(e, this.Mapobject.actualRegion);
+    // },
+    showInfoClick(e) {
       console.log(
         "您在 [ " +
           e.lnglat.getLng() +
@@ -182,25 +261,39 @@ export default {
           e.lnglat.getLat() +
           " ] 的位置单击了地图！"
       );
-      if (region.polygon) {
-        region.polygon.setMap(null);
-        region.polygon = null;
+      let that = null;
+      if (this.Tabsactive) {
+        // console.log("走这里11111111");
+        that = this.Mapobject.actualRegion;
+        this.strokeColor = "#f56c6c";
+      } else {
+        this.strokeColor = "#67c23a";
+        that = this.Mapobject.seeingRegion;
+      }
+      if (that.polygon) {
+        that.polygon.setMap(null);
+        that.polygon = null;
+      }
+      // 用户可见区域
+      if (this.drawData.length == 0) {
+        this.drawData = [].concat(that.markerarr);
       }
       // 创建点覆盖物
-      region.marker = new AMap.Marker({
+      that.marker = new AMap.Marker({
         position: [e.lnglat.getLng(), e.lnglat.getLat()],
         // position: [e.lnglat.getLat(), e.lnglat.getLng()],
         offset: new AMap.Pixel(-13, -30)
       });
-      region.markers.push(region.marker);
-      region.markerarr.push([e.lnglat.getLng(), e.lnglat.getLat()]);
-      region.seeingRegionModelList.push({
+      that.markers.push(that.marker);
+      // that.markerarr.push([e.lnglat.getLng(), e.lnglat.getLat()]);
+      this.drawData.push([e.lnglat.getLng(), e.lnglat.getLat()]);
+      that.seeingRegionModelList.push({
         lng: e.lnglat.getLng(),
         lat: e.lnglat.getLat()
       });
-      region.marker.setMap(region.map);
-      region.polyline = new AMap.Polyline({
-        path: region.markerarr,
+      that.marker.setMap(this.map);
+      that.polyline = new AMap.Polyline({
+        path: this.drawData,
         isOutline: false,
         outlineColor: "#ffeeff",
         borderWeight: 1,
@@ -215,32 +308,124 @@ export default {
         lineCap: "round",
         zIndex: 50
       });
-      region.polylines.push(region.polyline);
-      region.polyline.setMap(region.map);
+      that.polylines.push(that.polyline);
+      that.polyline.setMap(this.map);
+      this.$emit("isdrawData", this.drawData || []);
     },
-    redo() {},
-    markerfn() {
+    redo() {
+      this.map.clearMap();
+      this.marker = null;
+      this.polyline = null;
+      this.polygonActual = null;
+      this.drawData = [];
       if (!this.Tabsactive) {
         console.log("用户可见区域 + ", this.Tabsactive);
-        if (!this.Mapobject.seeingRegion.polygon) {
-          this.Mapobject.seeingRegion.polygon = new AMap.Polygon({
-            path: this.Mapobject.seeingRegion.markerarr,
-            fillColor: "#67c23a",
-            fillOpacity: 0.4,
-            strokeOpacity: 1,
-            strokeColor: "#67c23a",
-            strokeWeight: 3
-          });
-          this.Mapobject.seeingRegion.map.add(
-            this.Mapobject.seeingRegion.polygon
-          );
-        }
-        this.$emit("markerRegion",this.Mapobject.seeingRegion.seeingRegionModelList)
+        // 用户可见区域
+        this.Mapobject.seeingRegion = {
+          marker: null, //marker
+          polyline: null,
+          polygon: null,
+          //折线坐标,所有的点位都存在这 利于上一步删除pop的时候用
+          markerarr: [],
+          markers: [],
+          polylines: [],
+          seeingRegionModelList: [] //用户区域的经纬度列表
+        };
       } else {
         console.log("实际区域 +", this.Tabsactive);
+        // 用户可见区域
+        this.drawMap(this.Mapobject.seeingRegion);
+        this.Mapobject.actualRegion = {
+          marker: null, //marker
+          polyline: null,
+          polygon: null,
+          //折线坐标,所有的点位都存在这 利于上一步删除pop的时候用
+          markerarr: [],
+          markers: [],
+          polylines: [],
+          seeingRegionModelList: [] //用户区域的经纬度列表
+        };
       }
     },
-    previousActual() {}
+    markerfn() {
+      let that = null;
+      if (!this.Tabsactive) {
+        console.log("用户可见区域 + ", this.Tabsactive);
+        that = this.Mapobject.seeingRegion;
+        this.fillColor = "#67c23a";
+      } else {
+        console.log("实际区域 +", this.Tabsactive);
+        that = this.Mapobject.actualRegion;
+        this.fillColor = "#f56c6c";
+      }
+      if (!that.polygon) {
+        that.polygon = new AMap.Polygon({
+          path: this.drawData,
+          fillColor: this.fillColor,
+          fillOpacity: 0.4,
+          strokeOpacity: 1,
+          strokeColor: this.strokeColor,
+          strokeWeight: 3
+        });
+        this.map.add(that.polygon);
+        that.markerarr = this.drawData;
+        that.markers = this.drawData
+      }
+      this.$emit("markerRegion", that.seeingRegionModelList);
+      this.drawData = [];
+      this.$emit("isdrawData", this.drawData);
+    },
+    previousActual() {
+      let that = null;
+      if (!this.Tabsactive) {
+        console.log("用户可见区域 + ", this.Tabsactive);
+        that = this.Mapobject.seeingRegion;
+      } else {
+        console.log("实际区域 +", this.Tabsactive);
+        that = this.Mapobject.actualRegion;
+      }
+
+      if (that.polygon) {
+        that.polygon.setMap(null);
+        that.polygon = null;
+      }
+
+      that.seeingRegionModelList.pop();
+      console.log(this.drawData, "this.markerarr");
+      if(this.drawData.length != 0) {
+        this.drawData.pop()
+        that.markers[that.drawData.length].setMap(null);
+        that.markers.pop();
+        that.polylines[that.drawData.length].setMap(null);
+        that.polylines.pop();
+      }else{
+
+      }
+      // if(that.markerarr.length != 0) {
+      //   this.drawData.pop()
+      //   that.markerarr.pop();
+      //   that.markers[that.markerarr.length].setMap(null);
+      //   that.markers.pop();
+      //   that.polylines[that.markerarr.length].setMap(null);
+      //   that.polylines.pop();
+      // }
+      // if (that.markerarr.length != 0) {
+      //   this.drawData = that.markerarr;
+      //   that.markerarr.pop()
+      //   that.markers[that.markerarr.length].setMap(null);
+      //   that.markers.pop();
+      //   that.polylines[that.markerarr.length].setMap(null);
+      //   that.polylines.pop();
+      //   this.drawData.pop()
+      // } else {
+      //   that.markerarr.pop()
+      //   that.markers[that.markerarr.length].setMap(null);
+      //   that.markers.pop();
+      //   that.polylines[that.markerarr.length].setMap(null);
+      //   that.polylines.pop();
+      //   this.drawData.pop();
+      // }
+    }
   }
 };
 </script>
@@ -260,7 +445,8 @@ export default {
     margin-left: -160px;
     z-index: 9;
   }
-  #container,#container1 {
+  #container,
+  #container1 {
     width: 100%;
     height: 100%;
   }

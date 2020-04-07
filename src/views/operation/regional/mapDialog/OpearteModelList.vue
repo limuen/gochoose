@@ -125,7 +125,6 @@ export default {
       console.log(data, "传递进来的data");
       this.init();
       data.forEach((item,index) => {
-
         item.actualRegionModelList.forEach(el => {
           this.markarr.push([el.lng, el.lat]);
           // 绘制折线
@@ -197,101 +196,6 @@ export default {
             this.markarrActual = []
           }
       });
-      // this.$nextTick(() => {
-
-      //     this.init();
-      //     this.markers = [];
-      //     this.polylines = [];
-      //     this.markarr = [];
-      //     // 洗数据用户可见区域
-      //     data.seeingRegionModelList.forEach((item, index) => {
-      //       this.markarr.push([item.lng, item.lat]);
-      //     });
-      //     // 创建点覆盖物
-      //     this.markarr.forEach((item, index) => {
-      //       this.marker = new AMap.Marker({
-      //         position: [item[0], item[1]],
-      //         offset: new AMap.Pixel(-13, -30)
-      //       });
-      //       this.map.add(this.marker);
-      //     });
-      //     this.markers.push(this.marker);
-      //     // this.marker.setMap(this.map);
-
-      //     this.polyline = new AMap.Polyline({
-      //       path: this.markarr,
-      //       isOutline: false,
-      //       outlineColor: "#ffeeff",
-      //       borderWeight: 1,
-      //       strokeColor: "#67c23a",
-      //       strokeOpacity: 1,
-      //       strokeWeight: 3,
-      //       strokeStyle: "solid",
-      //       lineJoin: "round",
-      //       lineCap: "round",
-      //       zIndex: 50
-      //     });
-      //     this.polylines.push(this.polyline);
-      //     this.polyline.setMap(this.map);
-      //     this.polygon = new AMap.Polygon({
-      //       path: this.markarr,
-      //       fillColor: "#67c23a",
-      //       fillOpacity: 0.4,
-      //       strokeOpacity: 1,
-      //       strokeColor: "#67c23a",
-      //       strokeWeight: 3
-      //     });
-      //     this.map.add(this.polygon);
-
-      //     // 加载第二个地图
-      //     this.initmapActual();
-      //     this.markersActual = [];
-      //     this.polylinesActual = [];
-      //     this.markarrActual = [];
-      //     // 洗数据实际区域
-      //     data.actualRegionModelList.forEach((item, index) => {
-      //       this.markarrActual.push([item.lng, item.lat]);
-      //     });
-      //     // 创建点覆盖物
-      //     this.markarrActual.forEach((item, index) => {
-      //       this.markerActual = new AMap.Marker({
-      //         position: [item[0], item[1]],
-      //         offset: new AMap.Pixel(-13, -30)
-      //       });
-      //       this.mapActual.add(this.markerActual);
-      //     });
-      //     this.markersActual.push(this.markerActual);
-      //     this.polylineActual = new AMap.Polyline({
-      //       path: this.markarrActual,
-      //       isOutline: false,
-      //       borderWeight: 1,
-      //       strokeColor: "#f56c6c",
-      //       strokeOpacity: 1,
-      //       strokeWeight: 3,
-      //       // 折线样式还支持 'dashed'
-      //       strokeStyle: "solid",
-      //       // strokeStyle是dashed时有效
-      //       // strokeDasharray: [10, 5],
-      //       lineJoin: "round",
-      //       lineCap: "round",
-      //       zIndex: 50
-      //     });
-      //     this.polylinesActual.push(this.polylineActual);
-      //     this.polylineActual.setMap(this.mapActual);
-      //     this.polygonact = new AMap.Polygon({
-      //       path: this.markarrActual,
-      //       fillColor: "#f56c6c",
-      //       fillOpacity: 0.4,
-      //       strokeOpacity: 1,
-      //       strokeColor: "#f56c6c",
-      //       strokeWeight: 3
-      //     });
-      //     this.mapActual.add(this.polygonact);
-      //   // });
-      //     setTimeout(() => {
-      //         this.form = {...this.mapData}
-      //     }, 100);
-      //     console.log(this.form,'this.form')
     }
   }
 };

@@ -8,12 +8,13 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>大区</span>
-            <el-select v-model="value" placeholder="请选择运营商">
+            <el-select v-model="listQuery.regionId" clearable placeholder="请选择大区">
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                v-for="item in AllianOptions"
+                :key="item.regionId"
+                :label="item.regionName"
+                :value="item.regionId"
+                @change="allianValue"
               ></el-option>
             </el-select>
           </div>
@@ -21,12 +22,12 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>加盟商</span>
-            <el-select v-model="value" placeholder="请选择状态">
+            <el-select v-model="listQuery.allianceId" clearable placeholder="请选择加盟商">
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                v-for="item in allianceOptions"
+                :key="item.allianceId"
+                :label="item.allianceName"
+                :value="item.allianceId"
               ></el-option>
             </el-select>
           </div>
@@ -34,11 +35,11 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>活动状态</span>
-            <el-select v-model="value" placeholder="请选择活动状态">
+            <el-select v-model="listQuery.status" placeholder="请选择活动状态">
               <el-option
-                v-for="item in options"
+                v-for="item in Activityoptions"
                 :key="item.value"
-                :label="item.label"
+                :label="item.type"
                 :value="item.value"
               ></el-option>
             </el-select>
@@ -47,20 +48,25 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>活动名称</span>
-            <el-input v-model="value" placeholder="请输入活动名称"></el-input>
+            <el-input v-model="listQuery.activityName" placeholder="请输入活动名称"></el-input>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="grid-content bg-purple">
-            <span>优惠折扣</span>
-            <el-input v-model="value" type="number" placeholder="请输入0.0-1.0之间的数字(0免费,1原价)"></el-input>
+            <span>折扣</span>
+            <el-input
+              v-model="listQuery.discountId"
+              type="number"
+              
+              placeholder="请输入0.0-1.0之间的数字(0免费,1原价)"
+            ></el-input>
           </div>
         </el-col>
         <el-col :span="14">
           <div class="grid-content bg-purple">
             <span>活动日期</span>
             <el-date-picker
-              v-model="value2"
+              v-model="pickerDate"
               type="datetimerange"
               align="right"
               unlink-panels
@@ -92,44 +98,41 @@
         style="width: 100%"
         :header-cell-style="{background:'#EBEFF4'}"
       >
-        <el-table-column label="运维单号" width="200" align="center"></el-table-column>
-        <el-table-column prop="车辆编号" label="车辆编号" width="120" align="center"></el-table-column>
-        <el-table-column prop="运维方式" label="运维方式" align="center"></el-table-column>
-        <el-table-column prop="维修部件" label="维修部件" align="center"></el-table-column>
-        <el-table-column prop="运维员" label="运维员" align="center"></el-table-column>
-        <el-table-column prop="运维手机" label="运维手机" align="center"></el-table-column>
-        <el-table-column prop="推送时间" label="推送时间" width="150" align="center"></el-table-column>
-        <el-table-column prop="完成时间" label="完成时间" width="150" align="center"></el-table-column>
-        <el-table-column prop="处理结果" label="处理结果" align="center"></el-table-column>
-        <el-table-column prop="处理时效" label="处理时效" align="center"></el-table-column>
-        <el-table-column prop="评分" label="评分" align="center"></el-table-column>
-        <el-table-column prop="处理结果图片与备注" label="处理结果图片与备注" width="200" align="center"></el-table-column>
-        <el-table-column label="操作" align="center" width="100" fixed="right">
+        <el-table-column type="index" width="50"></el-table-column>
+        <el-table-column prop="allianceName" width="200" label="加盟商" align="center"></el-table-column>
+        <el-table-column prop="createName" label="创建人" align="center"></el-table-column>
+        <el-table-column prop="activityName"  width="150" label="活动名称" align="center"></el-table-column>
+        <el-table-column prop="status" label="活动状态" align="center"></el-table-column>
+        <el-table-column prop="discountPercent" label="折扣" align="center"></el-table-column>
+        <el-table-column prop="discountTotal" width="150" label="发行总数量" align="center"></el-table-column>
+        <el-table-column prop="remainNumber" width="150" label="已领取数量" align="center"></el-table-column>
+        <el-table-column prop="useNumber"  width="150" label="已使用数量" align="center"></el-table-column>
+        <el-table-column prop="activityStartTime" width="210" label="活动开始日期" align="center"></el-table-column>
+        <el-table-column prop="activityEndTime" width="210" label="活动结束时间" align="center"></el-table-column>
+        <el-table-column prop="auditName" label="审核人" align="center"></el-table-column>
+        <el-table-column prop="applyTime" width="210" label="申请日期" align="center"></el-table-column>
+        <el-table-column label="操作" align="center" width="400" fixed="right">
           <template slot-scope="scope">
-            <el-button type="text" @click="handleedit(scope.row.id)">编辑</el-button>
+            <el-button type="primary" size="mini" >申请</el-button>
+            <el-button type="primary" size="mini" >审核</el-button>
+            <el-button type="primary" size="mini" @click="handleStatus(scope.row.id,0)">启用</el-button>
+            <el-button type="warning" size="mini" @click="handleStatus(scope.row.id,2)">禁用</el-button>
+            <el-button type="primary" size="mini" @click="handleedit(scope.row)">编辑</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
     <div class="page-excel">
       <div class="page-container">
-        <!-- <el-pagination
-            background
-            layout="prev, pager, next"
-            :total="total"
-            :current-page.sync="query.currentPage"
-            @current-change="getTrainingList"
-        ></el-pagination>-->
         <el-pagination
           background
           align="left"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page.sync="currentPage4"
-          :page-sizes="[100, 200, 300, 400]"
-          :page-size="100"
+          :current-page.sync="listQuery.current"
+          :page-sizes="[10, 20, 30, 40]"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="400"
+          :total="total"
         ></el-pagination>
       </div>
       <div>
@@ -139,117 +142,331 @@
     </div>
 
     <!-- 添加修改新分享 -->
-    <el-dialog :title="dialogtitle" width="35%" :visible.sync="dialogForm">
-      <el-form :model="form" class="Operation">
-        <el-form-item label="大区" :label-width="formLabelWidth">
-          <el-select v-model="form.region" placeholder="请选择大区">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="加盟商" :label-width="formLabelWidth">
-          <el-select v-model="value" placeholder="请选择加盟商">
+    <el-dialog :title="dialogtitle" width="30%" :visible.sync="dialogFormVisible">
+      <el-form :model="form" class="form" ref="form" :rules="rules" label-width="120px">
+        <el-form-item label="大区" prop="regionId">
+           <el-select
+            v-model="form.regionId"
+            ref="reginoName"
+            @change="allianValuedialog"
+            placeholder="请选择大区"
+          >
             <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+              v-for="item in AllianOptionsDialog"
+              :key="item.regionId"
+              :label="item.regionName"
+              :value="item.regionId"
+            ></el-option>
+            </el-select>
+        </el-form-item>
+        <el-form-item label="加盟商"  prop="allianceId">
+            <el-select
+            v-model="form.allianceId"
+            ref="allianceName"
+            @change="getdutyListDialog"
+            placeholder="请选择加盟商"
+          >
+            <el-option
+              v-for="item in allianceOptionsDialog"
+              :key="item.allianceId"
+              :label="item.allianceName"
+              :value="item.allianceId"
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="活动名称" :label-width="formLabelWidth">
-          <el-input v-model="value" placeholder="请输入车辆编号"></el-input>
+        <el-form-item label="活动名称" prop="activityName">
+          <el-input v-model="form.activityName" placeholder="请输入活动名称"></el-input>
         </el-form-item>
-        <el-form-item label="优惠折扣" :label-width="formLabelWidth">
-          <el-input v-model="value" placeholder="请输入优惠折扣"></el-input>
+        <el-form-item label="优惠折扣" prop="discountPercent">
+          <el-input v-model="form.discountPercent" type="number" v-number="2" placeholder="请输入优惠折扣"></el-input>
         </el-form-item>
-        <el-form-item label="发行总量" :label-width="formLabelWidth">
-          <el-input placeholder="请输入发行总量" v-model="input2">
+        <el-form-item label="发行总量" prop="discountTotal">
+          <el-input placeholder="请输入发行总量" type="number" v-number="0"  v-model="form.discountTotal">
             <template slot="append">张</template>
           </el-input>
         </el-form-item>
-        <el-form-item label="活动日期" :label-width="formLabelWidth">
-          <el-date-picker
-            v-model="value1"
-            type="datetimerange"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          ></el-date-picker>
+        <el-form-item label="活动日期" required>
+          <el-col :span="9.5">
+            <el-form-item prop="activityStartTime">
+              <el-date-picker
+                placeholder="选择时间"
+                type="datetime"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                v-model="form.activityStartTime"
+                style="width: 210px;"
+              ></el-date-picker>
+            </el-form-item>
+          </el-col>
+          <el-col class="line" style="text-align:center;" :span="2">-</el-col>
+          <el-col :span="7">
+            <el-form-item prop="activityEndTime">
+              <el-date-picker
+                placeholder="选择时间"
+                type="datetime"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                v-model="form.activityEndTime"
+                style="width: 210px;"
+              ></el-date-picker>
+            </el-form-item>
+          </el-col>
         </el-form-item>
-        <el-form-item label="活动申请" :label-width="formLabelWidth">
-          <el-radio-group v-model="form.resource">
-            <el-radio :label="1">立即申请</el-radio>
-            <el-radio :label="2">稍后申请</el-radio>
+        <el-form-item label="活动申请" prop="applyTime" v-if="!this.isEdit">
+          <el-radio-group v-model="form.applyTime" @change="radioChange">
+            <el-radio :label="1" border>立即申请</el-radio>
+            <el-radio :label="2" border>稍后申请</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer" align="center">
-        <el-button @click="dialogForm = false">取 消</el-button>
-        <el-button type="primary" @click="dialogForm = false">确 定</el-button>
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitform">确 定</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
+import { queryManagerListPage,insert,findById,updateActivity } from "@/api/activity";
+import { allRegion, allianceListByRegionId } from "@/api/region";
+import number from "@/directive/input-filter";
 export default {
   name: "betterylist",
+  directives: { number },
   data() {
     return {
-      query: {},
-      value2: "",
-      options: [
-        {
-          value: "选项1",
-          label: "黄金糕"
-        },
-        {
-          value: "选项2",
-          label: "双皮奶"
-        },
-        {
-          value: "选项3",
-          label: "蚵仔煎"
-        },
-        {
-          value: "选项4",
-          label: "龙须面"
-        },
-        {
-          value: "选项5",
-          label: "北京烤鸭"
-        }
-      ],
-      value: "",
-      tableData: [],
-      formLabelWidth: "120px",
-      form: {
-        name: "",
-        region: "",
-        date1: "",
-        date2: "",
-        delivery: false,
-        type: [],
-        resource: "",
-        desc: "",
-        textarea: ""
+      AllianOptions: [], // 查询大区
+      allianceOptions: [], // 加盟商
+      AllianOptionsDialog: [], // 查询大区
+      allianceOptionsDialog: [], // 加盟商
+      listQuery: {
+        regionId: "",
+        allianceId: "",
+        activityName: "",
+        discountId: "",
+        status: "",
+        current: 1,
+        size: 10
       },
-      dialogForm: false,
+      pickerDate: [], //时间
+      Activityoptions: [
+        { value: 0, type: "未申请" },
+        { value: 1, type: "申请中" },
+        { value: 2, type: "待开始" },
+        { value: 3, type: "进行中启用中" },
+        { value: 4, type: "进行中已停止" },
+        { value: 5, type: "已结束使用中" },
+        { value: 6, type: "已结束已停止" }
+      ],
+      isEdit: false,
+      tableData: [],
+      total: 0,
+      loading: false,
+      formLabelWidth: "120px",
+      dialogPicker: [],
+      form: {
+        regionId: "",
+        regionName: "",
+        allianceId: "",
+        allianceName: "",
+        activityName: "",
+        discountPercent: "",
+        discountTotal: "",
+        activityStartTime: "",
+        activityEndTime: "",
+        applyTime: "",
+      },
+      rules: {
+        regionId: [
+          { required: true, message: "请选择大区", trigger: "change" }
+        ],
+        allianceId: [
+          { required: true, message: "请选择加盟商", trigger: "change" }
+        ],
+        activityName: [
+          { required: true, message: "请输入活动名称", trigger: "blur" }
+        ],
+        discountPercent: [
+          { required: true, message: "请输入优惠折扣", trigger: "blur" }
+        ],
+        discountTotal: [
+          { required: true, message: "请输入发行总量", trigger: "blur" }
+        ],
+        activityStartTime: [
+          { required: true, message: "请选择开启时间", trigger: "change" }
+        ],
+        activityEndTime: [
+          { required: true, message: "请选择结束时间", trigger: "change" }
+        ],
+        applyTime: [
+          { required: true, message: "请选择活动申请", trigger: "change" }
+        ]
+      },
+      dialogFormVisible: false,
       dialogtitle: ""
     };
   },
+  mounted() {
+    // 查询大区
+    this.getallianList();
+    this.getallianListDialog();
+    // 获取列表
+    this.getList();
+  },
   methods: {
+    // 查询大区
+    getallianList() {
+      allRegion()
+        .then(res => {
+          if (res.code == 0) {
+            this.AllianOptions = res.data;
+          }
+        })
+        .catch(() => {});
+    },
+    getallianListDialog() {
+      allRegion()
+        .then(res => {
+          if (res.code == 0) {
+            this.AllianOptionsDialog = res.data;
+          }
+        })
+        .catch(() => {});
+    },
+    // 获取到大区的id去请求加盟商
+    allianValue(value) {
+      this.listQuery.allianceId = "";
+      this.listQuery.areaId = "";
+      allianceListByRegionId({ regionId: value })
+        .then(res => {
+          if (res.code == 0) {
+            this.allianceOptions = res.data;
+          }
+        })
+        .catch(() => {});
+    },
+    allianValuedialog(value) {
+      this.$nextTick(() => {
+        this.form.regionName = this.$refs.reginoName.selectedLabel;
+      });
+      this.form.allianceId = "";
+      allianceListByRegionId({ regionId: value })
+        .then(res => {
+          console.log(res, "1111111111");
+          if (res.code == 0) {
+            this.allianceOptionsDialog = res.data;
+          }
+        })
+        .catch(() => {});
+    },
+    getdutyListDialog(value) {
+      this.$nextTick(() => {
+        this.form.allianceName = this.$refs.allianceName.selectedLabel;
+      });
+    },
+    // 获取列表
+    getList() {
+      this.loading = true;
+      queryManagerListPage(this.listQuery)
+        .then(res => {
+          console.log(res, "11111");
+          if (res.code == 0) {
+            this.total = res.data.total;
+            this.tableData = res.data.rows;
+            this.loading = false;
+          }
+        })
+        .catch(() => {});
+    },
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
+      this.listQuery.current = 1;
+      this.listQuery.size = val;
+      this.getList();
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
+      this.listQuery.current = val;
+      this.getList();
+    },
+    handleFilter() {
+      this.listQuery.current = 1;
+      this.getList();
+    },
+    // 切换radio
+    radioChange(value) {
+      console.log(value,'valueRadio')
+      
     },
     // 新增骑车打折
     handleCreate() {
       this.dialogtitle = "新增骑行打折";
-      this.dialogForm = true;
+      this.isEdit = false;
+      this.dialogFormVisible = true;
+      this.$nextTick(() => {
+        this.$refs.form.resetFields();
+      });
+    },
+    // 编辑
+    handleedit(row) {
+      this.dialogtitle = "修改收费标准";
+      this.dialogFormVisible = true;
+      this.isEdit = true;
+      findById({
+        id: row.discountId
+      }).then(res => {
+        console.log(res, "11111111");
+        if (res.code == 0) {
+          this.form = Object.assign(this.form, res.data);
+        }
+      });
+    },
+
+    // 提交
+    submitform() {
+      if (this.isEdit) {
+        this.$refs.form.validate(valid => {
+          if (valid) {
+            updateActivity(this.form)
+              .then(res => {
+                if (res.code == 0) {
+                  this.$notify({
+                    title: "成功",
+                    message: "修改成功",
+                    type: "success"
+                  });
+                  this.getList();
+                  this.dialogFormVisible = false;
+                }
+              })
+              .catch(() => {});
+          } else {
+            return false;
+          }
+        });
+      } else {
+        this.$refs.form.validate(valid => {
+          if (valid) {
+            if(this.form.applyTime == 1){
+              this.form.applyTime = new Date().getTime()
+            }else{
+              this.form.applyTime = ''
+            }
+            insert(this.form)
+              .then(res => {
+                if (res.code == 0) {
+                  this.$notify({
+                    title: "成功",
+                    message: "创建成功",
+                    type: "success"
+                  });
+                  this.getList();
+                  this.dialogFormVisible = false;
+                }
+              })
+              .catch(() => {});
+          } else {
+            return false;
+          }
+        });
+      }
     }
   }
 };
@@ -294,5 +511,8 @@ export default {
 }
 .discount-container .search-container /deep/ .el-input {
   width: 230px;
+}
+.discount-container .form /deep/ .el-input {
+  width: 350px;
 }
 </style>

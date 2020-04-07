@@ -78,16 +78,15 @@
                     :name="item.name"
                     v-for="(item, index) in tabsList"
                     :key="index"
-                  >
-                  </el-tab-pane>
+                  ></el-tab-pane>
                 </el-tabs>
-                <component 
-                    :is="componentName" 
-                    :strokeColor="strokeColor" 
-                    :Tabsactive="Tabsactive"
-                    @markerRegion="markerRegion"
-                    v-loading="mapLading"
-                    ref="MapRegion"
+                <component
+                  :is="componentName"
+                  :Tabsactive="Tabsactive"
+                  @markerRegion="markerRegion"
+                  @isdrawData="isdrawData"
+                  v-loading="mapLading"
+                  ref="MapRegion"
                 ></component>
               </el-form-item>
             </div>
@@ -145,7 +144,7 @@ export default {
         regionName: "",
         dispatchFee: "",
         seeingRegionModelList: [], //用户区域的经纬度列表
-        actualRegionModelList: [], //实际区域的经纬度列表
+        actualRegionModelList: [] //实际区域的经纬度列表
       },
       rules: {
         largeAreaId: [
@@ -162,13 +161,21 @@ export default {
         ]
       },
       Tabsactive: false,
-      strokeColor: "#67c23a",
       mapLading: false,
+      _drawData: []
     };
   },
   mounted() {
     // 查询大区
-    this.getallianList()
+    this.getallianList();
+  },
+  watch: {
+    isdrawData: {
+      handler(newValue, oldValue) {
+        console.log(newValue, oldValue);
+      },
+      deep: true
+    }
   },
   methods: {
     // 查询大区
@@ -197,29 +204,52 @@ export default {
         .catch(() => {});
     },
     markerRegion(v) {
-        console.log(v,'子组件传递出来的用户可见区域')
+      if(this.Tabsactive){
+        this.form.actualRegionModelList = v;
+      }else{
         this.form.seeingRegionModelList = v;
-        console.log(this.form,'编辑完成用户可见区域点击提交传递到from')
+      }
+      console.log(this.form, "编辑完成用户可见区域点击提交传递到from");
     },
     handleClick(tab, event) {
-      console.log(tab, "弹窗里面的tab切换");
-      if(this.activeName == "Actual"){
-          if(this.form.seeingRegionModelList.length <= 3){
-              this.mapLading = true;
-              this.$notify.error({
-                title: '错误',
-                message: '请完善用户可见区域'
-              });
-          }else{
-              this.$refs.MapRegion.clickTwo()
-              this.mapLading = false;
-              this.Tabsactive = true;
-          }
-      }else{
-          this.$refs.MapRegion.clickOn()
-          this.Tabsactive = false;
-          this.mapLading = false;
+      // console.log(tab,event,'11111111')
+      let _drawData = this._drawData || []
+      if (this.activeName == "Actual") {
+        if (this.form.seeingRegionModelList.length < 3) {
+          this.mapLading = true;
+          this.$notify.error({
+            title: "错误",
+            message: "请完善用户可见区域"
+          });
+          return;
+        }
+         this.mapLading = false;
+        if (_drawData.length > 0 && this.Tabsactive == false) {
+          this.mapLading = true;
+          this.$notify.error({
+            title: "错误",
+            message: "请完善用户可见区域"
+          });
+          return;
+        }
+        this.Tabsactive = true;
+      } else {
+        this.mapLading = false;
+        if (_drawData.length > 0 && this.Tabsactive == true) {
+          this.mapLading = true;
+          this.$notify.error({
+            title: "错误",
+            message: "请完善实际区域"
+          });
+          return;
+        }
+        this.Tabsactive = false;
+        
       }
+    },
+    isdrawData(v) {
+      console.log(v, "isdrawData");
+      this._drawData = v;
     }
   }
 };
