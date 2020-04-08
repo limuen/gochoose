@@ -94,3 +94,66 @@ export function NewListPage(params) {
         params
     })
 }
+
+
+/**
+ * @description   活动管理新用户新增
+ * @author LiMuEn
+ * @date 2020-04-7
+ * @export
+ * @param {Object} data
+ */
+export function Newinsert(data) {
+    return request({
+        url: "/activityNew/insert",
+        method: "POST",
+        data
+    })
+}
+
+/**
+ * @description   活动管理新用户根据主键查询
+ * @author LiMuEn
+ * @date 2020-04-7
+ * @export
+ * @param {Object} params
+ */
+export function NewfindById(params) {
+    return request({
+        url: "/activityNew/findById",
+        method: "GET",
+        params
+    })
+}
+
+
+/**
+ * @description   活动管理新用户根据主键查询
+ * @author LiMuEn
+ * @date 2020-04-7
+ * @export
+ * @param {Object} data
+ */
+export function Newupdate(data) {
+    return request({
+        url: "/activityNew/update",
+        method: "PUT",
+        data
+    })
+}
+
+
+/**
+ * @description   活动管理新用户根据主键修改状态
+ * @author LiMuEn
+ * @date 2020-04-7
+ * @export
+ * @param {Object} data
+ */
+export function NewupdateByStatus(params) {
+    return request({
+        url: "/activityNew/updateByStatus",
+        method: "GET",
+        params
+    })
+}

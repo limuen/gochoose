@@ -7,13 +7,18 @@
       <el-row :gutter="24">
         <el-col :span="6">
           <div class="grid-content bg-purple">
-            <span>运营商</span>
-            <el-select v-model="value" placeholder="请选择运营商">
+            <span>大区</span>
+            <el-select
+              v-model="listQuery.regionId"
+              @change="allianValue"
+              clearable
+              placeholder="请选择大区"
+            >
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                v-for="item in AllianOptions"
+                :key="item.regionId"
+                :label="item.regionName"
+                :value="item.regionId"
               ></el-option>
             </el-select>
           </div>
@@ -21,44 +26,52 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>加盟商</span>
-            <el-select v-model="value" placeholder="请选择加盟商">
+            <el-select v-model="listQuery.allianceId" clearable placeholder="请选择加盟商">
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                v-for="item in allianceOptions"
+                :key="item.allianceId"
+                :label="item.allianceName"
+                :value="item.allianceId"
               ></el-option>
             </el-select>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="grid-content bg-purple">
-            <span>车辆编号</span>
-            <el-input v-model="value" placeholder="请输入车辆编号"></el-input>
-          </div>
-        </el-col>
-        <el-col :span="6">
-          <div class="grid-content bg-purple">
             <span>电池imei</span>
-            <el-input v-model="value" placeholder="请输入电池imei"></el-input>
-          </div>
-        </el-col>
-        <el-col :span="6">
-          <div class="grid-content bg-purple">
-            <span>电池编号</span>
-            <el-input v-model="value" placeholder="请输入电池编号后6位"></el-input>
+            <el-input v-model="listQuery.batteryImei" placeholder="请输入电池imei"></el-input>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>电池厂商</span>
-            <el-input v-model="value" placeholder="请输入电池厂商"></el-input>
+            <el-input v-model="listQuery.batteryManufacturer" placeholder="请输入电池厂商"></el-input>
+          </div>
+        </el-col>
+        <el-col :span="12">
+          <div class="grid-content bg-purple">
+            <span>更换日期</span>
+            <el-date-picker
+              v-model="createTimes"
+              type="datetimerange"
+              align="right"
+              unlink-panels
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              style="margin-right: 20px;"
+              @change="changeClose"
+            ></el-date-picker>
+            <el-button plain @click="Thisweek">本周</el-button>
+            <el-button plain @click="Thismonth">本月</el-button>
+            <el-button plain @click="Thisquarter">本季度</el-button>
           </div>
         </el-col>
 
         <el-col :span="24">
           <div class="grid-content bg-purple">
-            <el-button type="primary">查询</el-button>
+            <el-button type="primary" @click="handleFilter">查询</el-button>
           </div>
         </el-col>
       </el-row>
@@ -72,95 +85,96 @@
         style="width: 100%"
         :header-cell-style="{background:'#EBEFF4'}"
       >
-        <el-table-column label="运维单号" width="200" align="center"></el-table-column>
-        <el-table-column prop="车辆编号" label="车辆编号" width="120" align="center"></el-table-column>
-        <el-table-column prop="运维方式" label="运维方式" align="center"></el-table-column>
-        <el-table-column prop="维修部件" label="维修部件" align="center"></el-table-column>
-        <el-table-column prop="运维员" label="运维员" align="center"></el-table-column>
-        <el-table-column prop="运维手机" label="运维手机" align="center"></el-table-column>
-        <el-table-column prop="推送时间" label="推送时间" width="150" align="center"></el-table-column>
-        <el-table-column prop="完成时间" label="完成时间" width="150" align="center"></el-table-column>
-        <el-table-column prop="处理结果" label="处理结果" align="center"></el-table-column>
-        <el-table-column prop="处理时效" label="处理时效" align="center"></el-table-column>
-        <el-table-column prop="评分" label="评分" align="center"></el-table-column>
-        <el-table-column prop="处理结果图片与备注" label="处理结果图片与备注" width="200" align="center"></el-table-column>
-        <el-table-column label="操作" align="center" width="100" fixed="right">
-          <template slot-scope="scope">
-            <el-button type="text" @click="handleedit(scope.row.id)">编辑</el-button>
-          </template>
-        </el-table-column>
+        <el-table-column type="index" width="50"></el-table-column>
+        <el-table-column prop="batteryImei" label="电池IMEI" align="center"></el-table-column>
+        <el-table-column prop="batteryCapacity" label="电池容量/Ah" align="center"></el-table-column>
+        <el-table-column prop="enduranceMileage" label="总续航里程/km" align="center"></el-table-column>
+        <el-table-column prop="batteryManufacturer" label="电池厂商" align="center"></el-table-column>
+        <el-table-column prop="remark" label="电池描述" align="center"></el-table-column>
+        <el-table-column prop="createTime" label="添加时间" align="center"></el-table-column>
+        <el-table-column prop="allianceName" label="加盟商" align="center"></el-table-column>
+        <el-table-column prop="regionName" label="大区" align="center"></el-table-column>
       </el-table>
     </div>
     <div class="page-excel">
       <div class="page-container">
-        <!-- <el-pagination
-            background
-            layout="prev, pager, next"
-            :total="total"
-            :current-page.sync="query.currentPage"
-            @current-change="getTrainingList"
-        ></el-pagination>-->
         <el-pagination
           background
           align="left"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page.sync="currentPage4"
-          :page-sizes="[100, 200, 300, 400]"
-          :page-size="100"
+          :current-page.sync="listQuery.current"
+          :page-sizes="[10, 20, 30, 40]"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="400"
+          :total="total"
         ></el-pagination>
       </div>
     </div>
 
     <!-- 编辑 -->
-    <el-dialog :title="dialogtitle" width="35%" :visible.sync="dialogForm">
-      <el-form :model="form" class="Operation">
-        <el-form-item label="操作方式" :label-width="formLabelWidth">
-          <el-radio-group v-model="form.resource">
+    <el-dialog :title="dialogtitle"  width="30%" :visible.sync="dialogFormVisible">
+      <el-form :model="form" class="form" ref="form" :rules="rules" label-width="120px">
+        <el-form-item label="操作方式">
+          <el-radio-group v-model="resource">
             <el-radio :label="1">单个添加</el-radio>
             <el-radio :label="2">批量添加</el-radio>
             <el-radio :label="3">批量修改</el-radio>
           </el-radio-group>
         </el-form-item>
-
         
-        <el-form-item label="大区" v-if="form.resource=='1' || form.resource=='2' || form.resource=='3'" :label-width="formLabelWidth">
-          <el-select v-model="form.region" placeholder="请选择大区">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="加盟商" v-if="form.resource=='1' || form.resource=='2' || form.resource=='3'" :label-width="formLabelWidth">
-          <el-select v-model="value" placeholder="请选择加盟商">
+        <el-form-item label="大区" prop="regionId">
+          <el-select
+            v-model="form.regionId"
+            ref="reginoName"
+            @change="allianValuedialog"
+            placeholder="请选择大区"
+          >
             <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+              v-for="item in AllianOptionsDialog"
+              :key="item.regionId"
+              :label="item.regionName"
+              :value="item.regionId"
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="电池imei" v-if="form.resource=='1'" :label-width="formLabelWidth">
-          <el-input v-model="value" placeholder="请输入电池imei"></el-input>
+        <el-form-item label="加盟商" prop="allianceId">
+          <el-select
+            v-model="form.allianceId"
+            ref="allianceName"
+            @change="getdutyListDialog"
+            placeholder="请选择加盟商"
+          >
+            <el-option
+              v-for="item in allianceOptionsDialog"
+              :key="item.allianceId"
+              :label="item.allianceName"
+              :value="item.allianceId"
+            ></el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item label="电池厂商" v-if="form.resource=='1'" :label-width="formLabelWidth">
-          <el-input placeholder="请输入电池厂商" v-model="input2"></el-input>
+        <el-form-item label="电池imei" v-if="resource=='1'" prop="batteryImei">
+          <el-input v-model="form.batteryImei" placeholder="请输入电池imei"></el-input>
         </el-form-item>
-        <el-form-item label="电池容量" v-if="form.resource=='1'" :label-width="formLabelWidth">
-          <el-input placeholder="请输入电池容量" v-model="input2">
+        <el-form-item label="电池厂商" v-if="resource=='1'" prop="batteryManufacturer">
+          <el-input placeholder="请输入电池厂商" v-model="form.batteryManufacturer"></el-input>
+        </el-form-item>
+        <el-form-item label="电池容量" v-if="resource=='1'" prop="batteryCapacity">
+          <el-input placeholder="请输入电池容量" v-model="form.batteryCapacity">
             <template slot="append">vh</template>
           </el-input>
         </el-form-item>
-        <el-form-item label="电池描述" v-if="form.resource=='1'" :label-width="formLabelWidth">
-          <el-input type="textarea" :rows="3" placeholder="请输入内容" v-model="form.textarea"></el-input>
+        <el-form-item label="总续航里程" v-if="resource=='1'" prop="enduranceMileage">
+          <el-input placeholder="请输入总续航里程" v-model="form.enduranceMileage">
+            <template slot="append">km</template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="电池描述" v-if="resource=='1'" prop="remark">
+          <el-input type="textarea" :rows="3" placeholder="请输入内容" v-model="form.remark"></el-input>
         </el-form-item>
         <el-form-item
           label="电池信息文件"
-          v-if="form.resource=='2' || form.resource=='3'"
+          v-if="resource=='2' || resource=='3'"
           class="upload-create"
-          :label-width="formLabelWidth"
         >
           <el-upload
             class="upload-add"
@@ -194,9 +208,8 @@
         </el-form-item>
         <el-form-item
           label="电池信息文件"
-          v-if="form.resource=='5'"
+          v-if="resource=='5'"
           class="upload-create"
-          :label-width="formLabelWidth"
         >
           <el-upload
             class="upload-add"
@@ -232,101 +245,231 @@
       </el-form>
       <div slot="footer" class="dialog-footer" align="center">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+        <el-button type="primary" @click="submitform">确 定</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
+import { allRegion, allianceListByRegionId } from "@/api/region";
+import { getDay, transTime } from "@/utils/index.js";
+import { batteryPage,batteryinsert } from '@/api/car'
 export default {
   name: "betterylist",
   data() {
     return {
-      query: {},
-      value2: "",
-      form: {
-        name: "",
-        region: "",
-        date1: "",
-        date2: "",
-        delivery: false,
-        type: [],
-        resource: "",
-        desc: "",
-        textarea: ""
+      AllianOptions: [], // 查询大区
+      allianceOptions: [], // 加盟商
+      AllianOptionsDialog: [], // 查询大区
+      allianceOptionsDialog: [], // 加盟商
+      listQuery: {
+        regionId: "",
+        allianceId: "",
+        batteryImei: "",
+        batteryManufacturer: "",
+        createTimes: "",
+        current: 1,
+        size: 10
       },
-      options: [
-        {
-          value: "选项1",
-          label: "黄金糕"
-        },
-        {
-          value: "选项2",
-          label: "双皮奶"
-        },
-        {
-          value: "选项3",
-          label: "蚵仔煎"
-        },
-        {
-          value: "选项4",
-          label: "龙须面"
-        },
-        {
-          value: "选项5",
-          label: "北京烤鸭"
-        }
-      ],
-      value: "",
+      createTimes: [],
       tableData: [],
-      pickerOptions: {
-        shortcuts: [
-          {
-            text: "最近一周",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit("pick", [start, end]);
-            }
-          },
-          {
-            text: "最近一个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit("pick", [start, end]);
-            }
-          },
-          {
-            text: "最近三个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit("pick", [start, end]);
-            }
-          }
-        ]
+      total: 0,
+      loading: false,
+      value2: "",
+      resource: 1,
+      form: {
+        regionId: "",
+        regionName: "",
+        allianceId: "",
+        allianceName: "",
+        batteryImei: "",
+        batteryManufacturer: "",
+        batteryCapacity: "",
+        enduranceMileage: "",
+        remark: "",
       },
-      formLabelWidth: "120px",
       dialogtitle: "",
-      dialogForm: false
+      dialogFormVisible: false,
+      rules: {
+        regionId: [
+          { required: true, message: "请选择大区", trigger: "change" }
+        ],
+        allianceId: [
+          { required: true, message: "请选择加盟商", trigger: "change" }
+        ],
+        batteryImei: [
+          { required: true, message: "请输入电池IMEI", trigger: "blur" }
+        ],
+        batteryManufacturer: [
+          { required: true, message: "请输入电池厂商", trigger: "blur" }
+        ],
+        batteryCapacity: [
+          { required: true, message: "请输入电池容量", trigger: "blur" }
+        ],
+        enduranceMileage: [
+          { required: true, message: "请输入总续航里程", trigger: "blur" }
+        ],
+        remark: [
+          { required: true, message: "请输入电池总描述", trigger: "blur" }
+        ]
+      }
     };
   },
+  mounted() {
+    // 查询大区
+    this.getallianList();
+    this.getallianListDialog()
+    // 获取列表
+    this.getList();
+  },
   methods: {
+    // 查询大区
+    getallianList() {
+      allRegion()
+        .then(res => {
+          if (res.code == 0) {
+            this.AllianOptions = res.data;
+          }
+        })
+        .catch(() => {});
+    },
+    getallianListDialog() {
+      allRegion()
+        .then(res => {
+          if (res.code == 0) {
+            this.AllianOptionsDialog = res.data;
+          }
+        })
+        .catch(() => {});
+    },
+    // 获取到大区的id去请求加盟商
+    allianValue(value) {
+      this.listQuery.allianceId = "";
+      allianceListByRegionId({ regionId: value })
+        .then(res => {
+          if (res.code == 0) {
+            this.allianceOptions = res.data;
+          }
+        })
+        .catch(() => {});
+    },
+    allianValuedialog(value) {
+      this.$nextTick(() => {
+        this.form.regionName = this.$refs.reginoName.selectedLabel;
+      });
+      this.form.allianceId = "";
+      allianceListByRegionId({ regionId: value })
+        .then(res => {
+          console.log(res, "1111111111");
+          if (res.code == 0) {
+            this.allianceOptionsDialog = res.data;
+          }
+        })
+        .catch(() => {});
+    },
+    getdutyListDialog(value) {
+      this.$nextTick(() => {
+        this.form.allianceName = this.$refs.allianceName.selectedLabel;
+      });
+    },
+    changeClose(value) {
+      console.log(value)
+      if (value == null){
+        this.createTime = []
+        this.listQuery.createTimes = '';
+      }else{
+        this.listQuery.createTimes = value.toString()
+      }
+    },
+    // 获取本周
+    Thisweek() {
+      let week = transTime(new Date());
+      let date = getDay("week", week);
+      // start
+      let start = `${date[0]} 00:00:00`;
+      // end
+      let end = `${date.slice(-1)} 23:59:59`;
+      this.createTimes = [start, end];
+      this.listQuery.createTimes  = this.createTimes.toString()
+    },
+    // 获取本月
+    Thismonth() {
+      let month = transTime(new Date());
+      let date = getDay("month", month);
+      // start
+      let start = `${date[0]} 00:00:00`;
+      // end
+      let end = `${date.slice(-1)} 23:59:59`;
+      this.createTimes = [start, end];
+      this.listQuery.createTimes  = this.createTimes.toString()
+    },
+    // 获取季度
+    Thisquarter() {
+      let quarter = transTime(new Date());
+      let date = getDay("quarter", quarter);
+      // start
+      let start = `${date[0]} 00:00:00`;
+      // end
+      let end = `${date.slice(-1)} 23:59:59`;
+      this.createTimes = [start, end];
+      this.listQuery.createTimes  = this.createTimes.toString()
+    },
+    // 获取列表
+    getList() {
+      this.loading = true;
+      batteryPage(this.listQuery)
+        .then(res => {
+          console.log(res, "1111111");
+          if (res.code == 0) {
+            this.total = res.data.total;
+            this.tableData = res.data.rows;
+            this.loading = false;
+          }
+        })
+        .catch(() => {});
+    },
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
+      this.listQuery.current = 1;
+      this.listQuery.size = val;
+      this.getList();
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
+      this.listQuery.current = val;
+      this.getList();
+    },
+    handleFilter() {
+      this.listQuery.current = 1;
+      this.getList();
     },
     handleCreate() {
       this.dialogtitle = "添加电池";
-      this.dialogForm = true;
-    }
+      this.dialogFormVisible = true;
+      this.$nextTick(() => {
+        this.$refs.form.resetFields();
+      });
+    },
+    submitform() {
+      this.$refs.form.validate(valid => {
+          if (valid) {
+            batteryinsert(this.form)
+              .then(res => {
+                if (res.code == 0) {
+                  this.$notify({
+                    title: "成功",
+                    message: "创建成功",
+                    type: "success"
+                  });
+                  this.getList();
+                  this.dialogFormVisible = false;
+                }
+              })
+              .catch(() => {});
+          } else {
+            return false;
+          }
+        });
+    },
   }
 };
 </script>
@@ -395,10 +538,9 @@ export default {
   }
 }
 .betterylist-container .search-container /deep/ .el-input {
-  width: 195px;
+  width: 230px;
 }
-.betterylist-container .Operation /deep/ .el-input,
-.el-textarea {
-  width: 300px;
+.betterylist-container .form /deep/ .el-input,.el-textarea {
+  width: 350px;
 }
 </style>

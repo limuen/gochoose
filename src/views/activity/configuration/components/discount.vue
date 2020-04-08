@@ -210,7 +210,7 @@
           </el-col>
         </el-form-item>
         <el-form-item label="活动申请" prop="applyTime" v-if="!this.isEdit">
-          <el-radio-group v-model="form.applyTime" @change="radioChange">
+          <el-radio-group v-model="form.applyTime">
             <el-radio :label="1" border>立即申请</el-radio>
             <el-radio :label="2" border>稍后申请</el-radio>
           </el-radio-group>
@@ -261,7 +261,6 @@ export default {
       tableData: [],
       total: 0,
       loading: false,
-      formLabelWidth: "120px",
       dialogPicker: [],
       form: {
         regionId: "",
@@ -335,7 +334,6 @@ export default {
     // 获取到大区的id去请求加盟商
     allianValue(value) {
       this.listQuery.allianceId = "";
-      this.listQuery.areaId = "";
       allianceListByRegionId({ regionId: value })
         .then(res => {
           if (res.code == 0) {
@@ -389,11 +387,6 @@ export default {
     handleFilter() {
       this.listQuery.current = 1;
       this.getList();
-    },
-    // 切换radio
-    radioChange(value) {
-      console.log(value,'valueRadio')
-      
     },
     // 新增骑车打折
     handleCreate() {
@@ -451,19 +444,23 @@ export default {
             }
           })
           .catch(() => {});
-        }).catch(() => {
-          status = 7;
-          updateByStatus({ discountId, status })
-          .then(res => {
-            if(res.code == 0){
-              this.$message({
-                type: 'success',
-                message: `审核不通过成功!`
-              });
-              this.getList();
-            }
-          })
-          .catch(() => {});       
+        }).catch(action => {
+          if (action == "cancel") {
+            status = 7;
+            updateByStatus({ discountId, status })
+              .then(res => {
+                if (res.code == 0) {
+                  this.$message({
+                    type: "warning",
+                    message: `审核不通过!`
+                  });
+                  this.getList();
+                }
+              })
+              .catch(() => {});
+          } else {
+            this.$message("取消审核");
+          }
         });
     },
     // 编辑
@@ -476,6 +473,13 @@ export default {
       }).then(res => {
         console.log(res, "11111111");
         if (res.code == 0) {
+          allianceListByRegionId({ regionId: res.data.regionId })
+            .then(resp => {
+              if (resp.code == 0) {
+                this.allianceOptionsDialog = resp.data;
+              }
+            })
+            .catch(() => {});
           this.form = Object.assign(this.form, res.data);
         }
       });

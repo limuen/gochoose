@@ -8,12 +8,17 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>大区</span>
-            <el-select v-model="value" placeholder="请选择大区">
+            <el-select
+              v-model="listQuery.regionId"
+              @change="allianValue"
+              clearable
+              placeholder="请选择大区"
+            >
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                v-for="item in AllianOptions"
+                :key="item.regionId"
+                :label="item.regionName"
+                :value="item.regionId"
               ></el-option>
             </el-select>
           </div>
@@ -21,12 +26,12 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>加盟商</span>
-            <el-select v-model="value" placeholder="请选择加盟商">
+            <el-select v-model="listQuery.allianceId" clearable placeholder="请选择加盟商">
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                v-for="item in allianceOptions"
+                :key="item.allianceId"
+                :label="item.allianceName"
+                :value="item.allianceId"
               ></el-option>
             </el-select>
           </div>
@@ -454,10 +459,15 @@
 </template>
 
 <script>
+import { allRegion, allianceListByRegionId } from "@/api/region";
 export default {
   name: "carlist",
   data() {
     return {
+      AllianOptions: [], // 查询大区
+      allianceOptions: [], // 加盟商
+      AllianOptionsDialog: [], // 查询大区
+      allianceOptionsDialog: [], // 加盟商
       query: {},
       value2: "",
       options: [
@@ -501,6 +511,55 @@ export default {
     };
   },
   methods: {
+    // 查询大区
+    getallianList() {
+      allRegion()
+        .then(res => {
+          if (res.code == 0) {
+            this.AllianOptions = res.data;
+          }
+        })
+        .catch(() => {});
+    },
+    getallianListDialog() {
+      allRegion()
+        .then(res => {
+          if (res.code == 0) {
+            this.AllianOptionsDialog = res.data;
+          }
+        })
+        .catch(() => {});
+    },
+    // 获取到大区的id去请求加盟商
+    allianValue(value) {
+      this.listQuery.allianceId = "";
+      allianceListByRegionId({ regionId: value })
+        .then(res => {
+          if (res.code == 0) {
+            this.allianceOptions = res.data;
+          }
+        })
+        .catch(() => {});
+    },
+    allianValuedialog(value) {
+      this.$nextTick(() => {
+        this.form.regionName = this.$refs.reginoName.selectedLabel;
+      });
+      this.form.allianceId = "";
+      allianceListByRegionId({ regionId: value })
+        .then(res => {
+          console.log(res, "1111111111");
+          if (res.code == 0) {
+            this.allianceOptionsDialog = res.data;
+          }
+        })
+        .catch(() => {});
+    },
+    getdutyListDialog(value) {
+      this.$nextTick(() => {
+        this.form.allianceName = this.$refs.allianceName.selectedLabel;
+      });
+    },
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
     },
@@ -567,7 +626,7 @@ export default {
   }
 }
 .carlist-container .search-container /deep/ .el-input {
-  width: 195px;
+  width: 230px;
 }
 .carlist-container .Operation /deep/ .el-input,
 .el-textarea {
