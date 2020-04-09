@@ -26,7 +26,12 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>加盟商</span>
-            <el-select v-model="listQuery.allianceId" clearable placeholder="请选择加盟商">
+            <el-select
+              v-model="listQuery.allianceId"
+              @change="getdutyList"
+              clearable
+              placeholder="请选择加盟商"
+            >
               <el-option
                 v-for="item in allianceOptions"
                 :key="item.allianceId"
@@ -39,12 +44,12 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>责任区域</span>
-            <el-select v-model="value" placeholder="请选择责任区域">
+            <el-select clearable v-model="listQuery.areaId" placeholder="请选择责任区域">
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                v-for="item in areaOptions"
+                :key="item.id"
+                :label="item.regionName"
+                :value="item.id"
               ></el-option>
             </el-select>
           </div>
@@ -52,64 +57,40 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>租赁状态</span>
-            <el-select v-model="value" placeholder="请选择租赁状态">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
+            <el-select v-model="listQuery.rentStatus" placeholder="请选择租赁状态">
+              <el-option label="空闲中" :value="0"></el-option>
+              <el-option label="租赁中" :value="1"></el-option>
             </el-select>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>锁车状态</span>
-            <el-select v-model="value" placeholder="请选择锁车状态">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
+            <el-select v-model="listQuery.lockElectrombileState" placeholder="请选择锁车状态">
+              <el-option label="已上锁" :value="0"></el-option>
+              <el-option label="未上锁" :value="1"></el-option>
             </el-select>
           </div>
         </el-col>
-        <el-col :span="6">
+        <!-- <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>收费模式</span>
             <el-select v-model="value" placeholder="请选择收费模式">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
+              <el-option label="标准" :value="0"></el-option>
+              <el-option label="老师" :value="1"></el-option>
+              <el-option label="学生" :value="1"></el-option>
             </el-select>
           </div>
-        </el-col>
+        </el-col>-->
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>车辆状态</span>
-            <el-select v-model="value" placeholder="请选择车辆状态">
+            <el-select v-model="listQuery.electrombileStatus" placeholder="请选择车辆状态">
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
-            </el-select>
-          </div>
-        </el-col>
-        <el-col :span="6">
-          <div class="grid-content bg-purple">
-            <span>锁车状态</span>
-            <el-select v-model="value" placeholder="请选择锁车状态">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                v-for="item in carStatusList"
+                :key="item.id"
+                :label="item.dataValue"
+                :value="item.id"
               ></el-option>
             </el-select>
           </div>
@@ -117,17 +98,17 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>运营状态</span>
-            <el-select v-model="value" placeholder="请选择车辆状态">
+            <el-select v-model="listQuery.operationState" placeholder="请选择运营状态">
               <el-option
-                v-for="item in options"
+                v-for="item in operationStates"
                 :key="item.value"
-                :label="item.label"
+                :label="item.type"
                 :value="item.value"
               ></el-option>
             </el-select>
           </div>
         </el-col>
-        <el-col :span="6">
+        <!-- <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>车型</span>
             <el-select v-model="value" placeholder="请选择车型">
@@ -139,12 +120,12 @@
               ></el-option>
             </el-select>
           </div>
-        </el-col>
+        </el-col>-->
 
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>未使用车辆</span>
-            <el-input placeholder="请输入未使用车辆" v-model="input2">
+            <el-input placeholder="请输入未使用车辆" v-model="listQuery.unusedElectrombile">
               <template slot="append">小时内</template>
             </el-input>
           </div>
@@ -152,7 +133,7 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>未归还车辆</span>
-            <el-input placeholder="请输入未归还车辆" v-model="input2">
+            <el-input placeholder="请输入未归还车辆" v-model="listQuery.noReturnElectrombile">
               <template slot="append">小时内</template>
             </el-input>
           </div>
@@ -160,50 +141,42 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>报警开关</span>
-            <el-select v-model="value" placeholder="请选择报警开关">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
+            <el-select v-model="listQuery.alarmSwitch" placeholder="请选择报警开关">
+              <el-option label="开" :value="0"></el-option>
+              <el-option label="关" :value="1"></el-option>
             </el-select>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>剩余里程小于</span>
-            <el-input placeholder="请输入剩余里程小于" v-model="input2">
+            <el-input placeholder="请输入剩余里程小于" v-model="listQuery.residueEndurance">
               <template slot="append">km</template>
             </el-input>
           </div>
         </el-col>
-        <el-col :span="6">
+        <!-- <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>GPS丢星</span>
             <el-input placeholder="请输入GPS丢星" v-model="input2">
               <template slot="append">天</template>
             </el-input>
           </div>
-        </el-col>
+        </el-col>-->
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>剩余电量小于</span>
-            <el-input placeholder="请输入GPS丢星" v-model="input2">
+            <el-input placeholder="请输入剩余电量小于" v-model="listQuery.residueElectric">
               <template slot="append">%</template>
             </el-input>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="grid-content bg-purple">
-            <span>运营区域内外</span>
-            <el-select v-model="value" placeholder="请选择运营区域内外">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
+            <span>运营区域</span>
+            <el-select v-model="listQuery.isInArea" placeholder="请选择运营区域内外">
+              <el-option label="内" :value="0"></el-option>
+              <el-option label="外" :value="1"></el-option>
             </el-select>
           </div>
         </el-col>
@@ -215,19 +188,19 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>车辆编号</span>
-            <el-input v-model="value" placeholder="请输入车辆编号"></el-input>
+            <el-input v-model="listQuery.electrombileNumber" placeholder="请输入车辆编号"></el-input>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>设备IMEI</span>
-            <el-input v-model="value" placeholder="请输入设备IMEI"></el-input>
+            <el-input v-model="listQuery.equipmentImel" placeholder="请输入设备IMEI"></el-input>
           </div>
         </el-col>
 
         <el-col :span="12">
           <div class="grid-content bg-purple">
-            <el-button type="primary">查询</el-button>
+            <el-button type="primary" @click="handleFilter">查询</el-button>
           </div>
         </el-col>
       </el-row>
@@ -241,44 +214,68 @@
         style="width: 100%"
         :header-cell-style="{background:'#EBEFF4'}"
       >
-        <el-table-column label="运维单号" width="200" align="center"></el-table-column>
-        <el-table-column prop="车辆编号" label="车辆编号" width="120" align="center"></el-table-column>
-        <el-table-column prop="运维方式" label="运维方式" align="center"></el-table-column>
-        <el-table-column prop="维修部件" label="维修部件" align="center"></el-table-column>
-        <el-table-column prop="运维员" label="运维员" align="center"></el-table-column>
-        <el-table-column prop="运维手机" label="运维手机" align="center"></el-table-column>
-        <el-table-column prop="推送时间" label="推送时间" width="150" align="center"></el-table-column>
-        <el-table-column prop="完成时间" label="完成时间" width="150" align="center"></el-table-column>
-        <el-table-column prop="处理结果" label="处理结果" align="center"></el-table-column>
-        <el-table-column prop="处理时效" label="处理时效" align="center"></el-table-column>
-        <el-table-column prop="评分" label="评分" align="center"></el-table-column>
-        <el-table-column prop="处理结果图片与备注" label="处理结果图片与备注" width="200" align="center"></el-table-column>
-        <el-table-column label="操作" align="center" width="100" fixed="right">
+        <el-table-column type="index" width="50"></el-table-column>
+        <el-table-column prop="electrombileNumber" width="150" label="车辆编号" align="center"></el-table-column>
+        <el-table-column prop="operationState	" label="运维方式" align="center">
           <template slot-scope="scope">
-            <el-button type="text" @click="handleedit(scope.row.id)">编辑</el-button>
+            <div>{{scope.row.operationState | operationState}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="rentStatus" label="出租状态" align="center">
+          <template slot-scope="scope">
+            <div>{{scope.row.rentStatus | rentStatus}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="electrombileStatus" label="车辆状态" align="center">
+          <template slot-scope="scope">
+            <el-tag
+              style="margin-right:5px;"
+              effect="dark"
+              :type=" scope.row.electrombileStatus | electrombileStatusType"
+            >{{scope.row.electrombileStatus | electrombileStatus}}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="equipmentImel" width="150" label="设备IMEI" align="center"></el-table-column>
+        <el-table-column prop="equipmentSim" label="SIM卡号" width="150" align="center"></el-table-column>
+        <el-table-column prop="enduranceMileage" label="总续航里程" width="150" align="center"></el-table-column>
+        <el-table-column prop="residueEndurance" label="剩余里程" align="center"></el-table-column>
+        <el-table-column prop="residueElectric" label="剩余电量" align="center"></el-table-column>
+        <el-table-column prop="lastCustomerId" width="150" label="当前/最后用户" align="center"></el-table-column>
+        <el-table-column prop="lastUseTime" label="时间" width="200" align="center"></el-table-column>
+        <el-table-column prop="dutyArea" label="运营区域" width="200" align="center">
+          <template slot-scope="scope">
+            <div
+              v-for="(item,index) in scope.row.dutyArea"
+              :key="item.index"
+            >{{index+1}}-{{item.areaName}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="electrombileAllianceName" label="归属加盟商" width="200" align="center"></el-table-column>
+        <el-table-column prop="electrombileRegionName" width="150" label="大区" align="center"></el-table-column>
+        <el-table-column label="操作" align="center" width="360" fixed="right">
+          <template slot-scope="scope">
+            <el-button type="text">定位</el-button>
+            <el-button type="text">订单</el-button>
+            <el-button type="text">轨迹</el-button>
+            <el-button type="text">维修记录</el-button>
+            <el-button type="text">二维码</el-button>
+            <el-button type="text">详情</el-button>
+            <el-button type="text" @click="handleedit(scope.row)">编辑</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
     <div class="page-excel">
       <div class="page-container">
-        <!-- <el-pagination
-            background
-            layout="prev, pager, next"
-            :total="total"
-            :current-page.sync="query.currentPage"
-            @current-change="getTrainingList"
-        ></el-pagination>-->
         <el-pagination
           background
           align="left"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page.sync="currentPage4"
-          :page-sizes="[100, 200, 300, 400]"
-          :page-size="100"
+          :current-page.sync="listQuery.current"
+          :page-sizes="[10, 20, 30, 40]"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="400"
+          :total="total"
         ></el-pagination>
       </div>
       <div>
@@ -288,27 +285,143 @@
     </div>
 
     <!-- 编辑 -->
-    <el-dialog :title="dialogtitle" width="35%" :visible.sync="dialogForm">
-      <el-form :model="form" class="Operation">
-        <el-form-item label="添加方式" :label-width="formLabelWidth">
-          <el-radio-group v-model="form.resource">
+    <el-dialog :title="dialogtitle" width="30%" :visible.sync="dialogFormVisible">
+      <el-form :model="form" class="form" ref="form" :rules="rules" label-width="120px">
+        <el-form-item label="添加方式">
+          <el-radio-group v-model="resource">
             <el-radio :label="1">单量添加</el-radio>
             <el-radio :label="2">批量添加</el-radio>
             <el-radio :label="3">批量修改</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="批量添加" v-if="form.resource=='2'" class="upload-create" :label-width="formLabelWidth">
+        <el-form-item label="大区" v-if="resource=='1'" prop="electrombileRegionId">
+          <el-select
+            v-model="form.electrombileRegionId"
+            ref="reginoName"
+            @change="allianValuedialog"
+            placeholder="请选择大区"
+          >
+            <el-option
+              v-for="item in AllianOptionsDialog"
+              :key="item.regionId"
+              :label="item.regionName"
+              :value="item.regionId"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="加盟商" v-if="resource=='1'" prop="electrombileAllianceId">
+          <el-select
+            v-model="form.electrombileAllianceId"
+            ref="allianceName"
+            @change="getdutyListDialog"
+            placeholder="请选择加盟商"
+          >
+            <el-option
+              v-for="item in allianceOptionsDialog"
+              :key="item.allianceId"
+              :label="item.allianceName"
+              :value="item.allianceId"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="运营区域" v-if="resource=='1'" prop="dutyArea2">
+          <el-select
+            v-model="form.dutyArea2"
+            ref="dutyObj"
+            @change="changeDutyName"
+            multiple
+            placeholder="请选择责任区域"
+          >
+            <el-option
+              v-for="(item,index) in bilityOptions"
+              :key="index"
+              :label="item.regionName"
+              :value="index"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="车辆编号" v-if="resource=='1'" prop="electrombileNumber">
+          <el-input v-model="form.electrombileNumber" placeholder="请输入车辆编号"></el-input>
+        </el-form-item>
+        <el-form-item label="报警开关" v-if="resource=='1'">
+          <el-select v-model="form.alarmSwitch" placeholder="请选择报警开关">
+            <el-option label="开" :value="0"></el-option>
+            <el-option label="关" :value="1"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="运营状态" v-if="resource=='1'" prop="operationState">
+          <el-select v-model="form.operationState" placeholder="如果车辆已投放市场请选择 运营中">
+            <el-option label="运营中" :value="0"></el-option>
+            <el-option label="未运营" :value="1"></el-option>
+          </el-select>
+        </el-form-item>
+        <!-- <el-form-item label="车型" v-if="resource=='1'" prop="electrombileType">
+          <el-select v-model="form.electrombileType" placeholder="请选择车型">
+            <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>-->
+        <el-form-item label="低里程报警" v-if="resource=='1'" prop="electrombileUndercharge">
+          <el-input placeholder="请输入低里程报警" v-model="form.electrombileUndercharge">
+            <template slot="append">km</template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="标准计费" v-if="resource=='1'" prop="normBilling">
+          <el-select v-model="form.normBilling" placeholder="请选择标准计费">
+            <el-option
+              v-for="item in chargeList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="特权计费" v-if="resource=='1'" prop="specialBilling">
+          <el-select v-model="form.specialBilling" placeholder="请选择特权计费">
+            <el-option
+              v-for="item in chargeList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="设备IMEI" v-if="resource=='1'" prop="equipmentImel">
+          <el-input v-model="form.equipmentImel" placeholder="请输入设备IMEI"></el-input>
+        </el-form-item>
+        <el-form-item label="设备SIM" v-if="resource=='1'" prop="equipmentSim">
+          <el-input v-model="form.equipmentSim" placeholder="请输入设备SIM"></el-input>
+        </el-form-item>
+        <el-form-item label="设备IMEI2" v-if="resource=='1'">
+          <el-input placeholder="请输入设备IMEI2" v-model="form.equipmentImel2"></el-input>
+        </el-form-item>
+        <el-form-item label="设备SIM2" v-if="resource=='1'">
+          <el-input placeholder="请输入设备SIM2" v-model="form.equipmentSim2"></el-input>
+        </el-form-item>
+        <el-form-item label="备注" v-if="resource=='1'">
+          <el-input type="textarea" :rows="3" placeholder="请输入备注" v-model="form.remark"></el-input>
+        </el-form-item>
+        <el-form-item label="批量添加" v-if="resource=='2'" class="upload-create">
           <el-upload
             class="upload-add"
             drag
             action="https://jsonplaceholder.typicode.com/posts/"
-            multiple>
+            multiple
+          >
             <i class="el-icon-upload"></i>
-            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+            <div class="el-upload__text">
+              将文件拖到此处，或
+              <em>点击上传</em>
+            </div>
           </el-upload>
           <div>
             <div>
-              Excel模板：<a href="" style="color:#1890ff;">点击下载</a>  
+              Excel模板：
+              <a href style="color:#1890ff;">点击下载</a>
             </div>
             <h3>注意事项:</h3>
             <ol>
@@ -317,142 +430,42 @@
             </ol>
           </div>
         </el-form-item>
-        <el-form-item label="批量修改" v-if="form.resource=='3'" class="upload-create" :label-width="formLabelWidth">
+        <el-form-item label="批量修改" v-if="resource=='3'" class="upload-create">
           <el-upload
             class="upload-add"
             drag
             action="https://jsonplaceholder.typicode.com/posts/"
-            multiple>
+            multiple
+          >
             <i class="el-icon-upload"></i>
-            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+            <div class="el-upload__text">
+              将文件拖到此处，或
+              <em>点击上传</em>
+            </div>
           </el-upload>
           <div>
             <div>
-              Excel模板：<a href="" style="color:#1890ff;">点击下载</a>  
+              Excel模板：
+              <a href style="color:#1890ff;">点击下载</a>
             </div>
             <h3>注意事项:</h3>
             <ol>
-              <li>系统会根据*车辆编号*，修改此车相应的数据车辆编号必须是完整车辆编号，<span>不能缺少车辆前辍，建议从车辆列表导出Excel</span>。</li>
+              <li>
+                系统会根据*车辆编号*，修改此车相应的数据车辆编号必须是完整车辆编号，
+                <span>不能缺少车辆前辍，建议从车辆列表导出Excel</span>。
+              </li>
               <li>只需填写需要修改的信息栏，不想修改的信息请留空，如果*车辆编号*不存在，系统将会提示报错。</li>
-              <li>如果填写了*续航(km)*，系统会自动执行里程重置操作，<span>提醒：可以从【车辆管理】-【车辆列表】导出需要修改的车辆，对Excel进行修改后再利用此功能上传Excel,或者直接下载模板文件，填写*车辆编号* 和 你想修改的信息列</span>。</li>
+              <li>
+                如果填写了*续航(km)*，系统会自动执行里程重置操作，
+                <span>提醒：可以从【车辆管理】-【车辆列表】导出需要修改的车辆，对Excel进行修改后再利用此功能上传Excel,或者直接下载模板文件，填写*车辆编号* 和 你想修改的信息列</span>。
+              </li>
             </ol>
           </div>
         </el-form-item>
-        <el-form-item label="大区" v-if="form.resource=='1'" :label-width="formLabelWidth">
-          <el-select v-model="form.region" placeholder="请选择大区">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="加盟商" v-if="form.resource=='1'" :label-width="formLabelWidth">
-          <el-select v-model="value" placeholder="请选择加盟商">
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="运营区域" v-if="form.resource=='1'" :label-width="formLabelWidth">
-          <el-select v-model="value" placeholder="请选择加盟商">
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="车辆编号" v-if="form.resource=='1'" :label-width="formLabelWidth">
-          <el-input v-model="value" placeholder="请输入车辆编号"></el-input>
-        </el-form-item>
-        <el-form-item label="报警开关" v-if="form.resource=='1'" :label-width="formLabelWidth">
-          <el-select v-model="form.region" placeholder="请选择大区">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="运营状态" v-if="form.resource=='1'" :label-width="formLabelWidth">
-          <el-select v-model="form.region" placeholder="如果车辆已投放市场请选择 运营中">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="车型" v-if="form.resource=='1'" :label-width="formLabelWidth">
-          <el-select v-model="value" placeholder="请选择车型">
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="总续航里程" v-if="form.resource=='1'" :label-width="formLabelWidth">
-            <el-input placeholder="请输入总续航里程" v-model="input2">
-              <template slot="append">km</template>
-            </el-input>
-        </el-form-item>
-        <el-form-item label="低里程报警" v-if="form.resource=='1'" :label-width="formLabelWidth">
-            <el-input placeholder="请输入低里程报警" v-model="input2">
-              <template slot="append">km</template>
-            </el-input>
-        </el-form-item>
-        <el-form-item label="标准计费" v-if="form.resource=='1'" :label-width="formLabelWidth">
-          <el-select v-model="value" placeholder="请选择标准计费">
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="特权计费" v-if="form.resource=='1'" :label-width="formLabelWidth">
-          <el-select v-model="value" placeholder="请选择特权计费">
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="设备IMEI" v-if="form.resource=='1'" :label-width="formLabelWidth">
-          <el-select v-model="value" placeholder="请选择设备IMEI">
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="设备SIM" v-if="form.resource=='1'" :label-width="formLabelWidth">
-          <el-select v-model="value" placeholder="请选择设备SIM">
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="设备IMEI 2" v-if="form.resource=='1'" :label-width="formLabelWidth">
-          <el-input placeholder="请输入内容" v-model="form.textarea"></el-input>
-        </el-form-item>
-        <el-form-item label="设备SIM 2" v-if="form.resource=='1'" :label-width="formLabelWidth">
-          <el-input placeholder="请输入内容" v-model="form.textarea"></el-input>
-        </el-form-item>
-        <el-form-item label="备注信息" v-if="form.resource=='1'" :label-width="formLabelWidth">
-          <el-input type="textarea" :rows="3" placeholder="请输入内容" v-model="form.textarea"></el-input>
-        </el-form-item>
-        
       </el-form>
       <div slot="footer" class="dialog-footer" align="center">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+        <el-button type="primary" @click="submitform">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -460,57 +473,163 @@
 
 <script>
 import { allRegion, allianceListByRegionId } from "@/api/region";
+import { findByLargeFranchisee } from "@/api/responsibility";
+import { CarselectByPid } from "@/api/publicapi";
+import {
+  carListPage,
+  carInsert,
+  carUpdate,
+  carByelectrombileId
+} from "@/api/car";
+import { chargeFranchisee } from "@/api/charge";
 export default {
   name: "carlist",
   data() {
     return {
       AllianOptions: [], // 查询大区
       allianceOptions: [], // 加盟商
+      areaOptions: [], //责任区域单选
+      carStatusList: [], // 车辆状态
       AllianOptionsDialog: [], // 查询大区
       allianceOptionsDialog: [], // 加盟商
-      query: {},
-      value2: "",
-      options: [
-        {
-          value: "选项1",
-          label: "黄金糕"
-        },
-        {
-          value: "选项2",
-          label: "双皮奶"
-        },
-        {
-          value: "选项3",
-          label: "蚵仔煎"
-        },
-        {
-          value: "选项4",
-          label: "龙须面"
-        },
-        {
-          value: "选项5",
-          label: "北京烤鸭"
-        }
+      bilityOptions: [], //责任区域
+      chargeList: [], //收费标准
+      operationStates: [
+        { value: 0, type: "运营中" },
+        { value: 1, type: "未运营" }
       ],
-      value: "",
-      tableData: [],
-      form: {
-        name: "",
-        region: "",
-        date1: "",
-        date2: "",
-        delivery: false,
-        type: [],
-        resource: "",
-        desc: "",
-        textarea: ""
+      listQuery: {
+        regionId: "",
+        allianceId: "",
+        areaId: "",
+        rentStatus: "",
+        lockElectrombileState: "",
+        electrombileStatus: "",
+        unusedElectrombile: "",
+        noReturnElectrombile: "",
+        isInArea: "",
+        operationState: "",
+        alarmSwitch: "",
+        residueEndurance: "",
+        residueElectric: "",
+        electrombileNumber: "",
+        equipmentImel: "",
+        current: 1,
+        size: 10
       },
-      formLabelWidth: "120px",
+      isEdit: false,
+      total: 0,
+      loading: false,
+      tableData: [],
+      resource: 1,
+      form: {
+        electrombileRegionId: "",
+        electrombileRegionName: "",
+        electrombileAllianceId: "",
+        electrombileAllianceName: "",
+        dutyArea: [],
+        dutyArea2: [],
+        electrombileNumber: "",
+        operationState: "",
+        alarmSwitch: "",
+        electrombileUndercharge: "",
+        normBilling: "",
+        specialBilling: "",
+        equipmentImel: "",
+        equipmentSim: "",
+        equipmentImel2: "",
+        equipmentSim2: "",
+        remark: ""
+      },
+      indexs: [],
       dialogtitle: "",
-      dialogForm: false
+      dialogFormVisible: false,
+      rules: {
+        electrombileRegionId: [
+          { required: true, message: "请选择大区", trigger: "change" }
+        ],
+        electrombileAllianceId: [
+          { required: true, message: "请选择加盟商", trigger: "change" }
+        ],
+        dutyArea2: [
+          { required: true, message: "请选择运营区域", trigger: "change" }
+        ],
+        electrombileNumber: [
+          { required: true, message: "请输入车辆编号", trigger: "blur" }
+        ],
+        operationState: [
+          { required: true, message: "请选择运营状态", trigger: "change" }
+        ],
+        normBilling: [
+          { required: true, message: "请选择标准计费", trigger: "change" }
+        ],
+        specialBilling: [
+          { required: true, message: "请选择特权计费", trigger: "change" }
+        ],
+        equipmentImel: [
+          { required: true, message: "请输入设备IMEI", trigger: "blur" }
+        ],
+        equipmentSim: [
+          { required: true, message: "请输入设备SIM", trigger: "blur" }
+        ]
+      }
     };
   },
+  filters: {
+    operationState(key) {
+      const operationStateMap = {
+        0: "运营中",
+        1: "未运营"
+      };
+      return operationStateMap[key];
+    },
+    rentStatus(key) {
+      const rentStatusMap = {
+        0: "空闲中",
+        1: "租赁中"
+      };
+      return rentStatusMap[key];
+    },
+    electrombileStatus(key) {
+      const electrombileStatusMap = {
+        0: "正常",
+        1: "正常、区域外",
+        2: "离线",
+        3: "离线、断电",
+        4: "离线、区域外",
+        5: "离线、断电、区域外"
+      };
+      return electrombileStatusMap[key];
+    },
+    electrombileStatusType(key) {
+      const electrombileStatusTypeMap = {
+        0: "success",
+        1: "warning",
+        2: "info",
+        3: "danger",
+        4: "danger",
+        5: "danger"
+      };
+      return electrombileStatusTypeMap[key];
+    }
+  },
+  mounted() {
+    // 查询大区
+    this.getallianList();
+    this.getallianListDialog();
+    // 获取车辆状态
+    this.getCarStatus();
+    this.getList();
+  },
   methods: {
+    // 获取车辆状态
+    getCarStatus() {
+      CarselectByPid({ pid: 6 }).then(res => {
+        if (res.code == 0) {
+          this.carStatusList = res.data;
+        }
+      });
+    },
     // 查询大区
     getallianList() {
       allRegion()
@@ -532,7 +651,7 @@ export default {
     },
     // 获取到大区的id去请求加盟商
     allianValue(value) {
-      this.listQuery.allianceId = "";
+      this.listQuery.electrombileAllianceId = "";
       allianceListByRegionId({ regionId: value })
         .then(res => {
           if (res.code == 0) {
@@ -545,10 +664,15 @@ export default {
       this.$nextTick(() => {
         this.form.regionName = this.$refs.reginoName.selectedLabel;
       });
-      this.form.allianceId = "";
+      this.bilityOptions = [];
+      this.form.electrombileAllianceId = "";
+      this.form.dutyArea = [];
+      this.form.dutyArea2 = [];
+      this.chargeList = [];
+      this.form.normBilling = "";
+      this.form.specialBilling = "";
       allianceListByRegionId({ regionId: value })
         .then(res => {
-          console.log(res, "1111111111");
           if (res.code == 0) {
             this.allianceOptionsDialog = res.data;
           }
@@ -559,17 +683,205 @@ export default {
       this.$nextTick(() => {
         this.form.allianceName = this.$refs.allianceName.selectedLabel;
       });
+      this.form.dutyArea = [];
+      this.form.dutyArea2 = [];
+      this.chargeList = [];
+      this.form.normBilling = "";
+      this.form.specialBilling = "";
+      findByLargeFranchisee({
+        largeAreaId: this.form.electrombileRegionId,
+        franchiseeId: value
+      })
+        .then(res => {
+          if (res.code == 0) {
+            this.bilityOptions = res.data;
+          }
+        })
+        .catch(() => {});
+      chargeFranchisee({
+        largeAreaId: this.form.electrombileRegionId,
+        franchiseeId: value
+      })
+        .then(res => {
+          if (res.code == 0) {
+            this.chargeList = res.data;
+          }
+        })
+        .catch(() => {});
+    },
+    // 通过大区id和加盟商id获取责任区域
+    getdutyList(value) {
+      this.listQuery.areaId = "";
+      findByLargeFranchisee({
+        largeAreaId: this.listQuery.regionId,
+        franchiseeId: value
+      })
+        .then(res => {
+          if (res.code == 0) {
+            this.areaOptions = res.data;
+          }
+        })
+        .catch(() => {});
+    },
+    // 获取列表
+    getList() {
+      this.loading = true;
+      carListPage(this.listQuery)
+        .then(res => {
+          if (res.code == 0) {
+            this.total = res.data.total;
+            this.tableData = res.data.rows;
+            this.loading = false;
+          }
+        })
+        .catch(() => {});
     },
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
+      this.listQuery.current = 1;
+      this.listQuery.size = val;
+      this.getList();
     },
     handleCurrentChange(val) {
-      console.log(`当前页: ${val}`);
+      this.listQuery.current = val;
+      this.getList();
+    },
+    handleFilter() {
+      this.listQuery.current = 1;
+      this.getList();
     },
     // 新增
     handleCreate() {
       this.dialogtitle = "添加车辆";
-      this.dialogForm = true;
+      this.dialogFormVisible = true;
+      this.isEdit = false;
+      this.$nextTick(() => {
+        this.$refs.form.resetFields();
+      });
+    },
+    // 编辑
+    handleedit(row) {
+      this.dialogtitle = "修改车辆";
+      this.dialogFormVisible = true;
+      this.isEdit = true;
+      this.dialogding = true;
+      carByelectrombileId({
+        electrombileId: row.electrombileId
+      }).then(res => {
+        console.log(res, "通过id查询");
+        if (res.code == 0) {
+          // 获取加盟商
+          allianceListByRegionId({
+            regionId: res.data.electrombileRegionId
+          }).then(res => {
+            if (res.code == 0) {
+              this.allianceOptionsDialog = res.data;
+            }
+          });
+          // 大区id和加盟商id获取责任区域
+          findByLargeFranchisee({
+            largeAreaId: res.data.electrombileRegionId,
+            franchiseeId: res.data.electrombileAllianceId
+          }).then(res => {
+            if (res.code == 0) {
+              this.bilityOptions = res.data;
+            }
+          });
+          // 获取收费设置
+          chargeFranchisee({
+            largeAreaId: res.data.electrombileRegionId,
+            franchiseeId: res.data.electrombileAllianceId
+          })
+            .then(res => {
+              if (res.code == 0) {
+                this.chargeList = res.data;
+              }
+            })
+            .catch(() => {});
+          this.indexs = [];
+          res.data.dutyArea.forEach((item, index) => {
+            this.indexs.push(index);
+          });
+          this.form = Object.assign(this.form, res.data);
+          this.form.dutyArea2 = this.indexs;
+          this.form.dutyArea = [];
+          this.dialogding = false;
+        }
+      });
+    },
+    // 责任区域id和name存起来
+    changeDutyName(index) {
+      this.indexs = [];
+      this.$nextTick(() => {
+        this.indexs = index;
+      });
+    },
+    submitform() {
+      if (this.isEdit) {
+        this.$refs.form.validate(valid => {
+          if (valid) {
+            this.form.dutyArea = [];
+            this.indexs.forEach(index => {
+              const areaId = this.bilityOptions[index];
+              this.form.dutyArea.push({
+                areaId: areaId.id,
+                areaName: areaId.regionName
+              });
+            });
+            carUpdate(this.form)
+              .then(res => {
+                if (res.code == 0) {
+                  this.$notify({
+                    title: "成功",
+                    message: "修改成功",
+                    type: "success"
+                  });
+                  this.getList();
+                  this.form.dutyArea = [];
+                  this.form.remark = "";
+                  this.form.equipmentImel2 = "";
+                  this.form.equipmentSim2 = "";
+                  this.dialogFormVisible = false;
+                }
+              })
+              .catch(() => {});
+          } else {
+            return false;
+          }
+        });
+      } else {
+        this.$refs.form.validate(valid => {
+          if (valid) {
+            this.form.dutyArea = [];
+            this.indexs.forEach(index => {
+              const areaId = this.bilityOptions[index];
+              this.form.dutyArea.push({
+                areaId: areaId.id,
+                areaName: areaId.regionName
+              });
+            });
+            carInsert(this.form)
+              .then(res => {
+                if (res.code == 0) {
+                  this.$notify({
+                    title: "成功",
+                    message: "创建成功",
+                    type: "success"
+                  });
+                  this.getList();
+                  this.form.dutyArea = [];
+                  this.form.remark = "";
+                  this.form.equipmentImel2 = "";
+                  this.form.equipmentSim2 = "";
+                  this.dialogFormVisible = false;
+                  console.log(this.form, "提交完成的form");
+                }
+              })
+              .catch(() => {});
+          } else {
+            return false;
+          }
+        });
+      }
     }
   }
 };
@@ -601,15 +913,16 @@ export default {
         }
       }
     }
-    .upload-create{
-      h3,ol{
+    .upload-create {
+      h3,
+      ol {
         margin: 0px;
         padding: 0px;
         line-height: 20px;
       }
-      ol{
+      ol {
         margin-left: 15px;
-        span{
+        span {
           color: red;
         }
       }
@@ -628,11 +941,11 @@ export default {
 .carlist-container .search-container /deep/ .el-input {
   width: 230px;
 }
-.carlist-container .Operation /deep/ .el-input,
+.carlist-container .form /deep/ .el-input,
 .el-textarea {
-  width: 300px;
+  width: 350px;
 }
-.carlist-container /deep/ .el-dialog{
+.carlist-container /deep/ .el-dialog {
   margin: 0 auto 50px;
 }
 </style>

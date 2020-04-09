@@ -45,19 +45,71 @@ export function batteryinsert(data) {
     })
 }
 
-// 电池管理
-
 /**
  * @description   车辆管理
  * @author LiMuEn
  * @date 2020-04-08
  * @export
- * @param {Object} data
+ * @param {Object} params
  */
-export function carListPage(data) {
+export function carListPage(params) {
     return request({
         url: "/electrombile/queryManagerListPage",
+        method: "GET",
+        params
+    })
+}
+
+
+/**
+ * @description   车辆管理新增
+ * @author LiMuEn
+ * @date 2020-04-08
+ * @export
+ * @param {Object} data
+ */
+export function carInsert(data) {
+    return request({
+        url: "/electrombile/insert",
         method: "post",
         data
     })
 }
+
+
+/**
+ * @description   车辆管理通过id查询
+ * @author LiMuEn
+ * @date 2020-04-08
+ * @export
+ * @param {Object} params
+ */
+export function carByelectrombileId(params) {
+    return request({
+        url: "/electrombile/selectByelectrombileId",
+        method: "GET",
+        params
+    })
+}
+
+
+
+/**
+ * @description   车辆管理修改
+ * @author LiMuEn
+ * @date 2020-04-08
+ * @export
+ * @param {Object} data
+ */
+export function carUpdate(data) {
+    return request({
+        url: "/electrombile/update",
+        method: "PUT",
+        data
+    })
+}
+
+
+
+
+

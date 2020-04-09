@@ -81,3 +81,22 @@ export function deletecharge(params) {
         params
     })
 }
+
+
+
+/**
+ * @description   根据主键查询
+ * @author LiMuEn
+ * @date 2020-03-31
+ * @export
+ * @param {Object} params
+ * @param {Number} params.largeAreaId       大区ID
+ * @param {Number} params.franchiseeId      	加盟商ID
+ */
+export function chargeFranchisee(params) {
+    return request({
+        url: "/chargeSetUp/findByLargeFranchisee",
+        method: "GET",
+        params
+    })
+}

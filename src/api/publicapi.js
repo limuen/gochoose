@@ -32,3 +32,20 @@ export function uploadoss(data) {
     data
   })
 }
+
+
+/**
+ * @description   根据父类ID查询
+ * @author LiMuEn
+ * @date 2020-03-24
+ * @export
+ * @param {Object} params
+ * @param {Number} params.pid       6:车辆状态
+ */
+export function CarselectByPid(params) {
+  return request({
+    url: "/dict/selectByPid",
+    method: "GET",
+    params
+  })
+}
