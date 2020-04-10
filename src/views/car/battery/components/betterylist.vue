@@ -79,6 +79,7 @@
 
     <div class="permission-table">
       <el-table
+        v-loading="loading"
         ref="multipleTable"
         :data="tableData"
         tooltip-effect="dark"

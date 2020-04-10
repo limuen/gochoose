@@ -212,6 +212,7 @@
         :data="tableData"
         tooltip-effect="dark"
         style="width: 100%"
+        v-loading="loading"
         :header-cell-style="{background:'#EBEFF4'}"
       >
         <el-table-column type="index" width="50"></el-table-column>
@@ -259,7 +260,7 @@
             <el-button type="text">轨迹</el-button>
             <el-button type="text">维修记录</el-button>
             <el-button type="text">二维码</el-button>
-            <el-button type="text">详情</el-button>
+            <el-button type="text" @click="handleDetail(scope.row)">详情</el-button>
             <el-button type="text" @click="handleedit(scope.row)">编辑</el-button>
           </template>
         </el-table-column>
@@ -468,10 +469,16 @@
         <el-button type="primary" @click="submitform">确 定</el-button>
       </div>
     </el-dialog>
+
+    <!-- 详情弹窗 -->
+    <div v-if="this.drawerId != ''">
+      <drawer ref="drawer" :drawerId="drawerId"></drawer>
+    </div>
   </div>
 </template>
 
 <script>
+import drawer from '../drawer'
 import { allRegion, allianceListByRegionId } from "@/api/region";
 import { findByLargeFranchisee } from "@/api/responsibility";
 import { CarselectByPid } from "@/api/publicapi";
@@ -484,8 +491,12 @@ import {
 import { chargeFranchisee } from "@/api/charge";
 export default {
   name: "carlist",
+  components: {
+    drawer
+  },
   data() {
     return {
+      drawerId: "",
       AllianOptions: [], // 查询大区
       allianceOptions: [], // 加盟商
       areaOptions: [], //责任区域单选
@@ -722,6 +733,15 @@ export default {
           }
         })
         .catch(() => {});
+    },
+    // 详情
+    handleDetail(row) {
+      console.log(row,'详情')
+      this.drawerId = row.electrombileId;
+      this.$nextTick(() =>{
+        this.$refs.drawer.drawer = true
+        this.$refs.drawer.getDetail()
+      })
     },
     // 获取列表
     getList() {
