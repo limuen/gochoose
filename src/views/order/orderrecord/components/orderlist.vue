@@ -5,12 +5,17 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>大区</span>
-            <el-select v-model="value" placeholder="请选择大区">
+            <el-select
+              v-model="listQuery.electrombileRegionId"
+              @change="allianValue"
+              clearable
+              placeholder="请选择大区"
+            >
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                v-for="item in AllianOptions"
+                :key="item.regionId"
+                :label="item.regionName"
+                :value="item.regionId"
               ></el-option>
             </el-select>
           </div>
@@ -18,12 +23,12 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>加盟商</span>
-            <el-select v-model="value" placeholder="请选择加盟商">
+            <el-select v-model="listQuery.electrombileAllianceId" clearable placeholder="请选择加盟商">
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+                v-for="item in allianceOptions"
+                :key="item.allianceId"
+                :label="item.allianceName"
+                :value="item.allianceId"
               ></el-option>
             </el-select>
           </div>
@@ -172,13 +177,6 @@
     <div class="page-excel">
       
       <div class="page-container">
-          <!-- <el-pagination
-            background
-            layout="prev, pager, next"
-            :total="total"
-            :current-page.sync="query.currentPage"
-            @current-change="getTrainingList"
-          ></el-pagination> -->
           <span>总收益：0元【余额：0元　红包：0元　骑行券：0元（张）】</span>
           <el-pagination
               background
@@ -207,6 +205,7 @@ export default {
   name: "orderlist",
   data() {
     return {
+      listQuery: {},
       query: {},
       value2: "",
       options: [

@@ -277,7 +277,6 @@ export default {
       tableData: [],
       total: 0,
       loading: false,
-      value2: "",
       resource: 1,
       form: {
         regionId: "",

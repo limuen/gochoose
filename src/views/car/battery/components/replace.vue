@@ -93,6 +93,7 @@
         tooltip-effect="dark"
         style="width: 100%"
         :header-cell-style="{background:'#EBEFF4'}"
+        v-loading="loading"
       >
         <el-table-column type="index" width="50"></el-table-column>
         <el-table-column prop="electrombileNumber" label="车辆编号" align="center"></el-table-column>
