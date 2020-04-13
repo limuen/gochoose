@@ -16,8 +16,8 @@
             <span>充值端</span>
             <el-select v-model="listQuery.rechargeSource" placeholder="请选择充值端">
               <el-option label="微信小程序" :value="0"></el-option>
-              <el-option label="IOS" :value="1"></el-option>
-              <el-option label="安卓" :value="2"></el-option>
+              <el-option label="安卓" :value="1"></el-option>
+              <el-option label="IOS" :value="2"></el-option>
             </el-select>
           </div>
         </el-col>
@@ -85,21 +85,28 @@
         :header-cell-style="{background:'#EBEFF4'}"
       >
         <el-table-column type="index" width="50"></el-table-column>
-        <el-table-column label="运维单号" width="200" align="center"></el-table-column>
-        <el-table-column prop="车辆编号" label="车辆编号" width="120" align="center"></el-table-column>
-        <el-table-column prop="运维方式" label="运维方式" align="center"></el-table-column>
-        <el-table-column prop="维修部件" label="维修部件" align="center"></el-table-column>
-        <el-table-column prop="运维员" label="运维员" align="center"></el-table-column>
-        <el-table-column prop="运维手机" label="运维手机" align="center"></el-table-column>
-        <el-table-column prop="推送时间" label="推送时间" width="150" align="center"></el-table-column>
-        <el-table-column prop="完成时间" label="完成时间" width="150" align="center"></el-table-column>
-        <el-table-column prop="处理结果" label="处理结果" align="center"></el-table-column>
-        <el-table-column prop="处理时效" label="处理时效" align="center"></el-table-column>
-        <el-table-column prop="评分" label="评分" align="center"></el-table-column>
-        <el-table-column prop="处理结果图片与备注" label="处理结果图片与备注" width="200" align="center"></el-table-column>
+        <el-table-column prop="rechargeType" label="充值类型" align="center"></el-table-column>
+        <el-table-column prop="payNumber" label="付款单号" align="center"></el-table-column>
+        <el-table-column prop="payChannel" label="支付渠道" align="center"></el-table-column>
+        <el-table-column prop="rechargeSource" label="充值端" align="center">
+          <template slot-scope="scope">
+            <div>{{scope.row.rechargeSource | rechargeSourceState}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="customerName" label="用户名" align="center"></el-table-column>
+        <el-table-column prop="customerPhone" label="用户手机号" align="center"></el-table-column>
+        <el-table-column prop="rechargeMoney" label="充值金额" align="center"></el-table-column>
+        <el-table-column prop="giveMoney" label="可赠送金额" align="center"></el-table-column>
+        <el-table-column prop="payTime" label="付款时间" align="center"></el-table-column>
+        <el-table-column prop="createTime" label="创建订单时间" align="center"></el-table-column>
+        <el-table-column prop="paymentStatus" label="付款状态" align="center">
+          <template slot-scope="scope">
+            <div>{{scope.row.paymentStatus | paymentStatusState}}</div>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" align="center" width="100" fixed="right">
           <template slot-scope="scope">
-            <el-button type="text" @click="handleedit(scope.row.id)">编辑</el-button>
+            <el-button type="text" @click="handleAwaken(scope.row)">唤醒</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -125,6 +132,27 @@
       </div>
       <div class="page-info">总金额：673元，收益：603元， 已退款：30元，未付款：10元，赠送金额：30元，</div>
     </div>
+
+
+    <!-- 编辑 -->
+    <el-dialog title="唤醒用户充值" width="30%" :visible.sync="dialogFormVisible">
+      <el-form :model="form" class="form" ref="form" :rules="rules" label-width="120px">
+        <el-form-item label="订单金额">
+          <el-input v-model="form.equipmentImel" disabled></el-input> 元
+        </el-form-item>
+        <el-form-item label="赠送券额"  prop="operationState">
+          <el-select v-model="form.operationState" placeholder="请选择赠送券额">
+            <el-option label="5元骑行红包" :value="0"></el-option>
+            <el-option label="3元骑行券" :value="1"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer" align="center">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogFormVisible = true">确 定</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -149,12 +177,39 @@ export default {
       payTimes: [],
       tableData: [],
       total: 0,
-      loading: false
+      loading: false,
+      form: {
+        rechargeMoney: "",
+        operationState: "",
+      },
+      dialogFormVisible: false,
+      rules: {
+        operationState: [
+          { required: true, message: "请选择赠送券额", trigger: "change" }
+        ]
+      }
     };
+  },
+  filters: {
+    rechargeSourceState(key) {
+      const rechargeSourceStateMap = {
+        0: "微信小程序",
+        1: "安卓",
+        2: "IOS"
+      };
+      return rechargeSourceStateMap[key];
+    },
+    paymentStatusState(key) {
+      const paymentStatusStateMap = {
+        0: "未付款",
+        1: "已付款"
+      };
+      return paymentStatusStateMap[key];
+    }
   },
   mounted() {
     // 获取列表
-    this.getList() 
+    this.getList();
   },
   methods: {
     // 获取本周
@@ -225,6 +280,11 @@ export default {
     handleFilter() {
       this.listQuery.current = 1;
       this.getList();
+    },
+    handleAwaken(row) {
+      console.log(row,'唤醒')
+      this.rechargeMoney = row.rechargeMoney;
+      this.dialogFormVisible = true;
     }
   }
 };
@@ -260,6 +320,9 @@ export default {
   }
 }
 .balance-container .search-container /deep/ .el-input {
-  width: 195px;
+  width: 230px;
+}
+.balance-container .form /deep/ .el-input{
+  width: 350px;
 }
 </style>

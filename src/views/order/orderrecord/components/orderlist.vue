@@ -321,10 +321,10 @@ export default {
   }
 }
 .orderlist-container .search-container /deep/ .el-input {
-  width: 190px;
+  width: 230px;
 }
 .orderlist-container .Operation /deep/ .el-input,.el-textarea{
-  width: 300px;
+  width: 350px;
 }
 .orderlist-container .editPrice /deep/ .el-input .el-input__inner{
   border-radius: 0px;
