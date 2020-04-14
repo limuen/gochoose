@@ -69,6 +69,7 @@
         :data="tableData"
         tooltip-effect="dark"
         style="width: 100%"
+        v-loading="loading"
         :header-cell-style="{background:'#EBEFF4'}"
       >
         <el-table-column type="index" width="50"></el-table-column>
@@ -295,7 +296,7 @@ export default {
           { required: true, message: "请输入有效期", trigger: "blur" }
         ],
         getNumber: [
-          { required: true, message: "请输入可领取辆", trigger: "blur" }
+          { required: true, message: "请输入可领取数量", trigger: "blur" }
         ],
         activityStartTime: [
           { required: true, message: "请选择开启时间", trigger: "change" }
@@ -463,7 +464,6 @@ export default {
           }
         });
     },
-
     // 新增分享
     handleCreate() {
       this.dialogtitle = "新增用户券活动";

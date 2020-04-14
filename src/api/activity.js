@@ -157,3 +157,87 @@ export function NewupdateByStatus(params) {
         params
     })
 }
+
+
+// 活动管理分享设置
+
+/**
+ * @description   活动管理分享分页获取数据
+ * @author LiMuEn
+ * @date 2020-04-7
+ * @export
+ * @param {Object} data
+ */
+export function ShareListPage(params) {
+    return request({
+        url: "/activityShare/queryManagerListPage",
+        method: "GET",
+        params
+    })
+}
+
+
+
+/**
+ * @description   活动管理新分享主键修改状态
+ * @author LiMuEn
+ * @date 2020-04-7
+ * @export
+ * @param {Object} data
+ */
+export function ShareByStatus(params) {
+    return request({
+        url: "/activityShare/updateByStatus",
+        method: "GET",
+        params
+    })
+}
+
+
+
+/**
+ * @description   活动管理新分享主键修改状态
+ * @author LiMuEn
+ * @date 2020-04-7
+ * @export
+ * @param {Object} data
+ */
+export function insertShare(data) {
+    return request({
+        url: "/activityShare/insert",
+        method: "POST",
+        data
+    })
+}
+
+/**
+ * @description   活动管理新分享根据主键查询
+ * @author LiMuEn
+ * @date 2020-04-7
+ * @export
+ * @param {Object} data
+ */
+export function SharefindById(params) {
+    return request({
+        url: "/activityShare/findById",
+        method: "GET",
+        params
+    })
+}
+
+
+
+/**
+ * @description   活动管理新分享根据主键查询
+ * @author LiMuEn
+ * @date 2020-04-7
+ * @export
+ * @param {Object} data
+ */
+export function Shareupdate(data) {
+    return request({
+        url: "/activityShare/update",
+        method: "PUT",
+        data
+    })
+}
