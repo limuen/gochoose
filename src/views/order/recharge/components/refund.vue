@@ -99,7 +99,7 @@
         <el-table-column prop="billNumber" label="对账单号" align="center"></el-table-column>
         <el-table-column prop="refundChannel" label="退款渠道" align="center">
           <template slot-scope="scope">
-            <div>{{scope.row.refundChannel | refundChannelState}}</div>
+            <div>{{refundChannelStateMap[scope.row.refundChannel]}}</div>
           </template>
         </el-table-column>
         <el-table-column prop="refundOperator" label="退款操作人" align="center"></el-table-column>
@@ -144,6 +144,7 @@ import { getDay, transTime } from "@/utils/index.js";
 import { RefundListPage } from "@/api/order";
 export default {
   name: "refund",
+
   data() {
     return {
       listQuery: {
@@ -161,17 +162,21 @@ export default {
       refundEndTimes: [],
       tableData: [],
       total: 0,
-      loading: false
+      loading: false,
+      refundChannelStateMap : {
+        0: "微信",
+        1: "支付宝"
+      }
     };
   },
   filters: {
-    refundChannelState(key) {
-      const refundChannelStateMap = {
-        0: "微信",
-        1: "支付宝"
-      };
-      return refundChannelStateMap[key];
-    },
+    // refundChannelState(key) {
+    //   const refundChannelStateMap = {
+    //     0: "微信",
+    //     1: "支付宝"
+    //   };
+    //   return refundChannelStateMap[key];
+    // },
     refundStatusState(key) {
       const refundStatusStateMap = {
         0: "未退款",

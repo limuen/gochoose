@@ -20,3 +20,25 @@ export function freesheetListPage(params) {
         params
     });
 }
+
+
+/**
+ * @description   用户管理订单记录
+ * @author LiMuEn
+ * @date 2020-04-18
+ */
+/**
+ * @description   用户管理订单记录订单列表分页查询返回总条数
+ * @author LiMuEn
+ * @date 2020-04-13
+ * @export
+ * @param {Object} params
+ */
+
+export function orderListPage(params) {
+    return request({
+        url: "/order/queryManagerListPage",
+        method: "get",
+        params
+    });
+}
