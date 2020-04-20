@@ -57,6 +57,10 @@ export default {
     parkingPoint: {
       type: Boolean,
       default: false
+    },
+    readOnly: {
+      type: Boolean,
+      default: false
     }
     // 地图参数
     // zoom: {
@@ -459,6 +463,9 @@ export default {
     },
     // 地图点击事件绑定
     clickOn() {
+      if (this.readOnly) {
+        return
+      }
       // 停车点模式
       if (this.parkingPoint) {
         this.map.on('click', res => {

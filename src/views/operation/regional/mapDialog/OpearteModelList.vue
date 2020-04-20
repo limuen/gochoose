@@ -15,6 +15,7 @@
               v-loading="Maploading"
               :is-edit="false"
               :tabsactive="true"
+              :read-only="true"
             />
           </el-col>
         </el-form>
