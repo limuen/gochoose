@@ -1,268 +1,376 @@
 <template>
-  <div class="prohibit-container">
+  <div class="operate-container">
     <div class="create-button">
-      <el-button type="primary" @click="handleCreate" icon="el-icon-edit">添加禁行区域</el-button>
+      <el-button type="primary" icon="el-icon-edit" @click="handleCreate">添加禁行区域</el-button>
     </div>
     <div class="search-container">
       <el-row :gutter="24">
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>大区</span>
-            <el-select v-model="value" placeholder="请选择大区">
+            <el-select
+              v-model="listQuery.largeAreaId"
+              clearable
+              placeholder="请选择大区"
+              @change="allianValue"
+              @clear="clearValue"
+            >
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
+                v-for="item in AllianOptions"
+                :key="item.regionId"
+                :label="item.regionName"
+                :value="item.regionId"
+              />
             </el-select>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>加盟商</span>
-            <el-select v-model="value" placeholder="请选择状态">
+            <el-select v-model="listQuery.franchiseeId" clearable placeholder="请选择加盟商">
               <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
+                v-for="item in allianceOptions"
+                :key="item.allianceId"
+                :label="item.allianceName"
+                :value="item.allianceId"
+              />
             </el-select>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>区域名称</span>
-            <el-input v-model="value" placeholder="请输入区域名称"></el-input>
+            <el-input v-model="listQuery.regionName" placeholder="请输入区域名称" />
           </div>
         </el-col>
-        <el-col :span="24">
+        <el-col :span="6">
           <div class="grid-content bg-purple">
-            <el-button type="primary">查询</el-button>
+            <el-button type="primary" @click="handleFilter">查询</el-button>
           </div>
         </el-col>
       </el-row>
     </div>
 
     <div class="permission-table">
-        <el-table
-          ref="multipleTable"
-          :data="tableData"
-          tooltip-effect="dark"
-          style="width: 100%"
-          :header-cell-style="{background:'#EBEFF4'}"
-        >
-          <el-table-column label="运维单号" width="200" align="center"></el-table-column>
-          <el-table-column prop="车辆编号" label="车辆编号" width="120" align="center"></el-table-column>
-          <el-table-column prop="运维方式" label="运维方式" align="center"></el-table-column>
-          <el-table-column prop="维修部件" label="维修部件" align="center"></el-table-column>
-          <el-table-column prop="运维员" label="运维员" align="center"></el-table-column>
-          <el-table-column prop="运维手机" label="运维手机" align="center"></el-table-column>
-          <el-table-column prop="推送时间" label="推送时间" width="150" align="center"></el-table-column>
-          <el-table-column prop="完成时间" label="完成时间" width="150" align="center"></el-table-column>
-          <el-table-column prop="处理结果" label="处理结果" align="center"></el-table-column>
-          <el-table-column prop="处理时效" label="处理时效" align="center"></el-table-column>
-          <el-table-column prop="评分" label="评分" align="center"></el-table-column>
-          <el-table-column prop="处理结果图片与备注" label="处理结果图片与备注" width="200" align="center"></el-table-column>
-          <el-table-column label="操作" align="center" width="100" fixed="right">
-            <template slot-scope="scope">
-              <el-button type="text" @click="handleedit(scope.row.id)">
-                忽略
-              </el-button>
-              <el-button type="text" @click="handleedit(scope.row.id)">
-                设为待处理
-              </el-button>
-              <el-button type="text" @click="handleedit(scope.row.id)">
-                工单指派
-              </el-button>
-              <el-button type="text" @click="handleedit(scope.row.id)">
-                运维日志
-              </el-button>
-              <el-button type="text" @click="handleedit(scope.row.id)">
-                给奖励
-              </el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-      <div class="page-container">
-          <!-- <el-pagination
-            background
-            layout="prev, pager, next"
-            :total="total"
-            :current-page.sync="query.currentPage"
-            @current-change="getTrainingList"
-          ></el-pagination> -->
-          <el-pagination
-              background
-              align="left"
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-              :current-page.sync="currentPage4"
-              :page-sizes="[100, 200, 300, 400]"
-              :page-size="100"
-              layout="total, sizes, prev, pager, next, jumper"
-              :total="400">
-          </el-pagination>
-      </div>
+      <el-table
+        ref="multipleTable"
+        v-loading="loading"
+        :data="tableData"
+        tooltip-effect="dark"
+        style="width: 100%"
+        :header-cell-style="{background:'#EBEFF4'}"
+      >
+        <el-table-column type="index" width="50" />
+        <el-table-column prop="regionName" label="区域名称" align="center" />
+        <!-- <el-table-column prop="parkSpotNum" label="停车点" align="center"></el-table-column>
+        <el-table-column prop="dispatchFee" label="调度费" align="center"></el-table-column> -->
+        <el-table-column prop="franchiseeName" label="加盟商" align="center" />
+        <el-table-column prop="largeAreaName" label="大区" align="center" />
+        <el-table-column label="操作" align="center" width="250" fixed="right">
+          <template slot-scope="scope">
+            <el-button type="primary" size="mini" @click="handleMapcomponent(scope.row)">编辑</el-button>
+            <el-button type="primary" size="mini" @click="handleSeeRegion(scope.row)">区域</el-button>
+            <!-- <el-button type="primary" size="mini" @click="handleMapcomponent(scope.row)">组件</el-button> -->
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+    <div class="page-container">
+      <el-pagination
+        background
+        align="left"
+        :current-page.sync="listQuery.current"
+        :page-sizes="[10, 20, 30, 40]"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
+    </div>
 
+    <operateDialog
+      ref="operateDialog"
+      :is-edit="isEdit"
+      :dialogtitle="dialogtitle"
+      @handleSub="handleSub"
+    />
 
+    <OpearteModelList v-if="dialogtitle=='禁行区域'" ref="OpearteModelList" :dialogtitle="dialogtitle" />
 
-      <!-- 新增编辑禁行区域 -->
-    <el-dialog :title="dialogtitle" class="prohibitform" :visible.sync="dialogForm">
-      <el-row :gutter="24">
-        <el-form :model="form">
-          <el-col :span="12">
-            <div class="grid-content bg-purple">
-              <el-form-item label="大区" :label-width="formLabelWidth">
-                <el-select v-model="form.region" placeholder="请选择大区">
-                  <el-option label="区域一" value="shanghai"></el-option>
-                  <el-option label="区域二" value="beijing"></el-option>
-                </el-select>
-              </el-form-item>
-            </div>
-          </el-col>
-          <el-col :span="12">
-            <div class="grid-content bg-purple">
-              <el-form-item label="加盟商" :label-width="formLabelWidth">
-                <el-select v-model="form.region" placeholder="请选择加盟商">
-                  <el-option label="区域一" value="shanghai"></el-option>
-                  <el-option label="区域二" value="beijing"></el-option>
-                </el-select>
-              </el-form-item>
-            </div>
-          </el-col>
-          <el-col :span="12">
-            <div class="grid-content bg-purple">
-              <el-form-item label="区域名称" :label-width="formLabelWidth">
-                <el-input v-model="form.name" autocomplete="off"></el-input>
-              </el-form-item>
-            </div>
-          </el-col>
-          <el-col :span="12">
-            <div class="grid-content bg-purple">
-              <el-form-item label="调度费" :label-width="formLabelWidth">
-                <el-input v-model="form.name" autocomplete="off"></el-input>
-              </el-form-item>
-            </div>
-          </el-col>
-          <el-col :span="24">
-            <div class="grid-content bg-purple">
-              <el-form-item label="区域配置说明：" class="bg-size-color" :label-width="formLabelWidth">
-                <ol>
-                  <li>禁行区域是政府监管红线不能触碰,也可以用作某些特定区域方便管理车辆,如果禁行区域与运营区域重叠,禁行区域权重更大,会覆盖实际运营区域。</li>
-                  <li>设置时请注意隧道口等特别区域要扩大范围，避免用户误入。</li>
-                  <li>车辆进入用户可见禁行区域时会语音提醒用户，如果用户进入实际禁行区域10秒后车辆被断电，并在用户端强制弹窗提示，当用户点击用户端“返回绿色骑行区域”时ACC通电3分钟，回到运营区域恢复正常状态。</li>
-                </ol>
-              </el-form-item>
-            </div>
-          </el-col>
-          <el-col :span="24">
-            <div class="grid-content bg-purple">
-              <el-form-item :label-width="formLabelWidth">
-                <el-tabs v-model="activeName" @tab-click="handleClick">
-                  <el-tab-pane label="用户可见区域" name="Visible">
-                    <div class="gdmap">地图1</div>
-                  </el-tab-pane>
-                  <el-tab-pane label="实际区域" name="Actual">
-                    <div class="gdmap">地图2</div>
-                  </el-tab-pane>
-                </el-tabs>
-              </el-form-item>
-            </div>
-          </el-col>
-        </el-form>
-      </el-row>
-      <div slot="footer" class="dialog-footer" align="center">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">保 存</el-button>
-      </div>
-    </el-dialog>
-
-   
-
-
+    <opearteDialogMap
+      v-if="dialogtitle=='编辑禁行区域'"
+      ref="opearteDialogMap"
+      area-type="stop"
+      :is-edit="isEdit"
+      :dialogtitle="dialogtitle"
+      @handleSub="handleSub"
+    />
+    <opearteDialogMap
+      v-if="dialogtitle=='新建禁行区域'"
+      ref="opearteDialogMapNew"
+      area-type="stop"
+      :is-edit="isEdit"
+      :dialogtitle="dialogtitle"
+      @handleSub="handleSub"
+    />
   </div>
 </template>
 
 <script>
+import AMap from 'AMap'
+import {
+  forbiddenRegionqueryManagerListPage,
+  forbiddenRegioninsert,
+  forbiddenRegionupdate,
+  forbiddenRegionfindPositionModelList
+
+} from '@/api/operationRegional'
+import { allRegion, allianceListByRegionId } from '@/api/region'
+import operateDialog from '../mapDialog/operateDialog'
+import OpearteModelList from '../mapDialog/OpearteModelList'
+import opearteDialogMap from '../mapDialog/opearteDialogMap'
 export default {
-  name: "prohibit",
+  name: 'Operate',
+  components: {
+    operateDialog,
+    OpearteModelList,
+    opearteDialogMap
+  },
   data() {
     return {
-      query: {},
-      value2: "",
-      options: [
-        {
-          value: "选项1",
-          label: "黄金糕"
-        },
-        {
-          value: "选项2",
-          label: "双皮奶"
-        },
-        {
-          value: "选项3",
-          label: "蚵仔煎"
-        },
-        {
-          value: "选项4",
-          label: "龙须面"
-        },
-        {
-          value: "选项5",
-          label: "北京烤鸭"
-        }
-      ],
-      value: "",
+      AllianOptions: [], // 查询大区
+      allianceOptions: [], // 加盟商
+      listQuery: {
+        largeAreaId: '',
+        franchiseeId: '',
+        regionName: '',
+        current: 1,
+        size: 10
+      },
+      total: 0,
       tableData: [],
+      loading: false,
+      isEdit: false,
+      // isFullscreen: false,
+      // isFullscreenmap: false,
+      // dialogFormVisible: false,
       form: {
-        name: "",
-        region: "",
-        date1: "",
-        date2: "",
+        name: '',
+        region: '',
+        date1: '',
+        date2: '',
         delivery: false,
         type: [],
-        resource: "",
-        desc: "",
-        textarea: ""
+        resource: '',
+        desc: '',
+        textarea: ''
       },
-      formLabelWidth: "120px",
+      formLabelWidth: '120px',
+      dialogtitle: '',
       dialogForm: false,
-      dialogtitle: "",
-      activeName: "Visible"
-    };
+      activeName: 'Visible',
+      maplading: true,
+      mapActuallading: true,
+      searchAddress: '', // 地址
+      location: '', // 地图搜索定位
+      // 地图1
+      map: null,
+      marker: null, // marker
+      polyline: null,
+      polygon: null,
+      // 折线坐标,所有的点位都存在这
+      markarr: [],
+      markers: [],
+      polylines: [],
+      polygonActual: null, // 初始化第二个地图渲染第一个地图画过的区域
+      isActive: false, // 全屏
+      result: [],
+      // 地图2
+      mapActual: null,
+      viewok: false,
+      markerActual: null, // marker
+      polylineActual: null,
+      polygonact: null,
+      // 地图2折线坐标,所有的点位都存在这
+      markarrActual: [],
+      markersActual: [],
+      polylinesActual: [],
+      isActiveActual: false // 全屏
+    }
+  },
+  watch: {},
+  mounted() {
+    // 查询大区
+    this.getallianList()
+    // 获取列表
+    this.getList()
   },
   methods: {
+    // 获取列表
+    getList() {
+      this.loading = true
+      forbiddenRegionqueryManagerListPage(this.listQuery)
+        .then(res => {
+          console.log(res, '11111')
+          if (res.code == 0) {
+            this.total = res.data.total
+            this.tableData = res.data.rows
+            this.loading = false
+          }
+        })
+        .catch(() => {})
+    },
     handleSizeChange(val) {
-        console.log(`每页 ${val} 条`);
+      this.listQuery.current = 1
+      this.listQuery.size = val
+      this.getList()
     },
     handleCurrentChange(val) {
-        console.log(`当前页: ${val}`);
+      this.listQuery.current = val
+      this.getList()
     },
+    handleFilter() {
+      this.listQuery.current = 1
+      this.getList()
+    },
+    // 查询大区
+    getallianList() {
+      allRegion()
+        .then(res => {
+          if (res.code == 0) {
+            this.AllianOptions = res.data
+          }
+        })
+        .catch(() => {})
+    },
+    clearValue() {
+      this.allianceOptions = []
+    },
+    // 获取到大区的id去请求加盟商
+    allianValue(value) {
+      if (value == '') {
+        return
+      }
+      this.listQuery.franchiseeId = ''
+      this.allianceOptions = []
+      allianceListByRegionId({ regionId: value })
+        .then(res => {
+          if (res.code == 0) {
+            this.allianceOptions = res.data
+          }
+        })
+        .catch(() => {})
+    },
+    // 编辑
+    handleMapcomponent(row) {
+      this.dialogtitle = ''
+      // 强制刷新组件
+      setTimeout(() => {
+        this.dialogtitle = '编辑禁行区域'
+        this.isEdit = false
+        forbiddenRegionfindPositionModelList({
+          largeAreaId: row.largeAreaId,
+          franchiseeId: row.franchiseeId,
+          forbiddenRegionId: row.id
+        }).then(res => {
+          if (res.code == 0) {
+            this.$refs.opearteDialogMap.dialogFormVisible = true
+            this.$nextTick(() => {
+              this.$refs.opearteDialogMap.amapData(res.data, row.id, '禁行区域')
+              this.$refs.opearteDialogMap.changeForm(row)
+            })
+          }
+        })
+      })
+    },
+    // 创建
     handleCreate() {
-        console.log('111')
-        this.dialogtitle = "禁行区域";
-        this.dialogForm = true;
+      this.dialogtitle = ''
+      // 强制刷新组件
+      setTimeout(() => {
+        this.dialogtitle = '新建禁行区域'
+        this.$nextTick(() => {
+          this.$refs.opearteDialogMapNew.dialogFormVisible = true
+        })
+      })
     },
-    // 切换tabs
-    handleClick(tab, event) {
-      console.log(tab, event);
+    // 查看区域
+    handleSeeRegion(row) {
+      console.log(row, '运行区域')
+      this.dialogtitle = '禁行区域'
+      forbiddenRegionfindPositionModelList({
+        largeAreaId: row.largeAreaId,
+        franchiseeId: row.franchiseeId,
+        forbiddenRegionId: row.id
+      })
+        .then(res => {
+          this.$refs.OpearteModelList.dialogFormVisible = true
+          this.$nextTick(() => {
+            this.$refs.OpearteModelList.amapData(res.data, row.id, '禁行区域')
+          })
+        })
+        .catch(() => {})
+    },
+    // 表单提交
+    handleSub(form) {
+      console.log(form, '提交参数')
+      const data = form
+      // console.log(this.isEdit);
+      if (this.dialogtitle == '编辑禁行区域') {
+        forbiddenRegionupdate(data)
+          .then(res => {
+            console.log(res, '1111111')
+            if (res.code == 0) {
+              this.$notify({
+                title: '成功',
+                message: '修改成功',
+                type: 'success'
+              })
+              this.$refs.opearteDialogMap.saveLoading = false
+              this.$refs.opearteDialogMap.dialogFormVisible = false
+              this.getList()
+            }
+          })
+          .catch(err => {
+            this.$refs.opearteDialogMap.saveLoading = false
+            // this.$refs.mydialog.close();
+            // this.$message.error(err.message);
+          })
+      } else {
+        forbiddenRegioninsert(data)
+          .then(res => {
+            console.log(res, '1111111')
+            if (res.code == 0) {
+              this.$notify({
+                title: '成功',
+                message: '创建成功',
+                type: 'success'
+              })
+              this.$refs.opearteDialogMapNew.saveLoading = false
+              this.$refs.opearteDialogMapNew.dialogFormVisible = false
+              this.getList()
+            }
+          })
+          .catch(err => {
+            this.$refs.opearteDialogMapNew.saveLoading = false
+            // this.$refs.mydialog.close();
+            // this.$message.error(err.message);
+          })
+      }
     }
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>
-.prohibit {
+.operate {
   &-container {
     .search-container {
       position: relative;
       & > button {
-          position: absolute;
-          right: 0;
-          top: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
       }
       .el-row {
         margin-bottom: 20px;
@@ -280,25 +388,12 @@ export default {
         }
       }
     }
-    .prohibitform {
-      .bg-size-color {
-        ol{
-          padding: 0px;
-          margin: 0px;
-        }
-      }
-      .gdmap{
-        width:100%;
-        height: 400px;
-      }
-    }
   }
 }
-.prohibit-container .search-container /deep/ .el-input {
+.operate-container .search-container /deep/ .el-input {
   width: 195px;
 }
-.prohibit-container /deep/ .page-container{
-    justify-content: flex-start;
+.operate-container /deep/ .page-container {
+  justify-content: flex-start;
 }
-
 </style>

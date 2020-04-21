@@ -16,6 +16,7 @@ const CompressionWebpackPlugin = require("compression-webpack-plugin");
 const productionGzipExtensions = ["js", "css"];
 
 // All configuration item explanations can be find in https://cli.vuejs.org/config/
+//
 module.exports = {
   publicPath: "/",
   outputDir: "dist",
