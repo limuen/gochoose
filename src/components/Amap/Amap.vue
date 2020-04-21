@@ -57,6 +57,10 @@ export default {
     parkingPoint: {
       type: Boolean,
       default: false
+    },
+    readOnly: {
+      type: Boolean,
+      default: false
     }
     // 地图参数
     // zoom: {
@@ -116,9 +120,9 @@ export default {
     }
   },
   watch: {
-    Tabsactive: {
+    tabsactive: {
       handler(newValue, oldValue) {
-        console.log(this.Tabsactive, '地图离里面的Tabsactive')
+        console.log(this.tabsactive, '地图离里面的tabsactive')
         if (this.map) {
           this.map.clearMap()
         }
@@ -136,12 +140,13 @@ export default {
     // })
     this.init()
 
-    // console.log(this.Tabsactive, "Tabsactive");
+    // console.log(this.tabsactive, "tabsactive");
   },
   methods: {
     // 检测有实际或者可见区数据 绘制
     ifSeeOrAct() {
-      if (this.Tabsactive == true) {
+       
+      if (this.tabsactive == true) {
         console.log(
           '切换到了实际区域重新拿用户可见区域绘制地图',
           this.Mapobject.seeingRegion
@@ -459,6 +464,9 @@ export default {
     },
     // 地图点击事件绑定
     clickOn() {
+      if (this.readOnly) {
+        return
+      }
       // 停车点模式
       if (this.parkingPoint) {
         this.map.on('click', res => {
@@ -492,7 +500,7 @@ export default {
       )
 
       let that = null
-      if (this.Tabsactive) {
+      if (this.tabsactive) {
         // console.log("走这里11111111");
         that = this.Mapobject.actualRegion
         this.strokeColor = '#f56c6c'
@@ -574,8 +582,8 @@ export default {
       this.polyline = null
       this.polygonActual = null
       this.drawData = []
-      if (!this.Tabsactive) {
-        console.log('用户可见区域 + ', this.Tabsactive)
+      if (!this.tabsactive) {
+        console.log('用户可见区域 + ', this.tabsactive)
         // 用户可见区域
         this.Mapobject.seeingRegion = {
           marker: null, // marker
@@ -588,7 +596,7 @@ export default {
           seeingRegionModelList: [] // 用户区域的经纬度列表
         }
       } else {
-        console.log('实际区域 +', this.Tabsactive)
+        console.log('实际区域 +', this.tabsactive)
         // 用户可见区域
         this.drawMap({ region: this.Mapobject.seeingRegion })
         this.Mapobject.actualRegion = {
@@ -605,12 +613,12 @@ export default {
     },
     markerfn() {
       let that = null
-      if (!this.Tabsactive) {
-        console.log('用户可见区域 + ', this.Tabsactive)
+      if (!this.tabsactive) {
+        console.log('用户可见区域 + ', this.tabsactive)
         that = this.Mapobject.seeingRegion
         this.fillColor = '#67c23a'
       } else {
-        console.log('实际区域 +', this.Tabsactive)
+        console.log('实际区域 +', this.tabsactive)
         that = this.Mapobject.actualRegion
         this.fillColor = '#f56c6c'
       }
@@ -638,11 +646,11 @@ export default {
     // 上一步
     previousActual() {
       let that = null
-      if (!this.Tabsactive) {
-        console.log('用户可见区域 + ', this.Tabsactive)
+      if (!this.tabsactive) {
+        console.log('用户可见区域 + ', this.tabsactive)
         that = this.Mapobject.seeingRegion
       } else {
-        console.log('实际区域 +', this.Tabsactive)
+        console.log('实际区域 +', this.tabsactive)
         that = this.Mapobject.actualRegion
       }
 

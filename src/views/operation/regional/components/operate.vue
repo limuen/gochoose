@@ -115,11 +115,9 @@
 </template>
 
 <script>
-import AMap from 'AMap'
 import {
   OpearteListPage,
   createRegional,
-  findById,
   updateRegion,
   findPositionModelList
 } from '@/api/operationRegional'

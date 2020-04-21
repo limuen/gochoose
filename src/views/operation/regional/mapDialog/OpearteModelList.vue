@@ -14,8 +14,8 @@
               ref="MapRegion"
               v-loading="Maploading"
               :is-edit="false"
-              :clickMarker="false"
               :tabsactive="true"
+              :read-only="true"
             />
           </el-col>
         </el-form>
@@ -137,6 +137,8 @@ export default {
           id
         }).then(res => {
           if (res.code == 0) {
+              amap.setZoom(12);
+            amap.setCenter(res.data.seeingRegionModelList[0])
             amap.drawMapArr({
               dataList: [res.data.seeingRegionModelList],
               polygonSetting: {
@@ -160,6 +162,7 @@ export default {
           id
         }).then(res => {
           if (res.code == 0) {
+            amap.setCenter(res.data.actualRegionModelList[0])
             amap.drawMapArr({
               dataList: [res.data.actualRegionModelList],
               polygonSetting: {
@@ -178,6 +181,7 @@ export default {
           id
         }).then(res => {
           if (res.code == 0) {
+            amap.setCenter(res.data.actualRegionModelList[0])
             amap.drawMapArr({
               dataList: [res.data.actualRegionModelList],
               polygonSetting: {
@@ -196,8 +200,10 @@ export default {
           id
         }).then(res => {
           if (res.code == 0) {
+            amap.setCenter(res.data.seeingRegionModelList[0]);
+          
             amap.drawMapArr({
-              dataList: [res.data.actualRegionModelList],
+              dataList: [res.data.seeingRegionModelList],
               polygonSetting: {
                 fillColor: '#67c23a',
                 strokeColor: '#67c23a'

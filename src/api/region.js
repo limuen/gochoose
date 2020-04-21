@@ -1,4 +1,4 @@
-import request from "@/utils/request";
+import request from '@/utils/request'
 
 /**
  * @description   查询所有大区（搜索下拉用）
@@ -8,11 +8,11 @@ import request from "@/utils/request";
  * @param {Object} params
  */
 export function allRegion(params) {
-    return request({
-        url: "/region/allRegion",
-        method: "get",
-        params
-    })
+  return request({
+    url: '/region/allRegion',
+    method: 'get',
+    params
+  })
 }
 
 /**
@@ -23,13 +23,12 @@ export function allRegion(params) {
  * @param {Object} params
  */
 export function allianceListByRegionId(params) {
-    return request({
-        url: "/alliance/allianceListByRegionId",
-        method: "get",
-        params
-    });
+  return request({
+    url: '/alliance/allianceListByRegionId',
+    method: 'get',
+    params
+  })
 }
-
 
 /**
  * @description   获取列表
@@ -39,11 +38,11 @@ export function allianceListByRegionId(params) {
  * @param {Object} params
  */
 export function queryManagerListPage(params) {
-    return request({
-        url: "/areaManage/queryManagerListPage",
-        method: "get",
-        params
-    });
+  return request({
+    url: '/areaManage/queryManagerListPage',
+    method: 'get',
+    params
+  })
 }
 
 /**
@@ -54,11 +53,11 @@ export function queryManagerListPage(params) {
  * @param {Object} data
  */
 export function createarea(data) {
-    return request({
-        url: "/areaManage/insert",
-        method: "POST",
-        data
-    });
+  return request({
+    url: '/areaManage/insert',
+    method: 'POST',
+    data
+  })
 }
 
 /**
@@ -69,13 +68,12 @@ export function createarea(data) {
  * @param {Object} data
  */
 export function updatearea(data) {
-    return request({
-        url: "/areaManage/update",
-        method: "PUT",
-        data
-    });
+  return request({
+    url: '/areaManage/update',
+    method: 'PUT',
+    data
+  })
 }
-
 
 /**
  * @description   删除
@@ -85,14 +83,12 @@ export function updatearea(data) {
  * @param {Object} params
  */
 export function deleteById(params) {
-    return request({
-        url: "/areaManage/deleteById",
-        method: "GET",
-        params
-    });
+  return request({
+    url: '/areaManage/deleteById',
+    method: 'GET',
+    params
+  })
 }
-
-
 
 /**
  * @description   根据主键查询
@@ -102,9 +98,9 @@ export function deleteById(params) {
  * @param {Object} params
  */
 export function selectByAreaManageId(params) {
-    return request({
-        url: "/areaManage/selectByAreaManageId",
-        method: "GET",
-        params
-    });
+  return request({
+    url: '/areaManage/selectByAreaManageId',
+    method: 'GET',
+    params
+  })
 }
