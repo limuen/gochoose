@@ -111,3 +111,27 @@ export function RefundListPage(params) {
         params
     });
 }
+
+
+// 用户管理加入黑名单
+
+/**
+ * @description    加入黑名单
+ * @author LiMuEn
+ * @date 2020-04-11
+ */
+/**
+ * @description   用户管理加入黑名单
+ * @author LiMuEn
+ * @date 2020-03-31
+ * @export
+ * @param {Object} params
+ */
+
+export function updateByBlackReason(params) {
+    return request({
+        url: "/customer/updateByBlackReason",
+        method: "get",
+        params
+    });
+}

@@ -14,6 +14,7 @@
               ref="MapRegion"
               v-loading="Maploading"
               :is-edit="false"
+              :clickMarker="false"
               :tabsactive="true"
             />
           </el-col>

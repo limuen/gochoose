@@ -255,7 +255,7 @@
         <el-table-column prop="electrombileRegionName" width="150" label="大区" align="center"></el-table-column>
         <el-table-column label="操作" align="center" width="360" fixed="right">
           <template slot-scope="scope">
-            <el-button type="text">定位</el-button>
+            <el-button type="text" @click="handleLocation(scope.row)">定位</el-button>
             <el-button type="text">订单</el-button>
             <el-button type="text">轨迹</el-button>
             <el-button type="text">维修记录</el-button>
@@ -474,6 +474,14 @@
     <div v-if="this.drawerId != ''">
       <drawer ref="drawer" :drawerId="drawerId"></drawer>
     </div>
+
+    <!-- 定位弹窗 -->
+    <div v-if="this.LocationId != ''">
+      <Location ref="Location" :LocationId="LocationId"/>
+    </div>
+    
+
+
   </div>
 </template>
 
@@ -489,10 +497,13 @@ import {
   carByelectrombileId
 } from "@/api/car";
 import { chargeFranchisee } from "@/api/charge";
+import Location from '../carmanagDialog/Location';
+import { operateRegionfindByLargeFranchisee } from '@/api/operationRegional'
 export default {
   name: "carlist",
   components: {
-    drawer
+    drawer,
+    Location
   },
   data() {
     return {
@@ -583,7 +594,8 @@ export default {
         equipmentSim: [
           { required: true, message: "请输入设备SIM", trigger: "blur" }
         ]
-      }
+      },
+      LocationId: "",
     };
   },
   filters: {
@@ -699,7 +711,7 @@ export default {
       this.chargeList = [];
       this.form.normBilling = "";
       this.form.specialBilling = "";
-      findByLargeFranchisee({
+      operateRegionfindByLargeFranchisee({
         largeAreaId: this.form.electrombileRegionId,
         franchiseeId: value
       })
@@ -715,7 +727,9 @@ export default {
       })
         .then(res => {
           if (res.code == 0) {
+            console.log(res,'收费标准')
             this.chargeList = res.data;
+            console.log(this.chargeList,'收费标准')
           }
         })
         .catch(() => {});
@@ -733,6 +747,15 @@ export default {
           }
         })
         .catch(() => {});
+    },
+    // 定位
+    handleLocation(row) {
+      console.log(row,'定位')
+      this.LocationId = row.electrombileId;
+      this.$nextTick(() => {
+        this.$refs.Location.dialogFormVisible = true;
+        this.$refs.Location.initMap();
+      })
     },
     // 详情
     handleDetail(row) {
@@ -797,8 +820,8 @@ export default {
               this.allianceOptionsDialog = res.data;
             }
           });
-          // 大区id和加盟商id获取责任区域
-          findByLargeFranchisee({
+          // 大区id和加盟商id获取运营区域
+          operateRegionfindByLargeFranchisee({
             largeAreaId: res.data.electrombileRegionId,
             franchiseeId: res.data.electrombileAllianceId
           }).then(res => {

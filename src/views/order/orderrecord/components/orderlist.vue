@@ -196,9 +196,11 @@
         <el-table-column prop="activityDiscountPay" label="骑行券扣款（元）" align="center"></el-table-column>
         <el-table-column prop="orderAllianceName" label="加盟商" align="center"></el-table-column>
         <el-table-column prop="orderRegionName" label="大区" align="center"></el-table-column>
-        <el-table-column label="操作" align="center" width="100" fixed="right">
+        <el-table-column label="操作" align="center" width="300" fixed="right">
           <template slot-scope="scope">
-            <el-button type="text" @click="handleedit(scope.row.id)">编辑</el-button>
+            <el-button type="primary" @click="handleRefund(scope.row)">退款</el-button>
+            <el-button type="primary" @click="handleedit(scope.row)">还车位置</el-button>
+            <el-button type="primary" @click="handleedit(scope.row)">行程</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -222,6 +224,45 @@
         <span>导出excel</span>
       </div>
     </div>
+
+    <!-- 退款 -->
+    <el-dialog
+      :title="RefundTitle"
+      width="30%"
+      :close-on-click-modal="false"
+      :visible.sync="dialogFormVisibleRefund"
+    >
+      <el-form :model="RefundForm" class="form" :rules="rules" ref="RefundForm" label-width="120px">
+        <el-form-item label="订单金额">
+         <el-input
+            placeholder="订单金额"
+            disabled
+            v-model="RefundForm.money1"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="退款金额" prop="money2">
+           <el-input
+            placeholder="退款金额"
+            v-model="RefundForm.money2"
+          ></el-input>
+          元
+        </el-form-item>
+        <el-form-item label="退款原因">
+           <el-input
+            placeholder="退款原因"
+            type="textarea"
+            :rows="4"
+            v-model="RefundForm.remark1"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer" align="center">
+        <el-button @click="dialogFormVisibleRefund = false">取 消</el-button>
+        <el-button type="primary" @click="submitformRefund">提 交</el-button>
+      </div>
+    </el-dialog>
+
+
   </div>
 </template>
 
@@ -276,6 +317,18 @@ export default {
       isAreaStateMap: {
         0: "是",
         1: "否"
+      },
+      dialogFormVisibleRefund: false,
+      RefundTitle: "",
+      RefundForm: {
+        money1: "",
+        money2: "",
+        remark1: "",
+      },
+      rules: {
+        money2: [
+          { required: true, message: "请输入拉黑名单原因", trigger: "blur" }
+        ]
       }
     };
   },
@@ -405,7 +458,14 @@ export default {
         this.getList();
       }
       //
-    }
+    },
+    handleRefund(row) {
+      this.dialogFormVisibleRefund = true;
+      this.RefundTitle = `您正在对用户【${row.customerPhone}】进行退款`
+      this.$nextTick(() => {
+        this.$refs.RefundForm.resetFields();
+      });
+    },
   }
 };
 </script>
@@ -457,7 +517,7 @@ export default {
 .orderlist-container .search-container /deep/ .el-input {
   width: 230px;
 }
-.orderlist-container .Operation /deep/ .el-input,
+.orderlist-container .form /deep/ .el-input,
 .el-textarea {
   width: 350px;
 }

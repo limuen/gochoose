@@ -111,5 +111,20 @@ export function carUpdate(data) {
 
 
 
+// 定位
 
+/**
+ * @description   车辆管理定位
+ * @author LiMuEn
+ * @date 2020-04-08
+ * @export
+ * @param {Object} data
+ */
+export function electrombileLocation(params) {
+    return request({
+        url: "/electrombile/electrombileLocation",
+        method: "GET",
+        params
+    })
+}
 

@@ -182,12 +182,12 @@
         ref="BlacklistForm"
         label-width="120px"
       >
-        <el-form-item label="拉黑名单原因" prop="remark">
+        <el-form-item label="拉黑名单原因" prop="blackReason">
           <el-input
             type="textarea"
             :rows="4"
             placeholder="请输入拉黑名单原因"
-            v-model="BlacklistForm.remark"
+            v-model="BlacklistForm.blackReason"
           ></el-input>
         </el-form-item>
       </el-form>
@@ -267,7 +267,7 @@
 </template>
 
 <script>
-import { administrationListPage } from "@/api/order";
+import { administrationListPage,updateByBlackReason } from "@/api/order";
 import { allRegion, allianceListByRegionId } from "@/api/region";
 import { getDay, transTime } from "@/utils/index.js";
 export default {
@@ -294,10 +294,11 @@ export default {
       loading: false,
       dialogFormVisible: false,
       BlacklistForm: {
-        remark: ""
+        customerId: "",
+        blackReason: ""
       },
       BlacklistRules: {
-        remark: [
+        blackReason: [
           { required: true, message: "请输入拉黑名单原因", trigger: "blur" }
         ]
       },
@@ -434,7 +435,9 @@ export default {
     },
     // 加入黑名单
     handleBlacklist(row) {
+      console.log(row,'加入黑名单')
       this.dialogFormVisible = true;
+      this.BlacklistForm.customerId = row.customerId
       this.$nextTick(() => {
         this.$refs.BlacklistForm.resetFields();
       });
@@ -450,7 +453,18 @@ export default {
     submitformBlacklist() {
       this.$refs.BlacklistForm.validate(valid => {
         if (valid) {
-          alert("submit!");
+        updateByBlackReason(this.BlacklistForm).then(res=>{
+          console.log(res,'11111111')
+          if(res.code == 0){
+            this.$notify({
+              title: '成功',
+              message: '加入黑名单成功',
+              type: 'success'
+            });
+            this.getList()
+            this.dialogFormVisible = false;
+          }
+        })
         } else {
           console.log("error submit!!");
           return false;
