@@ -95,6 +95,7 @@
         :data="tableData"
         tooltip-effect="dark"
         style="width: 100%"
+        v-loading="loading"
         :header-cell-style="{background:'#EBEFF4'}"
       >
         <el-table-column type="index" width="50"></el-table-column>

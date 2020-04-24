@@ -5,186 +5,189 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>车辆编号</span>
-            <el-input v-model="value" placeholder="请输入运维单号"></el-input>
+            <el-input v-model="listQuery.electrombileNumber" placeholder="请输入运维单号"></el-input>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>IMEI</span>
-            <el-input v-model="value" placeholder="请输入完整的IMEI"></el-input>
+            <el-input v-model="listQuery.deviceNo" placeholder="请输入完整的IMEI"></el-input>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="grid-content bg-purple">
-            <span>操作时间</span>
+            <span>时间日期</span>
             <el-date-picker
-                v-model="value2"
-                align="right"
-                type="date"
-                placeholder="选择日期"
-                :picker-options="pickerOptions">
-            </el-date-picker>
+              v-model="listQuery.createTimeStr"
+              align="right"
+              type="date"
+              value-format="yyyy-MM-dd"
+              placeholder="选择日期"
+            ></el-date-picker>
           </div>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="24">
           <div class="grid-content bg-purple">
-            <el-button type="primary">查询</el-button>
+            <el-button type="primary" @click="handleFilter">查询</el-button>
           </div>
         </el-col>
       </el-row>
     </div>
 
     <div class="permission-table">
-        <el-table
-          ref="multipleTable"
-          :data="tableData"
-          tooltip-effect="dark"
-          style="width: 100%"
-          :header-cell-style="{background:'#EBEFF4'}"
-        >
-          <el-table-column label="运维单号" width="200" align="center"></el-table-column>
-          <el-table-column prop="车辆编号" label="车辆编号" width="120" align="center"></el-table-column>
-          <el-table-column prop="运维方式" label="运维方式" align="center"></el-table-column>
-          <el-table-column prop="维修部件" label="维修部件" align="center"></el-table-column>
-          <el-table-column prop="运维员" label="运维员" align="center"></el-table-column>
-          <el-table-column prop="运维手机" label="运维手机" align="center"></el-table-column>
-          <el-table-column prop="推送时间" label="推送时间" width="150" align="center"></el-table-column>
-          <el-table-column prop="完成时间" label="完成时间" width="150" align="center"></el-table-column>
-          <el-table-column prop="处理结果" label="处理结果" align="center"></el-table-column>
-          <el-table-column prop="处理时效" label="处理时效" align="center"></el-table-column>
-          <el-table-column prop="评分" label="评分" align="center"></el-table-column>
-          <el-table-column prop="处理结果图片与备注" label="处理结果图片与备注" width="200" align="center"></el-table-column>
-          <el-table-column label="操作" align="center" width="100" fixed="right">
-            <template slot-scope="scope">
-              <el-button type="text" @click="handleedit(scope.row.id)">
-                忽略
-              </el-button>
-              <el-button type="text" @click="handleedit(scope.row.id)">
-                设为待处理
-              </el-button>
-              <el-button type="text" @click="handleedit(scope.row.id)">
-                工单指派
-              </el-button>
-              <el-button type="text" @click="handleedit(scope.row.id)">
-                运维日志
-              </el-button>
-              <el-button type="text" @click="handleedit(scope.row.id)">
-                给奖励
-              </el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-      <div class="page-container">
-          <!-- <el-pagination
-            background
-            layout="prev, pager, next"
-            :total="total"
-            :current-page.sync="query.currentPage"
-            @current-change="getTrainingList"
-          ></el-pagination> -->
-          <el-pagination
-              background
-              align="left"
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-              :current-page.sync="currentPage4"
-              :page-sizes="[100, 200, 300, 400]"
-              :page-size="100"
-              layout="total, sizes, prev, pager, next, jumper"
-              :total="400">
-          </el-pagination>
-      </div>
+      <el-table
+        ref="multipleTable"
+        :data="tableData"
+        tooltip-effect="dark"
+        style="width: 100%"
+        v-loading="loading"
+        :header-cell-style="{background:'#EBEFF4'}"
+      >
+        <el-table-column type="index" width="50"></el-table-column>
+        <el-table-column prop="deviceNo" label="IMEI" width="200" align="center"></el-table-column>
+        <el-table-column prop="type" label="定位类型" align="center"></el-table-column>
+        <el-table-column prop="accuracyType" label="定位精度" align="center"></el-table-column>
+        <el-table-column prop="lng" label="经度" width="150" align="center"></el-table-column>
+        <el-table-column prop="lat" label="	纬度" width="150" align="center"></el-table-column>
+        <el-table-column prop="运维手机" label="设备电池电压" width="140" align="center"></el-table-column>
+        <el-table-column prop="voltage" label="车辆电池电压" width="140" align="center"></el-table-column>
+        <el-table-column prop="batteryLock" label="电池仓锁" align="center"></el-table-column>
+        <el-table-column prop="availableVolume" label="设备电量" align="center"></el-table-column>
+        <el-table-column prop="处理时效" label="GPRS信号" width="140" align="center"></el-table-column>
+        <el-table-column prop="处理结果图片与备注" label="蓝牙PIM码" width="120" align="center"></el-table-column>
+        <el-table-column prop="accState" label="ACC" align="center"></el-table-column>
+        <el-table-column prop="vehicleStatus" label="安防" align="center"></el-table-column>
+        <el-table-column prop="处理结果图片与备注" label="报警" align="center"></el-table-column>
+        <el-table-column prop="处理结果图片与备注" label="静音" align="center"></el-table-column>
+        <el-table-column prop="处理结果图片与备注" label="运动" align="center"></el-table-column>
+        <el-table-column prop="huoerSpeed" label="速度" align="center"></el-table-column>
+        <el-table-column prop="singleMileage" label="行驶里程" align="center"></el-table-column>
+        <el-table-column prop="singleTime" label="行驶时间" align="center"></el-table-column>
+        <el-table-column prop="createTime" label="时间" align="center"></el-table-column>
+        <el-table-column label="位置" align="center" width="100" fixed="right">
+          <template slot-scope="scope">
+            <i
+              class="el-icon-location-information"
+              style="font-size:20px;line-height:20px"
+              @click="handleLocation(scope.row)"
+            ></i>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+    <div class="page-container">
+      <el-pagination
+        background
+        align="left"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page.sync="listQuery.current"
+        :page-sizes="[10, 20, 30, 40]"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+      ></el-pagination>
+    </div>
 
-   
-
-
+    <el-dialog title="事件位置" width="40%" class="opearteform" :visible.sync="dialogFormVisible">
+      <el-row :gutter="24">
+        <el-form ref="form">
+          <el-col :span="24" class="MapClass">
+            <div id="container" v-loading="Maploading" />
+          </el-col>
+        </el-form>
+      </el-row>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import AMap from "AMap";
+import { gpsListPage, gpsfindById } from "@/api/journal";
 export default {
   name: "gpsopera",
   data() {
     return {
-      query: {},
-      value2: "",
-      options: [
-        {
-          value: "选项1",
-          label: "黄金糕"
-        },
-        {
-          value: "选项2",
-          label: "双皮奶"
-        },
-        {
-          value: "选项3",
-          label: "蚵仔煎"
-        },
-        {
-          value: "选项4",
-          label: "龙须面"
-        },
-        {
-          value: "选项5",
-          label: "北京烤鸭"
-        }
-      ],
-      value: "",
-      tableData: [],
-      checkList: ['选中且禁用','复选框 A'],
-      dialogFormVisible: false,
-      form: {
-        name: "",
-        region: "",
-        date1: "",
-        date2: "",
-        delivery: false,
-        type: [],
-        resource: "",
-        desc: "",
-        textarea: ""
+      listQuery: {
+        electrombileNumber: "",
+        deviceNo: "",
+        createTimeStr: "",
+        current: 1,
+        size: 10
       },
-      formLabelWidth: "120px",
-      dialogcustormer: false,
-      pickerOptions: {
-          disabledDate(time) {
-            return time.getTime() > Date.now();
-          },
-          shortcuts: [{
-            text: '今天',
-            onClick(picker) {
-              picker.$emit('pick', new Date());
-            }
-          }, {
-            text: '昨天',
-            onClick(picker) {
-              const date = new Date();
-              date.setTime(date.getTime() - 3600 * 1000 * 24);
-              picker.$emit('pick', date);
-            }
-          }, {
-            text: '一周前',
-            onClick(picker) {
-              const date = new Date();
-              date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit('pick', date);
-            }
-          }]
-        },
+      total: 0,
+      loading: false,
+      tableData: [],
+      dialogFormVisible: false,
+      Maploading: true,
+      map: null,
+      marker: null,
     };
   },
+  mounted() {
+    // 获取列表
+    this.getList();
+  },
   methods: {
+    // 获取列表
+    getList() {
+      this.loading = true;
+      gpsListPage(this.listQuery)
+        .then(res => {
+          console.log(res);
+          if (res.code == 0) {
+            this.total = res.data.total;
+            this.tableData = res.data.rows;
+            this.loading = false;
+          }
+        })
+        .catch(() => {});
+    },
     handleSizeChange(val) {
-        console.log(`每页 ${val} 条`);
+      this.listQuery.current = 1;
+      this.listQuery.size = val;
+      this.getList();
     },
     handleCurrentChange(val) {
-        console.log(`当前页: ${val}`);
+      this.listQuery.current = val;
+      this.getList();
     },
-    handleCreate() {
-        console.log('111')
-        this.dialogcustormer = true;
+    handleFilter() {
+      this.listQuery.current = 1;
+      this.getList();
+    },
+    handleLocation(row) {
+      console.log(row, "row");
+      this.marker = null;
+      this.map = null;
+      this.dialogFormVisible = true;
+      this.$nextTick(() => {
+        const that = this;
+        that.map = new AMap.Map("container", {
+          resizeEnable: true,
+          zooms: [3, 20],
+          zoom: 16
+        });
+        // 工具条控件
+        that.map.plugin(["AMap.ToolBar"], function() {
+          that.map.addControl(new AMap.ToolBar());
+        });
+        // 地图类型切换
+        that.map.plugin(["AMap.MapType"], function() {
+          that.map.addControl(new AMap.MapType());
+        });
+        this.Maploading = false;
+        gpsfindById({
+          id: row.id
+        }).then(res => {
+          this.marker = new AMap.Marker({
+            position: [res.data.lng, res.data.lat],
+            icon: "https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png",
+            offset: new AMap.Pixel(-13, -30)
+          });
+          this.map.add(this.marker);
+          this.map.setFitView();
+        }).catch(()=>{})
+      });
     }
   }
 };
@@ -213,10 +216,24 @@ export default {
   }
 }
 .gpsopera-container .search-container /deep/ .el-input {
-  width: 195px;
+  width: 230px;
 }
-.gpsopera-container /deep/ .page-container{
-    justify-content: flex-start;
+.gpsopera-container /deep/ .page-container {
+  justify-content: flex-start;
 }
-
+.MapClass {
+  width: 100%;
+  height: 400px;
+  position: relative;
+  #container {
+    width: 100%;
+    height: 100%;
+  }
+}
+#container /deep/ .amap-maptype-list {
+  display: none !important;
+}
+.MapClass /deep/ .amap-indoormap-floorbar-control .panel-box {
+  display: none !important;
+}
 </style>

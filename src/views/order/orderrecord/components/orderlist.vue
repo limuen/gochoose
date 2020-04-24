@@ -120,10 +120,20 @@
         <el-col :span="12">
           <div class="grid-content bg-purple editPrice">
             <span>订单金额</span>
-            <el-input placeholder="请输入内容" v-number="2" type="number" v-model="listQuery.orderMoney1">
+            <el-input
+              placeholder="请输入内容"
+              v-number="2"
+              type="number"
+              v-model="listQuery.orderMoney1"
+            >
               <template slot="append">～</template>
             </el-input>
-            <el-input v-model="listQuery.orderMoney2" v-number="2"  type="number" placeholder="请输入车辆编号"></el-input>
+            <el-input
+              v-model="listQuery.orderMoney2"
+              v-number="2"
+              type="number"
+              placeholder="请输入车辆编号"
+            ></el-input>
           </div>
         </el-col>
         <el-col :span="6">
@@ -152,15 +162,15 @@
         :header-cell-style="{background:'#EBEFF4'}"
       >
         <el-table-column type="index" width="50"></el-table-column>
-        <el-table-column prop="orderNumber" label="订单编号" align="center"></el-table-column>
-        <el-table-column prop="electrombileNumber" label="车辆编号" align="center"></el-table-column>
-        <el-table-column prop="status" label="订单状态" align="center">
+        <el-table-column prop="orderNumber" width="180" label="订单编号" align="center"></el-table-column>
+        <el-table-column prop="electrombileNumber" width="140" label="车辆编号" align="center"></el-table-column>
+        <el-table-column prop="status" width="130" label="订单状态" align="center">
           <template slot-scope="scope">
             <div>{{statusStateMap[scope.row.status]}}</div>
           </template>
         </el-table-column>
         <el-table-column prop="customerName" label="用户名" align="center"></el-table-column>
-        <el-table-column prop="customerPhone" label="用户电话" align="center"></el-table-column>
+        <el-table-column prop="customerPhone" width="80" label="用户电话" align="center"></el-table-column>
         <el-table-column prop="travelDistance" label="骑行距离" align="center">
           <template slot-scope="scope">
             <div>{{scope.row.travelDistance}}米</div>
@@ -171,36 +181,36 @@
             <div>{{scope.row.rentTime}}分钟</div>
           </template>
         </el-table-column>
-        <el-table-column prop="startTime" label="租车时间" align="center"></el-table-column>
-        <el-table-column prop="endTime" label="还车时间" align="center"></el-table-column>
+        <el-table-column prop="startTime" width="200" label="租车时间" align="center"></el-table-column>
+        <el-table-column prop="endTime" width="200" label="还车时间" align="center"></el-table-column>
         <el-table-column prop="isReport" label="报修" align="center">
           <template slot-scope="scope">
             <div>{{isReportStateMap[scope.row.isReport]}}</div>
           </template>
         </el-table-column>
-        <el-table-column prop="isQuyu" label="区域外还车" align="center">
+        <el-table-column prop="isQuyu" width="120" label="区域外还车" align="center">
           <template slot-scope="scope">
             <div>{{isQuyuStateMap[scope.row.isQuyu]}}</div>
           </template>
         </el-table-column>
-        <el-table-column prop="isArea" label="停车点外还车" align="center">
+        <el-table-column prop="isArea" width="140" label="停车点外还车" align="center">
           <template slot-scope="scope">
             <div>{{isAreaStateMap[scope.row.isArea]}}</div>
           </template>
         </el-table-column>
-        <el-table-column prop="totalMoney" label="总扣款（元）" align="center"></el-table-column>
-        <el-table-column prop="balanceMoneyPay" label="充值余额扣款（元）" align="center"></el-table-column>
-        <el-table-column prop="giveMoneyPay" label="赠送余额扣款（元）" align="center"></el-table-column>
-        <el-table-column prop="dispatchMoneyPay" label="调度费扣款（元）" align="center"></el-table-column>
-        <el-table-column prop="removeMoneyPay" label="挪车费（元）" align="center"></el-table-column>
-        <el-table-column prop="activityDiscountPay" label="骑行券扣款（元）" align="center"></el-table-column>
+        <el-table-column prop="totalMoney" width="130" label="总扣款（元）" align="center"></el-table-column>
+        <el-table-column prop="balanceMoneyPay" width="180" label="充值余额扣款（元）" align="center"></el-table-column>
+        <el-table-column prop="giveMoneyPay" width="180" label="赠送余额扣款（元）" align="center"></el-table-column>
+        <el-table-column prop="dispatchMoneyPay" width="140" label="调度费扣款（元）" align="center"></el-table-column>
+        <el-table-column prop="removeMoneyPay" width="130" label="挪车费（元）" align="center"></el-table-column>
+        <el-table-column prop="activityDiscountPay" width="180" label="骑行券扣款（元）" align="center"></el-table-column>
         <el-table-column prop="orderAllianceName" label="加盟商" align="center"></el-table-column>
         <el-table-column prop="orderRegionName" label="大区" align="center"></el-table-column>
         <el-table-column label="操作" align="center" width="300" fixed="right">
           <template slot-scope="scope">
             <el-button type="primary" @click="handleRefund(scope.row)">退款</el-button>
-            <el-button type="primary" @click="handleedit(scope.row)">还车位置</el-button>
-            <el-button type="primary" @click="handleedit(scope.row)">行程</el-button>
+            <el-button type="primary" @click="handleCar(scope.row)">还车位置</el-button>
+            <el-button type="primary" @click="handleTrip(scope.row)">行程</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -234,43 +244,44 @@
     >
       <el-form :model="RefundForm" class="form" :rules="rules" ref="RefundForm" label-width="120px">
         <el-form-item label="订单金额">
-         <el-input
-            placeholder="订单金额"
-            disabled
-            v-model="RefundForm.money1"
-          ></el-input>
+          <el-input placeholder="订单金额" disabled v-model="RefundForm.money1"></el-input>
         </el-form-item>
         <el-form-item label="退款金额" prop="money2">
-           <el-input
-            placeholder="退款金额"
-            v-model="RefundForm.money2"
-          ></el-input>
-          元
+          <el-input placeholder="退款金额" v-model="RefundForm.money2"></el-input>元
         </el-form-item>
         <el-form-item label="退款原因">
-           <el-input
-            placeholder="退款原因"
-            type="textarea"
-            :rows="4"
-            v-model="RefundForm.remark1"
-          ></el-input>
+          <el-input placeholder="退款原因" type="textarea" :rows="4" v-model="RefundForm.remark1"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer" align="center">
         <el-button @click="dialogFormVisibleRefund = false">取 消</el-button>
-        <el-button type="primary" @click="submitformRefund">提 交</el-button>
+        <!-- <el-button type="primary" @click="submitformRefund">提 交</el-button> -->
       </div>
     </el-dialog>
 
-
+    <el-dialog
+      :title="tabTitle"
+      width="40%"
+      class="opearteform"
+      :visible.sync="dialogCarMapVisible"
+    >
+      <el-row :gutter="24">
+        <el-form ref="form">
+          <el-col :span="24" class="MapClass">
+            <div id="container" v-loading="Maploading" />
+          </el-col>
+        </el-form>
+      </el-row>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import AMap from "AMap";
 import { allRegion, allianceListByRegionId } from "@/api/region";
 import { findByLargeFranchisee } from "@/api/responsibility";
 import { getDay, transTime } from "@/utils/index.js";
-import { orderListPage } from "@/api/orderrecord";
+import { orderListPage, returnPosition } from "@/api/orderrecord";
 import number from "@/directive/input-filter";
 export default {
   name: "orderlist",
@@ -323,13 +334,18 @@ export default {
       RefundForm: {
         money1: "",
         money2: "",
-        remark1: "",
+        remark1: ""
       },
       rules: {
         money2: [
           { required: true, message: "请输入拉黑名单原因", trigger: "blur" }
         ]
-      }
+      },
+      dialogCarMapVisible: false,
+      tabTitle: "",
+      Maploading: true,
+      map: null,
+      marker: null,
     };
   },
   mounted() {
@@ -461,11 +477,47 @@ export default {
     },
     handleRefund(row) {
       this.dialogFormVisibleRefund = true;
-      this.RefundTitle = `您正在对用户【${row.customerPhone}】进行退款`
+      this.RefundTitle = `您正在对用户【${row.customerPhone}】进行退款`;
       this.$nextTick(() => {
         this.$refs.RefundForm.resetFields();
       });
     },
+    // 还车位置
+    handleCar(row) {
+      this.dialogCarMapVisible = true;
+      this.tabTitle = "用户还车地点";
+      this.marker = null;
+      this.map = null;
+      this.$nextTick(() => {
+        const that = this;
+        that.map = new AMap.Map("container", {
+          resizeEnable: true,
+          zooms: [3, 20],
+          zoom: 16
+        });
+        // 工具条控件
+        that.map.plugin(["AMap.ToolBar"], function() {
+          that.map.addControl(new AMap.ToolBar());
+        });
+        // 地图类型切换
+        that.map.plugin(["AMap.MapType"], function() {
+          that.map.addControl(new AMap.MapType());
+        });
+        returnPosition({
+          orderId: row.orderId
+        }).then(res => {
+          console.log(res,'1111111res')
+          this.marker = new AMap.Marker({
+            position: [res.data.endLongitude, res.data.endLatitude],
+            icon: "https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png",
+            offset: new AMap.Pixel(-13, -30)
+          });
+          this.map.add(this.marker);
+          this.map.setFitView();
+          this.Maploading = false;
+        }).catch(()=>{})
+      });
+    }
   }
 };
 </script>
@@ -526,5 +578,20 @@ export default {
 }
 .orderlist-container .editPrice /deep/ .el-input-group__append {
   border-radius: 0px;
+}
+.MapClass {
+  width: 100%;
+  height: 400px;
+  position: relative;
+  #container {
+    width: 100%;
+    height: 100%;
+  }
+}
+#container /deep/ .amap-maptype-list {
+  display: none !important;
+}
+.MapClass /deep/ .amap-indoormap-floorbar-control .panel-box {
+  display: none !important;
 }
 </style>

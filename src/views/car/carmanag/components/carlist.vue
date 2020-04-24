@@ -9,7 +9,7 @@
           <div class="grid-content bg-purple">
             <span>大区</span>
             <el-select
-              v-model="listQuery.regionId"
+              v-model="listQuery.electrombileRegionId"
               @change="allianValue"
               clearable
               placeholder="请选择大区"
@@ -27,7 +27,7 @@
           <div class="grid-content bg-purple">
             <span>加盟商</span>
             <el-select
-              v-model="listQuery.allianceId"
+              v-model="listQuery.electrombileAllianceId"
               @change="getdutyList"
               clearable
               placeholder="请选择加盟商"
@@ -44,7 +44,7 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>责任区域</span>
-            <el-select clearable v-model="listQuery.areaId" placeholder="请选择责任区域">
+            <el-select clearable v-model="listQuery.dutyAreaId" placeholder="请选择责任区域">
               <el-option
                 v-for="item in areaOptions"
                 :key="item.id"
@@ -85,7 +85,7 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>车辆状态</span>
-            <el-select v-model="listQuery.electrombileStatus" placeholder="请选择车辆状态">
+            <el-select clearable v-model="listQuery.electrombileStatus" placeholder="请选择车辆状态">
               <el-option
                 v-for="item in carStatusList"
                 :key="item.id"
@@ -98,7 +98,7 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>运营状态</span>
-            <el-select v-model="listQuery.operationState" placeholder="请选择运营状态">
+            <el-select clearable  v-model="listQuery.operationState" placeholder="请选择运营状态">
               <el-option
                 v-for="item in operationStates"
                 :key="item.value"
@@ -141,7 +141,7 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>报警开关</span>
-            <el-select v-model="listQuery.alarmSwitch" placeholder="请选择报警开关">
+            <el-select clearable v-model="listQuery.alarmSwitch" placeholder="请选择报警开关">
               <el-option label="开" :value="0"></el-option>
               <el-option label="关" :value="1"></el-option>
             </el-select>
@@ -174,7 +174,7 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>运营区域</span>
-            <el-select v-model="listQuery.isInArea" placeholder="请选择运营区域内外">
+            <el-select clearable v-model="listQuery.isInArea" placeholder="请选择运营区域内外">
               <el-option label="内" :value="0"></el-option>
               <el-option label="外" :value="1"></el-option>
             </el-select>
@@ -188,13 +188,13 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>车辆编号</span>
-            <el-input v-model="listQuery.electrombileNumber" placeholder="请输入车辆编号"></el-input>
+            <el-input clearable v-model="listQuery.electrombileNumber" placeholder="请输入车辆编号"></el-input>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>设备IMEI</span>
-            <el-input v-model="listQuery.equipmentImel" placeholder="请输入设备IMEI"></el-input>
+            <el-input clearable v-model="listQuery.equipmentImel" placeholder="请输入设备IMEI"></el-input>
           </div>
         </el-col>
 
@@ -521,9 +521,9 @@ export default {
         { value: 1, type: "未运营" }
       ],
       listQuery: {
-        regionId: "",
-        allianceId: "",
-        areaId: "",
+        electrombileRegionId: "",
+        electrombileAllianceId: "",
+        dutyAreaId: "",
         rentStatus: "",
         lockElectrombileState: "",
         electrombileStatus: "",
@@ -685,7 +685,7 @@ export default {
     },
     allianValuedialog(value) {
       this.$nextTick(() => {
-        this.form.regionName = this.$refs.reginoName.selectedLabel;
+        this.form.electrombileRegionName = this.$refs.reginoName.selectedLabel;
       });
       this.bilityOptions = [];
       this.form.electrombileAllianceId = "";
@@ -704,7 +704,7 @@ export default {
     },
     getdutyListDialog(value) {
       this.$nextTick(() => {
-        this.form.allianceName = this.$refs.allianceName.selectedLabel;
+        this.form.electrombileAllianceName = this.$refs.allianceName.selectedLabel;
       });
       this.form.dutyArea = [];
       this.form.dutyArea2 = [];

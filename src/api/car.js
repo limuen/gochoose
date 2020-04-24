@@ -128,3 +128,20 @@ export function electrombileLocation(params) {
     })
 }
 
+//车辆所有定位
+
+/**
+ * @description   车辆管理定位
+ * @author LiMuEn
+ * @date 2020-04-08
+ * @export
+ * @param {Object} data
+ */
+export function allElectrombileLocation(params) {
+    return request({
+        url: "/electrombile/allElectrombileLocation",
+        method: "GET",
+        params
+    })
+}
+

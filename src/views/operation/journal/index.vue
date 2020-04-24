@@ -2,13 +2,13 @@
     <div class="journar-container">
         <el-tabs v-model="activeName" @tab-click="handleClick">
             <el-tab-pane label="操作日志" name="operation">
-                <operations />
+                <operations v-if="operation"/>
             </el-tab-pane>
             <el-tab-pane label="事件日志" name="eventopera">
-                <eventopera />
+                <eventopera v-if="eventopera"/>
             </el-tab-pane>
             <el-tab-pane label="GPS日志" name="gps">
-                <gpsopera />
+                <gpsopera v-if="gps"/>
             </el-tab-pane>
         </el-tabs>
     </div>
@@ -27,12 +27,22 @@
         },
         data() {
             return {
-                activeName: 'operation'
+                activeName: 'operation',
+                operation: true,
+                eventopera: false,
+                gps: false
             }
         },
         methods: {
             handleClick(tab, event) {
                 console.log(tab, event);
+                let tabsName = ['operation','eventopera','gps']
+                tabsName.forEach(item => {
+                    this[item] = false;
+                    if(item == this.activeName){
+                        this[item] = true
+                    }
+                })
             }
         }
     }
