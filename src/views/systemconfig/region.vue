@@ -1,7 +1,7 @@
 <template>
   <div class="region-container">
     <div class="create-button">
-      <el-button type="primary" @click="handleCreate" icon="el-icon-edit">新增区域管理</el-button>
+      <el-button type="primary" @click="handleCreate" icon="el-icon-edit" v-permission="button.region_region_add">新增区域管理</el-button>
     </div>
     <div class="search-container">
       <el-row :gutter="24">
@@ -79,8 +79,8 @@
         <el-table-column prop="allianceName" label="所属加盟商" align="center"></el-table-column>
         <el-table-column label="操作" align="center" width="200" fixed="right">
           <template slot-scope="scope">
-            <el-button type="primary" size="mini" @click="handleedit(scope.row)">编辑</el-button>
-            <el-button type="danger" size="mini" @click="handleDelete(scope.row)">删除</el-button>
+            <el-button type="primary" size="mini" v-permission="button.region_region_edit" @click="handleedit(scope.row)">编辑</el-button>
+            <el-button type="danger" size="mini" v-permission="button.region_region_delete" @click="handleDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -226,10 +226,17 @@ import {
   selectByAreaManageId,
   deleteById
 } from "@/api/region";
+import permission from '@/directive/permission'
 export default {
   name: "region",
+  directives: { permission },
   data() {
     return {
+      button: {
+        region_region_add: 'region_region_add',
+        region_region_edit: 'region_region_edit',
+        region_region_delete: 'region_region_delete',
+      },
       AllianOptions: [], // 查询大区
       allianceOptions: [], // 加盟商
       AllianOptionsDialog: [], // 查询大区

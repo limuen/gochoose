@@ -112,7 +112,7 @@
         </el-table-column>
         <el-table-column label="操作" align="center" width="100" fixed="right">
           <template slot-scope="scope">
-            <el-button type="text" @click="handleAwaken(scope.row)">唤醒</el-button>
+            <el-button type="primary" v-permission="button.recharge_recharge_balance_rouse" @click="handleAwaken(scope.row)">唤醒</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -163,10 +163,15 @@
 <script>
 import { rechargeListPage } from "@/api/order";
 import { getDay, transTime } from "@/utils/index.js";
+import permission from "@/directive/permission";
 export default {
   name: "balance",
+  directives: { permission },
   data() {
     return {
+      button: {
+        recharge_recharge_balance_rouse: "recharge_recharge_balance_rouse",
+      },
       listQuery: {
         payChannel: "",
         rechargeSource: "",

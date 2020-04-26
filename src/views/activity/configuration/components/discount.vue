@@ -1,7 +1,7 @@
 <template>
   <div class="discount-container">
     <div class="create-button">
-      <el-button type="primary" @click="handleCreate" icon="el-icon-edit">添加活动</el-button>
+      <el-button type="primary" @click="handleCreate" v-permission="button.configuration_configuration_ride_addactivity" icon="el-icon-edit">添加活动</el-button>
     </div>
     <div class="search-container">
       <el-row :gutter="24">
@@ -113,11 +113,11 @@
         <el-table-column prop="applyTime" width="210" label="申请日期" align="center"></el-table-column>
         <el-table-column label="操作" align="center" width="400" fixed="right">
           <template slot-scope="scope">
-            <el-button type="primary" size="mini" @click="handleStatus(scope.row.discountId,1,'申请')">申请</el-button>
-            <el-button type="primary" size="mini" @click="handleexamine(scope.row.discountId)">审核</el-button>
-            <el-button type="primary" size="mini" @click="handleStatus(scope.row.discountId,3,'启用')">启用</el-button>
-            <el-button type="warning" size="mini" @click="handleStatus(scope.row.discountId,4,'停止')">停止</el-button>
-            <el-button type="primary" size="mini" @click="handleedit(scope.row)">编辑</el-button>
+            <el-button type="primary" size="mini" v-permission="button.configuration_configuration_ride_apply"  @click="handleStatus(scope.row.discountId,1,'申请')">申请</el-button>
+            <el-button type="primary" size="mini" v-permission="button.configuration_configuration_ride_examine" @click="handleexamine(scope.row.discountId)">审核</el-button>
+            <el-button type="primary" size="mini" v-permission="button.configuration_configuration_ride_up" @click="handleStatus(scope.row.discountId,3,'启用')">启用</el-button>
+            <el-button type="warning" size="mini" v-permission="button.configuration_configuration_ride_stop" @click="handleStatus(scope.row.discountId,4,'停止')">停止</el-button>
+            <el-button type="primary" size="mini" v-permission="button.configuration_configuration_ride_edit" @click="handleedit(scope.row)">编辑</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -229,11 +229,20 @@
 import { queryManagerListPage,insert,findById,updateActivity,updateByStatus } from "@/api/activity";
 import { allRegion, allianceListByRegionId } from "@/api/region";
 import number from "@/directive/input-filter";
+import permission from "@/directive/permission";
 export default {
   name: "betterylist",
-  directives: { number },
+  directives: { number,permission },
   data() {
     return {
+      button: {
+        configuration_configuration_ride_addactivity: "configuration_configuration_ride_addactivity",
+        configuration_configuration_ride_apply: "configuration_configuration_ride_apply",
+        configuration_configuration_ride_up: "configuration_configuration_ride_up",
+        configuration_configuration_ride_stop: "configuration_configuration_ride_stop",
+        configuration_configuration_ride_edit: "configuration_configuration_ride_edit",
+        configuration_configuration_ride_examine: "configuration_configuration_ride_examine"
+      },
       AllianOptions: [], // 查询大区
       allianceOptions: [], // 加盟商
       AllianOptionsDialog: [], // 查询大区

@@ -1,7 +1,7 @@
 <template>
   <div class="betterylist-container">
     <div class="create-button">
-      <el-button type="primary" @click="handleCreate" icon="el-icon-edit">添加电池</el-button>
+      <el-button type="primary" @click="handleCreate" icon="el-icon-edit" v-permission="button.battery_battery_batterylist_addbattery">添加电池</el-button>
     </div>
     <div class="search-container">
       <el-row :gutter="24">
@@ -256,10 +256,15 @@
 import { allRegion, allianceListByRegionId } from "@/api/region";
 import { getDay, transTime } from "@/utils/index.js";
 import { batteryPage,batteryinsert } from '@/api/car'
+import permission from "@/directive/permission";
 export default {
   name: "betterylist",
+  directives: { permission },
   data() {
     return {
+      button: {
+        battery_battery_batterylist_addbattery: "battery_battery_batterylist_addbattery",
+      },
       AllianOptions: [], // 查询大区
       allianceOptions: [], // 加盟商
       AllianOptionsDialog: [], // 查询大区

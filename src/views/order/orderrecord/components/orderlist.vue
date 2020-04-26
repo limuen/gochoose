@@ -208,9 +208,9 @@
         <el-table-column prop="orderRegionName" label="大区" align="center"></el-table-column>
         <el-table-column label="操作" align="center" width="300" fixed="right">
           <template slot-scope="scope">
-            <el-button type="primary" @click="handleRefund(scope.row)">退款</el-button>
-            <el-button type="primary" @click="handleCar(scope.row)">还车位置</el-button>
-            <el-button type="primary" @click="handleTrip(scope.row)">行程</el-button>
+            <el-button type="primary" v-permission="button.orderrecord_orderrecord_order_refund" @click="handleRefund(scope.row)">退款</el-button>
+            <el-button type="primary" v-permission="button.orderrecord_orderrecord_order_seat" @click="handleCar(scope.row)">还车位置</el-button>
+            <el-button type="primary" v-permission="button.orderrecord_orderrecord_order_trip" @click="handleTrip(scope.row)">行程</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -283,11 +283,17 @@ import { findByLargeFranchisee } from "@/api/responsibility";
 import { getDay, transTime } from "@/utils/index.js";
 import { orderListPage, returnPosition } from "@/api/orderrecord";
 import number from "@/directive/input-filter";
+import permission from "@/directive/permission";
 export default {
   name: "orderlist",
-  directives: { number },
+  directives: { number,permission },
   data() {
     return {
+      button: {
+        orderrecord_orderrecord_order_refund: "orderrecord_orderrecord_order_refund",
+        orderrecord_orderrecord_order_seat: "orderrecord_orderrecord_order_seat",
+        orderrecord_orderrecord_order_trip: "orderrecord_orderrecord_order_trip"
+      },
       AllianOptions: [], // 查询大区
       allianceOptions: [], // 加盟商
       areaOptions: [], // 责任区域

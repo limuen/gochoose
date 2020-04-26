@@ -1,7 +1,7 @@
 <template>
   <div class="share-container">
     <div class="create-button">
-      <el-button type="primary" @click="handleCreate" icon="el-icon-edit">添加新分享</el-button>
+      <el-button type="primary" @click="handleCreate" v-permission="button.share_share_addshare" icon="el-icon-edit">添加新分享</el-button>
     </div>
     <div class="search-container">
       <el-row :gutter="24">
@@ -76,11 +76,11 @@
         <el-table-column prop="评分" label="申请日期" align="center"></el-table-column>
         <el-table-column label="操作" align="center" width="400" fixed="right">
           <template slot-scope="scope">
-            <el-button type="primary" size="mini" @click="handleStatus(scope.row.shareId,1,'申请')">申请</el-button>
-            <el-button type="primary" size="mini" @click="handleexamine(scope.row.shareId)">审核</el-button>
-            <el-button type="primary" size="mini" @click="handleStatus(scope.row.shareId,3,'启用')">启用</el-button>
-            <el-button type="warning" size="mini" @click="handleStatus(scope.row.shareId,4,'停止')">停止</el-button>
-            <el-button type="primary" size="mini" @click="handleedit(scope.row)">编辑</el-button>
+            <el-button type="primary" size="mini" v-permission="button.share_share_apply" @click="handleStatus(scope.row.shareId,1,'申请')">申请</el-button>
+            <el-button type="primary" size="mini" v-permission="button.share_share_examine" @click="handleexamine(scope.row.shareId)">审核</el-button>
+            <el-button type="primary" size="mini" v-permission="button.share_share_up" @click="handleStatus(scope.row.shareId,3,'启用')">启用</el-button>
+            <el-button type="warning" size="mini" v-permission="button.share_share_stop" @click="handleStatus(scope.row.shareId,4,'停止')">停止</el-button>
+            <el-button type="primary" size="mini" v-permission="button.share_share_edit" @click="handleedit(scope.row)">编辑</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -246,10 +246,20 @@ import {
   SharefindById,
   Shareupdate
 } from "@/api/activity";
+import permission from "@/directive/permission";
 export default {
   name: "share",
+  directives: { permission },
   data() {
     return {
+      button: {
+        share_share_addshare: "share_share_addshare",
+        share_share_apply: "share_share_apply",
+        share_share_up: "share_share_up",
+        share_share_stop: "share_share_stop",
+        share_share_edit: "share_share_edit",
+        share_share_examine: "share_share_examine"
+      },
       AllianOptions: [], // 查询大区
       allianceOptions: [], // 加盟商
       AllianOptionsDialog: [], // 查询大区

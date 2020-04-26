@@ -1,7 +1,7 @@
 <template>
   <div class="mochaitmo-container">
     <div class="create-button">
-      <el-button type="primary" @click="handleCreate" icon="el-icon-edit">新增运维员</el-button>
+      <el-button type="primary" @click="handleCreate" icon="el-icon-edit" v-permission="button.mochaitmo_mochaitmo_add">新增运维员</el-button>
     </div>
     <div class="search-container">
       <el-row :gutter="24">
@@ -123,8 +123,8 @@
         <el-table-column prop="allianceName" label="所属加盟商" align="center"></el-table-column>
         <el-table-column label="操作" align="center" width="200" fixed="right">
           <template slot-scope="scope">
-            <el-button type="primary" size="mini" @click="handleedit(scope.row)">编辑</el-button>
-            <el-button type="danger" size="mini" @click="handleDelete(scope.row)">删除</el-button>
+            <el-button type="primary" size="mini" v-permission="button.mochaitmo_mochaitmo_edit" @click="handleedit(scope.row)">编辑</el-button>
+            <el-button type="danger" size="mini" v-permission="button.mochaitmo_mochaitmo_delete" @click="handleDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -285,10 +285,17 @@ import {
   deleteById
 } from "@/api/mochaitmo";
 import { findByLargeFranchisee } from "@/api/responsibility";
+import permission from '@/directive/permission'
 export default {
   name: "mochaitmo",
+  directives: { permission },
   data() {
     return {
+      button: {
+        mochaitmo_mochaitmo_add: 'mochaitmo_mochaitmo_add',
+        mochaitmo_mochaitmo_edit: 'mochaitmo_mochaitmo_edit',
+        mochaitmo_mochaitmo_delete: 'mochaitmo_mochaitmo_delete',
+      },
       AllianOptions: [], // 查询大区
       allianceOptions: [], // 加盟商
       areaOptions: [], // 责任区域

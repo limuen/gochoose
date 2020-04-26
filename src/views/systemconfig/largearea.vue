@@ -1,7 +1,7 @@
 <template>
   <div class="grouping-container">
     <div class="create-button">
-      <el-button type="primary" @click="handleCreate" icon="el-icon-edit">添加大区</el-button>
+      <el-button type="primary" @click="handleCreate" icon="el-icon-edit" v-permission="button.largearea_largearea_addarea">添加大区</el-button>
     </div>
 
     <div class="permission-table">
@@ -22,7 +22,7 @@
         <el-table-column prop="regionAddress" label="联系地址" align="center"></el-table-column>
         <el-table-column label="操作" align="center" width="100" fixed="right">
           <template slot-scope="scope">
-            <el-button type="text" @click="handleedit(scope.row)">编辑</el-button>
+            <el-button type="text" v-permission="button.largearea_largearea_edit" @click="handleedit(scope.row)">编辑</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -83,10 +83,16 @@ import {
   updatelargearea,
   selectByRegionId
 } from "@/api/largearea";
+import permission from "@/directive/permission";
 export default {
   name: "grouping",
+  directives: { permission },
   data() {
     return {
+      button: {
+        largearea_largearea_addarea: "largearea_largearea_addarea",
+        largearea_largearea_edit: "largearea_largearea_edit",
+      },
       loading: false,
       dialogding: false,
       tableData: [],

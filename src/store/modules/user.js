@@ -51,6 +51,7 @@ const actions = {
         if (!data) {
           reject('验证失败，请重新登录。')
         }
+        console.log(data,'queryUserMenu')
         data.ruleName = data.ruleName.split(',')
         const { ruleName, id, userName, avatar  } = data
         // roles must be a non-empty array

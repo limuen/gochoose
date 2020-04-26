@@ -1,7 +1,7 @@
 <template>
   <div class="carlist-container">
     <div class="create-button">
-      <el-button type="primary" @click="handleCreate" icon="el-icon-edit">添加车辆</el-button>
+      <el-button type="primary" @click="handleCreate" icon="el-icon-edit" v-permission="button.carmanag_carmanag_manage_addcar">添加车辆</el-button>
     </div>
     <div class="search-container">
       <el-row :gutter="24">
@@ -255,13 +255,13 @@
         <el-table-column prop="electrombileRegionName" width="150" label="大区" align="center"></el-table-column>
         <el-table-column label="操作" align="center" width="360" fixed="right">
           <template slot-scope="scope">
-            <el-button type="text" @click="handleLocation(scope.row)">定位</el-button>
-            <el-button type="text">订单</el-button>
-            <el-button type="text">轨迹</el-button>
-            <el-button type="text">维修记录</el-button>
-            <el-button type="text">二维码</el-button>
-            <el-button type="text" @click="handleDetail(scope.row)">详情</el-button>
-            <el-button type="text" @click="handleedit(scope.row)">编辑</el-button>
+            <el-button type="text" v-permission="button.carmanag_carmanag_manage_location" @click="handleLocation(scope.row)">定位</el-button>
+            <el-button type="text" v-permission="button.carmanag_carmanag_manage_order">订单</el-button>
+            <el-button type="text" v-permission="button.carmanag_carmanag_manage_locus">轨迹</el-button>
+            <el-button type="text" v-permission="button.carmanag_carmanag_manage_repairrd">维修记录</el-button>
+            <el-button type="text" v-permission="button.carmanag_carmanag_manage_exqrcode">二维码</el-button>
+            <el-button type="text" v-permission="button.carmanag_carmanag_manage_details" @click="handleDetail(scope.row)">详情</el-button>
+            <el-button type="text" v-permission="button.carmanag_carmanag_manage_edit" @click="handleedit(scope.row)">编辑</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -499,14 +499,26 @@ import {
 import { chargeFranchisee } from "@/api/charge";
 import Location from '../carmanagDialog/Location';
 import { operateRegionfindByLargeFranchisee } from '@/api/operationRegional'
+import permission from "@/directive/permission";
 export default {
   name: "carlist",
+  directives: { permission },
   components: {
     drawer,
     Location
   },
   data() {
     return {
+      button: {
+        carmanag_carmanag_manage_addcar: "carmanag_carmanag_manage_addcar",
+        carmanag_carmanag_manage_location: "carmanag_carmanag_manage_location",
+        carmanag_carmanag_manage_order: "carmanag_carmanag_manage_order",
+        carmanag_carmanag_manage_locus: "carmanag_carmanag_manage_locus",
+        carmanag_carmanag_manage_repairrd: "carmanag_carmanag_manage_repairrd",
+        carmanag_carmanag_manage_exqrcode: "carmanag_carmanag_manage_exqrcode",
+        carmanag_carmanag_manage_details: "carmanag_carmanag_manage_details",
+        carmanag_carmanag_manage_edit: "carmanag_carmanag_manage_edit"
+      },
       drawerId: "",
       AllianOptions: [], // 查询大区
       allianceOptions: [], // 加盟商

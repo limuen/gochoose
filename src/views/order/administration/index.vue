@@ -142,9 +142,9 @@
             >
               <span v-if="scope.row.blackcount != 0">{{scope.row.blackcount}}</span>
             </el-tooltip>
-            <el-button type="primary" @click="handleBlacklist(scope.row)">加入黑名单</el-button>
-            <el-button type="primary" @click="handleAwaken(scope.row)">唤醒用户</el-button>
-            <el-button type="primary" @click="handleRefund(scope.row)">退款</el-button>
+            <el-button type="primary" v-permission="button.administration_administration_whitelist" @click="handleBlacklist(scope.row)">加入黑名单</el-button>
+            <el-button type="primary" v-permission="button.administration_administration_rouse" @click="handleAwaken(scope.row)">唤醒用户</el-button>
+            <el-button type="primary" v-permission="button.administration_administration_refund" @click="handleRefund(scope.row)">退款</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -270,10 +270,17 @@
 import { administrationListPage,updateByBlackReason } from "@/api/order";
 import { allRegion, allianceListByRegionId } from "@/api/region";
 import { getDay, transTime } from "@/utils/index.js";
+import permission from "@/directive/permission";
 export default {
   name: "administration",
+  directives: { permission },
   data() {
     return {
+      button: {
+        administration_administration_whitelist: 'administration_administration_whitelist',
+        administration_administration_rouse: 'administration_administration_rouse',
+        administration_administration_refund: 'administration_administration_refund'
+      },
       AllianOptions: [], // 查询大区
       allianceOptions: [], // 加盟商
       listQuery: {

@@ -1,5 +1,12 @@
 <template>
-  <el-dialog title="车辆位置" width="40%" class="opearteform" :visible.sync="dialogFormVisible">
+  <el-dialog
+    title="车辆位置"
+    width="40%"
+    class="opearteform"
+    :close-on-click-modal="false"
+    :before-close="cancelsubmitfotm"
+    :visible.sync="dialogFormVisible"
+  >
     <el-row :gutter="24">
       <el-form ref="form">
         <el-col :span="24" class="MapClass">
@@ -37,11 +44,15 @@ export default {
       map: null,
       marker: null,
       markerAyyryCar: [], //车存的marker
-      markerArrayYw: [], //运维的marker
+      markerArrayYw: [] //运维的marker
     };
   },
   mounted() {
-      this.getLocation();
+    this.getLocation();
+    this.$nextTick(() => {
+      this.activeClass = 0;
+      console.log(this.activeClass, "11111");
+    });
   },
   methods: {
     init() {
@@ -61,20 +72,22 @@ export default {
       });
       electrombileLocation({
         electrombileId: this.LocationId
-      }).then(res => {
-        this.marker = null;
-        this.markerAyyryCar = []
-        if (res.code == 0) {
-            this.markerAyyryCar = [res.data.longitude,res.data.latitude]
+      })
+        .then(res => {
+          this.marker = null;
+          this.markerAyyryCar = [];
+          if (res.code == 0) {
+            this.markerAyyryCar = [res.data.longitude, res.data.latitude];
             this.marker = new AMap.Marker({
-              position: [res.data.longitude,res.data.latitude],
+              position: [res.data.longitude, res.data.latitude],
               icon: "https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png",
               offset: new AMap.Pixel(-13, -30)
             });
             this.map.add(this.marker);
             this.map.setFitView();
-        }
-      }).catch(() =>{})
+          }
+        })
+        .catch(() => {});
     },
     initMap() {
       this.$nextTick(() => {
@@ -84,11 +97,13 @@ export default {
     },
     changes(key) {
       this.activeClass = key;
-      console.log(key,'111111111111')
+      console.log(key, "111111111111");
     },
     // 获取数据
-    getLocation() {
-      
+    getLocation() {},
+    cancelsubmitfotm() {
+      this.activeClass = 0;
+      this.dialogFormVisible = false;
     }
   }
 };
@@ -116,7 +131,7 @@ export default {
 #container /deep/ .amap-maptype-list {
   display: none !important;
 }
-.MapClass /deep/ .amap-indoormap-floorbar-control .panel-box{
+.MapClass /deep/ .amap-indoormap-floorbar-control .panel-box {
   display: none !important;
 }
 </style>
