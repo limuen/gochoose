@@ -64,3 +64,49 @@ export function returnPosition(params) {
         params
     });
 }
+
+
+
+/**
+ * @description   用户管理订单列表退款
+ * @author LiMuEn
+ * @date 2020-04-18
+ */
+/**
+ * @description   
+ * @author LiMuEn
+ * @date 2020-04-23
+ * @export
+ * @param {Object} params
+ */
+
+export function returnorderRefund(params) {
+    return request({
+        url: "/order/orderRefund",
+        method: "get",
+        params
+    });
+}
+
+
+
+/**
+ * @description   用户管理订单列表行程
+ * @author LiMuEn
+ * @date 2020-04-18
+ */
+/**
+ * @description   
+ * @author LiMuEn
+ * @date 2020-04-23
+ * @export
+ * @param {Object} params
+ */
+
+export function orderRoute(params) {
+    return request({
+        url: "/order/orderRoute",
+        method: "get",
+        params
+    });
+}

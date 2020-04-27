@@ -208,9 +208,21 @@
         <el-table-column prop="orderRegionName" label="大区" align="center"></el-table-column>
         <el-table-column label="操作" align="center" width="300" fixed="right">
           <template slot-scope="scope">
-            <el-button type="primary" v-permission="button.orderrecord_orderrecord_order_refund" @click="handleRefund(scope.row)">退款</el-button>
-            <el-button type="primary" v-permission="button.orderrecord_orderrecord_order_seat" @click="handleCar(scope.row)">还车位置</el-button>
-            <el-button type="primary" v-permission="button.orderrecord_orderrecord_order_trip" @click="handleTrip(scope.row)">行程</el-button>
+            <el-button
+              type="primary"
+              v-permission="button.orderrecord_orderrecord_order_refund"
+              @click="handleRefund(scope.row)"
+            >退款</el-button>
+            <el-button
+              type="primary"
+              v-permission="button.orderrecord_orderrecord_order_seat"
+              @click="handleCar(scope.row)"
+            >还车位置</el-button>
+            <el-button
+              type="primary"
+              v-permission="button.orderrecord_orderrecord_order_trip"
+              @click="handleTrip(scope.row)"
+            >行程</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -244,18 +256,26 @@
     >
       <el-form :model="RefundForm" class="form" :rules="rules" ref="RefundForm" label-width="120px">
         <el-form-item label="订单金额">
-          <el-input placeholder="订单金额" disabled v-model="RefundForm.money1"></el-input>
+          <el-input placeholder="订单金额" disabled v-model="RefundForm.totalMoney"></el-input>元
         </el-form-item>
-        <el-form-item label="退款金额" prop="money2">
-          <el-input placeholder="退款金额" v-model="RefundForm.money2"></el-input>元
+        <el-form-item label="退款金额" prop="residueMoney">
+          <el-input placeholder="退款金额" v-number="2" v-model="RefundForm.residueMoney"></el-input>元
         </el-form-item>
-        <el-form-item label="退款原因">
-          <el-input placeholder="退款原因" type="textarea" :rows="4" v-model="RefundForm.remark1"></el-input>
+        <el-form-item label="退款原因" prop="reason">
+          <el-select v-model="RefundForm.reason" @change="changeselectValue" placeholder="请选择退款原因">
+            <el-option label="车辆故障" value="车辆故障"></el-option>
+            <el-option label="忘记换车" value="忘记换车"></el-option>
+            <el-option label="车费多收" value="车费多收"></el-option>
+            <el-option label="其他" value="其他"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="退款原因" v-if="RefundForm.reason == '其他'" prop="reason1">
+          <el-input placeholder="退款原因" type="textarea" :rows="4" v-model="RefundForm.reason1"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer" align="center">
         <el-button @click="dialogFormVisibleRefund = false">取 消</el-button>
-        <!-- <el-button type="primary" @click="submitformRefund">提 交</el-button> -->
+        <el-button type="primary" @click="submitformRefund">提 交</el-button>
       </div>
     </el-dialog>
 
@@ -273,6 +293,16 @@
         </el-form>
       </el-row>
     </el-dialog>
+
+    <el-dialog title="用户行程" width="40%" class="opearteform" :visible.sync="dialogorderRouteVisible">
+      <el-row :gutter="24">
+        <el-form ref="form1">
+          <el-col :span="24" class="MapClass">
+            <div id="container1" v-loading="Maploading1" />
+          </el-col>
+        </el-form>
+      </el-row>
+    </el-dialog>
   </div>
 </template>
 
@@ -281,17 +311,32 @@ import AMap from "AMap";
 import { allRegion, allianceListByRegionId } from "@/api/region";
 import { findByLargeFranchisee } from "@/api/responsibility";
 import { getDay, transTime } from "@/utils/index.js";
-import { orderListPage, returnPosition } from "@/api/orderrecord";
+import {
+  orderListPage,
+  returnPosition,
+  returnorderRefund,
+  orderRoute
+} from "@/api/orderrecord";
 import number from "@/directive/input-filter";
 import permission from "@/directive/permission";
 export default {
   name: "orderlist",
-  directives: { number,permission },
+  directives: { number, permission },
   data() {
+    const validatemoney = (rule, value, callback) => {
+      console.log(value, "退款金额");
+      if (value > this.RefundForm.totalMoney) {
+        callback(new Error("退款金额不能大于订单金额"));
+      } else {
+        callback();
+      }
+    };
     return {
       button: {
-        orderrecord_orderrecord_order_refund: "orderrecord_orderrecord_order_refund",
-        orderrecord_orderrecord_order_seat: "orderrecord_orderrecord_order_seat",
+        orderrecord_orderrecord_order_refund:
+          "orderrecord_orderrecord_order_refund",
+        orderrecord_orderrecord_order_seat:
+          "orderrecord_orderrecord_order_seat",
         orderrecord_orderrecord_order_trip: "orderrecord_orderrecord_order_trip"
       },
       AllianOptions: [], // 查询大区
@@ -338,20 +383,32 @@ export default {
       dialogFormVisibleRefund: false,
       RefundTitle: "",
       RefundForm: {
-        money1: "",
-        money2: "",
-        remark1: ""
+        totalMoney: "",
+        residueMoney: "",
+        reason: "",
+        reason1: "",
+        orderNumber: "",
+        orderId: "",
+        customerId: ""
       },
       rules: {
-        money2: [
-          { required: true, message: "请输入拉黑名单原因", trigger: "blur" }
+        residueMoney: [
+          { required: true, trigger: "blur", validator: validatemoney }
+        ],
+        reason: [
+          { required: true, message: "请选择退款原因", trigger: "change" }
+        ],
+        reason1: [
+          { required: true, message: "请输入退款原因", trigger: "blur" }
         ]
       },
       dialogCarMapVisible: false,
       tabTitle: "",
       Maploading: true,
       map: null,
-      marker: null,
+      dialogorderRouteVisible: false,
+      Maploading1: true,
+      map1: null,
     };
   },
   mounted() {
@@ -482,7 +539,17 @@ export default {
       //
     },
     handleRefund(row) {
+      console.log(row, "row退款");
       this.dialogFormVisibleRefund = true;
+      this.RefundForm = {
+        totalMoney: row.totalMoney,
+        residueMoney: "",
+        reason: "",
+        reason1: "",
+        orderNumber: row.orderNumber,
+        orderId: row.orderId,
+        customerId: row.customerId
+      };
       this.RefundTitle = `您正在对用户【${row.customerPhone}】进行退款`;
       this.$nextTick(() => {
         this.$refs.RefundForm.resetFields();
@@ -492,8 +559,8 @@ export default {
     handleCar(row) {
       this.dialogCarMapVisible = true;
       this.tabTitle = "用户还车地点";
-      this.marker = null;
       this.map = null;
+      
       this.$nextTick(() => {
         const that = this;
         that.map = new AMap.Map("container", {
@@ -511,17 +578,121 @@ export default {
         });
         returnPosition({
           orderId: row.orderId
-        }).then(res => {
-          console.log(res,'1111111res')
-          this.marker = new AMap.Marker({
-            position: [res.data.endLongitude, res.data.endLatitude],
-            icon: "https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png",
-            offset: new AMap.Pixel(-13, -30)
-          });
-          this.map.add(this.marker);
-          this.map.setFitView();
-          this.Maploading = false;
-        }).catch(()=>{})
+        })
+          .then(res => {
+            console.log(res, "1111111res");
+            let marker = null;
+            marker = new AMap.Marker({
+              position: [res.data.endLongitude, res.data.endLatitude],
+              icon: "https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png",
+              offset: new AMap.Pixel(-13, -30)
+            });
+            this.map.add(marker);
+            this.map.setFitView();
+            this.Maploading = false;
+          })
+          .catch(() => {});
+      });
+    },
+    changeselectValue(value) {
+      console.log(value, "11111111");
+    },
+    submitformRefund() {
+      this.$refs.RefundForm.validate(valid => {
+        if (valid) {
+          if (this.RefundForm.reason == "其他") {
+            this.RefundForm.reason = this.RefundForm.reason1;
+          }
+          returnorderRefund(this.RefundForm)
+            .then(res => {
+              if (res.code == 0) {
+                this.$notify({
+                  title: "成功",
+                  message: "退款成功",
+                  type: "success"
+                });
+                this.$refs.RefundForm.resetFields();
+                this.dialogFormVisibleRefund = false;
+                this.getlarList();
+              } else {
+                this.$notify.error({
+                  title: "错误",
+                  message: res.message
+                });
+              }
+            })
+            .catch(() => {});
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
+      });
+    },
+    handleTrip(row) {
+      this.map1 = null;
+      this.dialogorderRouteVisible = true;
+      
+      this.$nextTick(() => {
+        const that = this;
+        that.map1 = new AMap.Map("container1", {
+          resizeEnable: true,
+          zooms: [3, 20],
+          zoom: 16
+        });
+        // 工具条控件
+        that.map1.plugin(["AMap.ToolBar"], function() {
+          that.map1.addControl(new AMap.ToolBar());
+        });
+        // 地图类型切换
+        that.map1.plugin(["AMap.MapType"], function() {
+          that.map1.addControl(new AMap.MapType());
+        });
+        orderRoute({
+          orderId: row.orderId
+        })
+          .then(res => {
+            let polyline = null;
+            let marker = null;
+            let marker1 = null;
+            console.log(res, "行程通过id查询");
+            if (res.code == 0) {
+              let trackList = [];
+              res.data.trackList.forEach(item => {
+                trackList.push([item.lng, item.lat]);
+              });
+              polyline = new AMap.Polyline({
+                path: trackList,
+                isOutline: false,
+                borderWeight: 3,
+                strokeColor: '#67c23a',
+                strokeOpacity: 1,
+                strokeWeight: 3,
+                strokeStyle: 'solid',
+                lineJoin: 'round',
+                lineCap: 'round',
+                zIndex: 50
+              });
+              console.log(trackList.length-1)
+              let numberIndex = trackList.length-1;
+              marker = new AMap.Marker({
+                 position: [trackList[0].lng,trackList[0].lat ],
+                 icon: "https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png",
+                 offset: new AMap.Pixel(-13, -30)
+              });
+              marker1 = new AMap.Marker({
+                 position: [trackList[numberIndex].lng,trackList[numberIndex].lat ],
+                 icon: `https://webapi.amap.com/theme/v1.3/markers/n/mark_b${trackList[numberIndex]}.png`,
+                 offset: new AMap.Pixel(-13, -30)
+              });
+              this.map1.add(marker);
+              this.map1.add(marker1)
+              this.map1.add(polyline);
+              this.map1.setFitView();
+              this.Maploading1 = false;
+              console.log(trackList,'11111111')
+            }
+          })
+          .catch(() => {});
       });
     }
   }
@@ -589,12 +760,14 @@ export default {
   width: 100%;
   height: 400px;
   position: relative;
-  #container {
+  #container,
+  #container1 {
     width: 100%;
     height: 100%;
   }
 }
-#container /deep/ .amap-maptype-list {
+#container,
+#container1 /deep/ .amap-maptype-list {
   display: none !important;
 }
 .MapClass /deep/ .amap-indoormap-floorbar-control .panel-box {

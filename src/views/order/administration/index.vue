@@ -142,9 +142,21 @@
             >
               <span v-if="scope.row.blackcount != 0">{{scope.row.blackcount}}</span>
             </el-tooltip>
-            <el-button type="primary" v-permission="button.administration_administration_whitelist" @click="handleBlacklist(scope.row)">加入黑名单</el-button>
-            <el-button type="primary" v-permission="button.administration_administration_rouse" @click="handleAwaken(scope.row)">唤醒用户</el-button>
-            <el-button type="primary" v-permission="button.administration_administration_refund" @click="handleRefund(scope.row)">退款</el-button>
+            <el-button
+              type="primary"
+              v-permission="button.administration_administration_whitelist"
+              @click="handleBlacklist(scope.row)"
+            >加入黑名单</el-button>
+            <el-button
+              type="primary"
+              v-permission="button.administration_administration_rouse"
+              @click="handleAwaken(scope.row)"
+            >唤醒用户</el-button>
+            <el-button
+              type="primary"
+              v-permission="button.administration_administration_refund"
+              @click="handleRefund(scope.row)"
+            >退款</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -207,8 +219,8 @@
       <el-form :model="GiveForm" :rules="GiveRules" class="form" ref="GiveForm" label-width="120px">
         <el-form-item label="赠送卡券" prop="remark">
           <el-select v-model="GiveForm.remark" placeholder="请选择赠送卡券">
-          <el-option label="5元骑行红包" :value="0"></el-option>
-          <el-option label="3元骑行券" :value="1"></el-option>
+            <el-option label="5元骑行红包" :value="0"></el-option>
+            <el-option label="3元骑行券" :value="1"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -225,28 +237,25 @@
       :close-on-click-modal="false"
       :visible.sync="dialogFormVisibleRefund"
     >
-      <el-form :model="RefundForm" :rules="RefundRules" class="form" ref="RefundForm" label-width="120px">
+      <el-form
+        :model="RefundForm"
+        :rules="RefundRules"
+        class="form"
+        ref="RefundForm"
+        label-width="120px"
+      >
         <el-form-item label="赠送卡券" prop="radio">
-          <el-radio-group v-model="RefundForm.radio" >
+          <el-radio-group v-model="RefundForm.radio">
             <el-radio :label="0" border>押金</el-radio>
             <el-radio :label="1" border>调度费</el-radio>
             <el-radio :label="2" border>充值余额</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="可退金额">
-           <el-input
-            placeholder="可退金额"
-            disabled
-            v-model="RefundForm.remark"
-          ></el-input>
-          元
+          <el-input placeholder="可退金额" disabled v-model="RefundForm.remark"></el-input>元
         </el-form-item>
         <el-form-item label="要退金额" prop="remark1">
-           <el-input
-            placeholder="请输入要退金额"
-            v-model="RefundForm.remark1"
-          ></el-input>
-          元
+          <el-input placeholder="请输入要退金额" v-model="RefundForm.remark1"></el-input>元
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer" align="center">
@@ -267,7 +276,7 @@
 </template>
 
 <script>
-import { administrationListPage,updateByBlackReason } from "@/api/order";
+import { administrationListPage, updateByBlackReason } from "@/api/order";
 import { allRegion, allianceListByRegionId } from "@/api/region";
 import { getDay, transTime } from "@/utils/index.js";
 import permission from "@/directive/permission";
@@ -277,9 +286,12 @@ export default {
   data() {
     return {
       button: {
-        administration_administration_whitelist: 'administration_administration_whitelist',
-        administration_administration_rouse: 'administration_administration_rouse',
-        administration_administration_refund: 'administration_administration_refund'
+        administration_administration_whitelist:
+          "administration_administration_whitelist",
+        administration_administration_rouse:
+          "administration_administration_rouse",
+        administration_administration_refund:
+          "administration_administration_refund"
       },
       AllianOptions: [], // 查询大区
       allianceOptions: [], // 加盟商
@@ -322,7 +334,7 @@ export default {
       RefundForm: {
         radio: 0,
         remark: "23",
-        remark1: "",
+        remark1: ""
       },
       RefundRules: {
         radio: [
@@ -442,9 +454,9 @@ export default {
     },
     // 加入黑名单
     handleBlacklist(row) {
-      console.log(row,'加入黑名单')
+      console.log(row, "加入黑名单");
       this.dialogFormVisible = true;
-      this.BlacklistForm.customerId = row.customerId
+      this.BlacklistForm.customerId = row.customerId;
       this.$nextTick(() => {
         this.$refs.BlacklistForm.resetFields();
       });
@@ -460,18 +472,18 @@ export default {
     submitformBlacklist() {
       this.$refs.BlacklistForm.validate(valid => {
         if (valid) {
-        updateByBlackReason(this.BlacklistForm).then(res=>{
-          console.log(res,'11111111')
-          if(res.code == 0){
-            this.$notify({
-              title: '成功',
-              message: '加入黑名单成功',
-              type: 'success'
-            });
-            this.getList()
-            this.dialogFormVisible = false;
-          }
-        })
+          updateByBlackReason(this.BlacklistForm).then(res => {
+            console.log(res, "11111111");
+            if (res.code == 0) {
+              this.$notify({
+                title: "成功",
+                message: "加入黑名单成功",
+                type: "success"
+              });
+              this.getList();
+              this.dialogFormVisible = false;
+            }
+          });
         } else {
           console.log("error submit!!");
           return false;
@@ -491,7 +503,7 @@ export default {
     },
     handleRefund(row) {
       this.dialogFormVisibleRefund = true;
-      this.RefundTitle = `您正在对用户【${row.mobile}】进行退款`
+      this.RefundTitle = `您正在对用户【${row.mobile}】进行退款`;
       this.$nextTick(() => {
         this.$refs.RefundForm.resetFields();
       });
@@ -553,8 +565,8 @@ export default {
         cursor: pointer;
       }
     }
-    .dialoginfo{
-      div{
+    .dialoginfo {
+      div {
         line-height: 24px;
         font-size: 14px;
         color: #909399;

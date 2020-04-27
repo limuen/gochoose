@@ -145,3 +145,19 @@ export function allElectrombileLocation(params) {
     })
 }
 
+/**
+ * @description   车辆管理批量添加
+ * @author LiMuEn
+ * @date 2020-04-08
+ * @export
+ * @param {Object} data
+ */
+export function importElectrombile(data) {
+    return request({
+        url: "/electrombile/importElectrombile",
+        method: "POST",
+        data
+    })
+}
+
+

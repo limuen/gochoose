@@ -1,7 +1,12 @@
 <template>
   <div class="carlist-container">
     <div class="create-button">
-      <el-button type="primary" @click="handleCreate" icon="el-icon-edit" v-permission="button.carmanag_carmanag_manage_addcar">添加车辆</el-button>
+      <el-button
+        type="primary"
+        @click="handleCreate"
+        icon="el-icon-edit"
+        v-permission="button.carmanag_carmanag_manage_addcar"
+      >添加车辆</el-button>
     </div>
     <div class="search-container">
       <el-row :gutter="24">
@@ -98,7 +103,7 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>运营状态</span>
-            <el-select clearable  v-model="listQuery.operationState" placeholder="请选择运营状态">
+            <el-select clearable v-model="listQuery.operationState" placeholder="请选择运营状态">
               <el-option
                 v-for="item in operationStates"
                 :key="item.value"
@@ -255,13 +260,25 @@
         <el-table-column prop="electrombileRegionName" width="150" label="大区" align="center"></el-table-column>
         <el-table-column label="操作" align="center" width="360" fixed="right">
           <template slot-scope="scope">
-            <el-button type="text" v-permission="button.carmanag_carmanag_manage_location" @click="handleLocation(scope.row)">定位</el-button>
+            <el-button
+              type="text"
+              v-permission="button.carmanag_carmanag_manage_location"
+              @click="handleLocation(scope.row)"
+            >定位</el-button>
             <el-button type="text" v-permission="button.carmanag_carmanag_manage_order">订单</el-button>
             <el-button type="text" v-permission="button.carmanag_carmanag_manage_locus">轨迹</el-button>
             <el-button type="text" v-permission="button.carmanag_carmanag_manage_repairrd">维修记录</el-button>
             <el-button type="text" v-permission="button.carmanag_carmanag_manage_exqrcode">二维码</el-button>
-            <el-button type="text" v-permission="button.carmanag_carmanag_manage_details" @click="handleDetail(scope.row)">详情</el-button>
-            <el-button type="text" v-permission="button.carmanag_carmanag_manage_edit" @click="handleedit(scope.row)">编辑</el-button>
+            <el-button
+              type="text"
+              v-permission="button.carmanag_carmanag_manage_details"
+              @click="handleDetail(scope.row)"
+            >详情</el-button>
+            <el-button
+              type="text"
+              v-permission="button.carmanag_carmanag_manage_edit"
+              @click="handleedit(scope.row)"
+            >编辑</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -289,16 +306,51 @@
     <el-dialog :title="dialogtitle" width="30%" :visible.sync="dialogFormVisible">
       <el-form :model="form" class="form" ref="form" :rules="rules" label-width="120px">
         <el-form-item label="添加方式">
-          <el-radio-group v-model="resource">
+          <el-radio-group v-model="resource" @change="handleChangeRadio">
             <el-radio :label="1">单量添加</el-radio>
             <el-radio :label="2">批量添加</el-radio>
             <el-radio :label="3">批量修改</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="大区" v-if="resource=='1'" prop="electrombileRegionId">
+        <el-form-item label="批量添加" v-if="resource=='2'" class="upload-create">
+          <el-upload
+            class="upload-add"
+            drag
+            :action="serverUrl"
+            multiple
+            ref="upload"
+            :limit="1"
+            :file-list="fileList"
+            :on-success="handleAvatarSuccess"
+            accept=".xlsx, .xls"
+          >
+            <i class="el-icon-upload"></i>
+            <div class="el-upload__text">
+              将文件拖到此处，或
+              <em>点击上传</em>
+            </div>
+          </el-upload>
+          <div>
+            <div>
+              Excel模板：
+              <a href style="color:#1890ff;">点击下载</a>
+            </div>
+            <h3>注意事项:</h3>
+            <ol>
+              <li>车辆编号信息，不需要加盟商前缀</li>
+              <li>如果系统中已存在相同的*车辆编号*、*IMEI*，将无法入库，系统会将会提示错误信息。</li>
+            </ol>
+          </div>
+        </el-form-item>
+        <el-form-item 
+          label="大区" v-if="resource == '1' || this.isUpload" 
+          :key="`${resource}electrombileRegionId`" 
+          prop="electrombileRegionId"
+        >
           <el-select
             v-model="form.electrombileRegionId"
             ref="reginoName"
+            clearable
             @change="allianValuedialog"
             placeholder="请选择大区"
           >
@@ -310,7 +362,7 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="加盟商" v-if="resource=='1'" prop="electrombileAllianceId">
+        <el-form-item label="加盟商" v-if="resource=='1'  || this.isUpload" :key="`${resource}electrombileAllianceId`" prop="electrombileAllianceId">
           <el-select
             v-model="form.electrombileAllianceId"
             ref="allianceName"
@@ -325,7 +377,7 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="运营区域" v-if="resource=='1'" prop="dutyArea2">
+        <el-form-item label="运营区域" v-if="resource=='1' || this.isUpload" prop="dutyArea2">
           <el-select
             v-model="form.dutyArea2"
             ref="dutyObj"
@@ -344,13 +396,13 @@
         <el-form-item label="车辆编号" v-if="resource=='1'" prop="electrombileNumber">
           <el-input v-model="form.electrombileNumber" placeholder="请输入车辆编号"></el-input>
         </el-form-item>
-        <el-form-item label="报警开关" v-if="resource=='1'">
+        <el-form-item label="报警开关" v-if="resource=='1'  || this.isUpload ">
           <el-select v-model="form.alarmSwitch" placeholder="请选择报警开关">
             <el-option label="开" :value="0"></el-option>
             <el-option label="关" :value="1"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="运营状态" v-if="resource=='1'" prop="operationState">
+        <el-form-item label="运营状态" v-if="resource=='1' || this.isUpload" prop="operationState">
           <el-select v-model="form.operationState" placeholder="如果车辆已投放市场请选择 运营中">
             <el-option label="运营中" :value="0"></el-option>
             <el-option label="未运营" :value="1"></el-option>
@@ -371,7 +423,7 @@
             <template slot="append">km</template>
           </el-input>
         </el-form-item>
-        <el-form-item label="标准计费" v-if="resource=='1'" prop="normBilling">
+        <el-form-item label="标准计费" v-if="resource=='1'  || this.isUpload" prop="normBilling">
           <el-select v-model="form.normBilling" placeholder="请选择标准计费">
             <el-option
               v-for="item in chargeList"
@@ -381,7 +433,7 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="特权计费" v-if="resource=='1'" prop="specialBilling">
+        <el-form-item label="特权计费" v-if="resource=='1' || this.isUpload" prop="specialBilling">
           <el-select v-model="form.specialBilling" placeholder="请选择特权计费">
             <el-option
               v-for="item in chargeList"
@@ -403,34 +455,10 @@
         <el-form-item label="设备SIM2" v-if="resource=='1'">
           <el-input placeholder="请输入设备SIM2" v-model="form.equipmentSim2"></el-input>
         </el-form-item>
-        <el-form-item label="备注" v-if="resource=='1'">
+        <el-form-item label="备注" v-if="resource=='1' || this.isUpload">
           <el-input type="textarea" :rows="3" placeholder="请输入备注" v-model="form.remark"></el-input>
         </el-form-item>
-        <el-form-item label="批量添加" v-if="resource=='2'" class="upload-create">
-          <el-upload
-            class="upload-add"
-            drag
-            action="https://jsonplaceholder.typicode.com/posts/"
-            multiple
-          >
-            <i class="el-icon-upload"></i>
-            <div class="el-upload__text">
-              将文件拖到此处，或
-              <em>点击上传</em>
-            </div>
-          </el-upload>
-          <div>
-            <div>
-              Excel模板：
-              <a href style="color:#1890ff;">点击下载</a>
-            </div>
-            <h3>注意事项:</h3>
-            <ol>
-              <li>车辆编号信息，不需要加盟商前缀</li>
-              <li>如果系统中已存在相同的*车辆编号*、*IMEI*，将无法入库，系统会将会提示错误信息。</li>
-            </ol>
-          </div>
-        </el-form-item>
+
         <el-form-item label="批量修改" v-if="resource=='3'" class="upload-create">
           <el-upload
             class="upload-add"
@@ -464,7 +492,15 @@
           </div>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer" align="center">
+      <div slot="footer" class="dialog-footer" align="center" v-if="resource=='1'">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitform">确 定</el-button>
+      </div>
+      <div slot="footer" class="dialog-footer" align="center" v-if="resource=='2'">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitformUpload">确 定</el-button>
+      </div>
+      <div slot="footer" class="dialog-footer" align="center" v-if="resource=='3'">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="submitform">确 定</el-button>
       </div>
@@ -477,16 +513,13 @@
 
     <!-- 定位弹窗 -->
     <div v-if="this.LocationId != ''">
-      <Location ref="Location" :LocationId="LocationId"/>
+      <Location ref="Location" :LocationId="LocationId" />
     </div>
-    
-
-
   </div>
 </template>
 
 <script>
-import drawer from '../drawer'
+import drawer from "../drawer";
 import { allRegion, allianceListByRegionId } from "@/api/region";
 import { findByLargeFranchisee } from "@/api/responsibility";
 import { CarselectByPid } from "@/api/publicapi";
@@ -494,11 +527,12 @@ import {
   carListPage,
   carInsert,
   carUpdate,
-  carByelectrombileId
+  carByelectrombileId,
+  importElectrombile
 } from "@/api/car";
 import { chargeFranchisee } from "@/api/charge";
-import Location from '../carmanagDialog/Location';
-import { operateRegionfindByLargeFranchisee } from '@/api/operationRegional'
+import Location from "../carmanagDialog/Location";
+import { operateRegionfindByLargeFranchisee } from "@/api/operationRegional";
 import permission from "@/directive/permission";
 export default {
   name: "carlist",
@@ -608,6 +642,9 @@ export default {
         ]
       },
       LocationId: "",
+      serverUrl: "/api/electrombile/importElectrombile", //上传地址
+      fileList: [],
+      isUpload: false // 控制变量
     };
   },
   filters: {
@@ -648,6 +685,18 @@ export default {
       return electrombileStatusTypeMap[key];
     }
   },
+  // watch: {
+  //   resource: function(newValue, oldValue) {
+  //     console.log(newValue, oldValue);
+  //     if (newValue !== oldValue) {
+  //       this.$nextTick(() => {
+  //         if (this.$refs.form !== undefined) {
+  //           this.$refs.form.resetFields();
+  //         }
+  //       });
+  //     }
+  //   }
+  // },
   mounted() {
     // 查询大区
     this.getallianList();
@@ -657,6 +706,33 @@ export default {
     this.getList();
   },
   methods: {
+    handleChangeRadio(value) {
+      if(value){
+        this.isUpload = false;
+        this.form = {
+          electrombileRegionId: "",
+          electrombileRegionName: "",
+          electrombileAllianceId: "",
+          electrombileAllianceName: "",
+          dutyArea: [],
+          dutyArea2: [],
+          electrombileNumber: "",
+          operationState: "",
+          alarmSwitch: "",
+          electrombileUndercharge: "",
+          normBilling: "",
+          specialBilling: "",
+          equipmentImel: "",
+          equipmentSim: "",
+          equipmentImel2: "",
+          equipmentSim2: "",
+          remark: ""
+        }
+      }
+      // if(value == 1){
+      //   this.$refs.form.resetFields()
+      // }
+    },
     // 获取车辆状态
     getCarStatus() {
       CarselectByPid({ pid: 6 }).then(res => {
@@ -739,9 +815,9 @@ export default {
       })
         .then(res => {
           if (res.code == 0) {
-            console.log(res,'收费标准')
+            console.log(res, "收费标准");
             this.chargeList = res.data;
-            console.log(this.chargeList,'收费标准')
+            console.log(this.chargeList, "收费标准");
           }
         })
         .catch(() => {});
@@ -762,21 +838,21 @@ export default {
     },
     // 定位
     handleLocation(row) {
-      console.log(row,'定位')
+      console.log(row, "定位");
       this.LocationId = row.electrombileId;
       this.$nextTick(() => {
         this.$refs.Location.dialogFormVisible = true;
         this.$refs.Location.initMap();
-      })
+      });
     },
     // 详情
     handleDetail(row) {
-      console.log(row,'详情')
+      console.log(row, "详情");
       this.drawerId = row.electrombileId;
-      this.$nextTick(() =>{
-        this.$refs.drawer.drawer = true
-        this.$refs.drawer.getDetail()
-      })
+      this.$nextTick(() => {
+        this.$refs.drawer.drawer = true;
+        this.$refs.drawer.getDetail();
+      });
     },
     // 获取列表
     getList() {
@@ -937,6 +1013,52 @@ export default {
           }
         });
       }
+    },
+    handleAvatarSuccess(res, file) {
+      console.log(res, file, "1111111");
+      if (res.code == 0) {
+        this.isUpload = true;
+      }
+    },
+    submitformUpload() {
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          console.log(this.form, "上传提交的表单");
+          importElectrombile(this.form)
+            .then(res => {
+              console.log(res, "上传提交的表单成功函数");
+            })
+            .catch(() => {});
+          // this.form.dutyArea = [];
+          // this.indexs.forEach(index => {
+          //   const areaId = this.bilityOptions[index];
+          //   this.form.dutyArea.push({
+          //     areaId: areaId.id,
+          //     areaName: areaId.regionName
+          //   });
+          // });
+          // carInsert(this.form)
+          //   .then(res => {
+          //     if (res.code == 0) {
+          //       this.$notify({
+          //         title: "成功",
+          //         message: "创建成功",
+          //         type: "success"
+          //       });
+          //       this.getList();
+          //       this.form.dutyArea = [];
+          //       this.form.remark = "";
+          //       this.form.equipmentImel2 = "";
+          //       this.form.equipmentSim2 = "";
+          //       this.dialogFormVisible = false;
+          //       console.log(this.form, "提交完成的form");
+          //     }
+          //   })
+          //   .catch(() => {});
+        } else {
+          return false;
+        }
+      });
     }
   }
 };
