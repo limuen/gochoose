@@ -159,6 +159,8 @@ export default {
         //   isMarker: true,
         //   color: "#f56c6c"
         // });
+        this.Mapobject.actualRegion.polylines = [];
+        this.Mapobject.actualRegion.markers = [];
         this.drawMapArr({
           isEdit: true,
           dataList: [this.Mapobject.actualRegion.markerarr],
@@ -181,6 +183,8 @@ export default {
         if (!this.Mapobject.seeingRegion.markerarr) {
           return;
         }
+        this.Mapobject.seeingRegion.polylines = [];
+        this.Mapobject.seeingRegion.markers = [];
         this.drawMapArr({
           isEdit: true,
           dataList: [this.Mapobject.seeingRegion.markerarr],
@@ -469,7 +473,7 @@ export default {
     },
     // 设置地图中心
     setCenter(location) {
-      console.log("setCenter")
+      console.log("setCenter");
       var position = new AMap.LngLat(location.lng, location.lat); // 标准写法
       this.map.setCenter(position);
     },
@@ -788,15 +792,16 @@ export default {
       }
 
       if (that.polygon) {
+        this.drawData = that.markerarr.concat([]);
         that.polygon.setMap(null);
         that.polygon = null;
       }
-      // console.log(that.markerarr,'t2222222222222222222222')
-
+      // console.log(that.markerarr, "t2222222222222222222222");
       // 重新进入绘制缓存
       if (this.drawData.length == 0) {
         this.drawData = that.markerarr.concat([]);
       }
+
       // 依然没有数据停止
       if (this.drawData.length == 0) {
         // console.log("this.drawData.length == 0");
@@ -815,7 +820,7 @@ export default {
       that.markers.pop();
       // console.log(that.polylines[this.drawData.length]);
       // console.log(that.polylines);
-      // console.log(this.drawData)
+      // console.log(this.drawData);
       // console.log(this.drawData.length);
       that.polylines[this.drawData.length].setMap(null);
       that.polylines.pop();
