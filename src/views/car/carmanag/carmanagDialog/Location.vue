@@ -6,11 +6,12 @@
     :close-on-click-modal="false"
     :before-close="cancelsubmitfotm"
     :visible.sync="dialogFormVisible"
+    
   >
     <el-row :gutter="24">
       <el-form ref="form">
-        <el-col :span="24" class="MapClass">
-          <div id="container" v-loading="Maploading" />
+        <el-col :span="24" class="MapClass" v-loading="Maploading">
+          <div id="container"  />
           <div class="BtnMapActive">
             <el-button
               v-for="(val,key) in BtnList"
@@ -85,13 +86,14 @@ export default {
             });
             this.map.add(this.marker);
             this.map.setFitView();
+            this.Maploading = false;
           }
         })
         .catch(() => {});
     },
     initMap() {
       this.$nextTick(() => {
-        this.Maploading = false;
+        
         this.init();
       });
     },
