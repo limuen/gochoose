@@ -76,12 +76,12 @@
               @click="tapDisable(scope.row)"
             >已启用</el-button>
             <el-button
-              v-if="scope.row.available==1"
+              v-if="scope.row.available>0"
               type="primary"
               size="mini"
               @click="tapDisable(scope.row)"
             >已禁用</el-button>
-            <el-button
+            <!-- <el-button
               v-if="scope.row.available==2"
               type="primary"
               size="mini"
@@ -92,7 +92,7 @@
               type="primary"
               size="mini"
               @click="tapDisable(scope.row)"
-            >已禁用</el-button>
+            >已禁用</el-button> -->
           </template>
         </el-table-column>
       </el-table>
