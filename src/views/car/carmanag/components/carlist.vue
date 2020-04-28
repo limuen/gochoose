@@ -959,7 +959,7 @@ export default {
     },
     handleGoRouter(row) {
       console.log(row, "handleGoRouter");
-      this.$router.replace({
+      this.$router.push({
         path: "/order/orderrecord",
         query: {
           electrombileNumber: row.electrombileNumber,
