@@ -16,7 +16,7 @@
         <el-col :span="4">
           <div class="grid-content bg-purple">
             <el-button type="primary" @click="handleFilter">查询</el-button>
-            <el-button type="primary" @click="handleCreate" icon="el-icon-edit">新增系统角色</el-button>
+            <el-button type="primary" @click="handleCreate" v-permission="button.role_role_rolemanage_add" icon="el-icon-edit">新增系统角色</el-button>
           </div>
         </el-col>
       </el-row>
@@ -39,16 +39,19 @@
             type="danger"
             size="mini"
             @click="handleDelete(scope.row.id)"
+            v-permission="button.role_role_rolemanage_delete"
           >删除</el-button>
           <el-button
             type="primary"
             size="mini"
             @click="handleUpdate(scope.row)"
+            v-permission="button.role_role_rolemanage_edit"
           >修改</el-button>
           <el-button
             type="primary"
             size="mini"
             @click="handleJurisdiction(scope.row.id)"
+            v-permission="button.role_role_rolemanage_distribution"
           >分配权限</el-button>
         </template>
       </el-table-column>
@@ -97,7 +100,6 @@ import {
   deleteRole
 } from '@/api/role'
 import permission from "@/directive/permission";
-
 export default {
   name: "role",
   directives: { permission },
@@ -113,9 +115,10 @@ export default {
   data() {
     return {
       button: {
-        role_add: "role_add",
-        role_edit: "role_edit",
-        role_delete: "role_delete"
+        role_role_rolemanage_add: "role_role_rolemanage_add",
+        role_role_rolemanage_edit: "role_role_rolemanage_edit",
+        role_role_rolemanage_delete: "role_role_rolemanage_delete",
+        role_role_rolemanage_distribution: "role_role_rolemanage_distribution"
       },
       loading: true,
       total: 0,
@@ -189,6 +192,9 @@ export default {
       console.log("11111");
       this.idEdit = true;
       this.dialogFormVisible = true;
+      this.$nextTick(()=>{
+        this.$refs.rolesForm.resetFields();
+      })
     },
     // 提交
     submitAddroles(){

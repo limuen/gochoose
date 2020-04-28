@@ -1,20 +1,19 @@
 <template>
   <div class="discount-container">
     <div class="create-button">
-      <el-button type="primary" @click="handleCreate" icon="el-icon-edit">添加活动</el-button>
+      <el-button type="primary" @click="handleCreate" v-permission="button.configuration_configuration_ride_addactivity" icon="el-icon-edit">添加活动</el-button>
     </div>
     <div class="search-container">
       <el-row :gutter="24">
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>大区</span>
-            <el-select v-model="listQuery.regionId" clearable placeholder="请选择大区">
+            <el-select v-model="listQuery.regionId" @change="allianValue" clearable placeholder="请选择大区">
               <el-option
                 v-for="item in AllianOptions"
                 :key="item.regionId"
                 :label="item.regionName"
                 :value="item.regionId"
-                @change="allianValue"
               ></el-option>
             </el-select>
           </div>
@@ -84,7 +83,7 @@
 
         <el-col :span="12">
           <div class="grid-content bg-purple">
-            <el-button type="primary">查询</el-button>
+            <el-button type="primary" @click="handleFilter">查询</el-button>
           </div>
         </el-col>
       </el-row>
@@ -96,6 +95,7 @@
         :data="tableData"
         tooltip-effect="dark"
         style="width: 100%"
+        v-loading="loading"
         :header-cell-style="{background:'#EBEFF4'}"
       >
         <el-table-column type="index" width="50"></el-table-column>
@@ -113,11 +113,11 @@
         <el-table-column prop="applyTime" width="210" label="申请日期" align="center"></el-table-column>
         <el-table-column label="操作" align="center" width="400" fixed="right">
           <template slot-scope="scope">
-            <el-button type="primary" size="mini" >申请</el-button>
-            <el-button type="primary" size="mini" >审核</el-button>
-            <el-button type="primary" size="mini" @click="handleStatus(scope.row.id,0)">启用</el-button>
-            <el-button type="warning" size="mini" @click="handleStatus(scope.row.id,2)">禁用</el-button>
-            <el-button type="primary" size="mini" @click="handleedit(scope.row)">编辑</el-button>
+            <el-button type="primary" size="mini" v-permission="button.configuration_configuration_ride_apply"  @click="handleStatus(scope.row.discountId,1,'申请')">申请</el-button>
+            <el-button type="primary" size="mini" v-permission="button.configuration_configuration_ride_examine" @click="handleexamine(scope.row.discountId)">审核</el-button>
+            <el-button type="primary" size="mini" v-permission="button.configuration_configuration_ride_up" @click="handleStatus(scope.row.discountId,3,'启用')">启用</el-button>
+            <el-button type="warning" size="mini" v-permission="button.configuration_configuration_ride_stop" @click="handleStatus(scope.row.discountId,4,'停止')">停止</el-button>
+            <el-button type="primary" size="mini" v-permission="button.configuration_configuration_ride_edit" @click="handleedit(scope.row)">编辑</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -211,7 +211,7 @@
           </el-col>
         </el-form-item>
         <el-form-item label="活动申请" prop="applyTime" v-if="!this.isEdit">
-          <el-radio-group v-model="form.applyTime" @change="radioChange">
+          <el-radio-group v-model="form.applyTime">
             <el-radio :label="1" border>立即申请</el-radio>
             <el-radio :label="2" border>稍后申请</el-radio>
           </el-radio-group>
@@ -226,14 +226,23 @@
 </template>
 
 <script>
-import { queryManagerListPage,insert,findById,updateActivity } from "@/api/activity";
+import { queryManagerListPage,insert,findById,updateActivity,updateByStatus } from "@/api/activity";
 import { allRegion, allianceListByRegionId } from "@/api/region";
 import number from "@/directive/input-filter";
+import permission from "@/directive/permission";
 export default {
   name: "betterylist",
-  directives: { number },
+  directives: { number,permission },
   data() {
     return {
+      button: {
+        configuration_configuration_ride_addactivity: "configuration_configuration_ride_addactivity",
+        configuration_configuration_ride_apply: "configuration_configuration_ride_apply",
+        configuration_configuration_ride_up: "configuration_configuration_ride_up",
+        configuration_configuration_ride_stop: "configuration_configuration_ride_stop",
+        configuration_configuration_ride_edit: "configuration_configuration_ride_edit",
+        configuration_configuration_ride_examine: "configuration_configuration_ride_examine"
+      },
       AllianOptions: [], // 查询大区
       allianceOptions: [], // 加盟商
       AllianOptionsDialog: [], // 查询大区
@@ -255,13 +264,13 @@ export default {
         { value: 3, type: "进行中启用中" },
         { value: 4, type: "进行中已停止" },
         { value: 5, type: "已结束使用中" },
-        { value: 6, type: "已结束已停止" }
+        { value: 6, type: "已结束已停止" },
+        { value: 7, type: "审核不通过" }
       ],
       isEdit: false,
       tableData: [],
       total: 0,
       loading: false,
-      formLabelWidth: "120px",
       dialogPicker: [],
       form: {
         regionId: "",
@@ -335,7 +344,6 @@ export default {
     // 获取到大区的id去请求加盟商
     allianValue(value) {
       this.listQuery.allianceId = "";
-      this.listQuery.areaId = "";
       allianceListByRegionId({ regionId: value })
         .then(res => {
           if (res.code == 0) {
@@ -390,11 +398,6 @@ export default {
       this.listQuery.current = 1;
       this.getList();
     },
-    // 切换radio
-    radioChange(value) {
-      console.log(value,'valueRadio')
-      
-    },
     // 新增骑车打折
     handleCreate() {
       this.dialogtitle = "新增骑行打折";
@@ -403,6 +406,72 @@ export default {
       this.$nextTick(() => {
         this.$refs.form.resetFields();
       });
+    },
+    handleStatus(discountId, status, name) {
+      this.$confirm(`是否${name}`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          updateByStatus({ discountId, status })
+          .then(res => {
+            // this.getList();
+            if(res.code == 0){
+              this.$message({
+                type: 'success',
+                message: `${name}成功!`
+              });
+              this.getList();
+            }
+          })
+          .catch(() => {});
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: `已取消${name}`
+          });          
+        });
+    },
+    // 审核
+    handleexamine(discountId){
+      let status;
+      this.$confirm(`是否审核通过`, '提示', {
+          distinguishCancelAndClose: true,
+          confirmButtonText: '通过',
+          cancelButtonText: '不通过',
+          type: 'warning'
+        }).then(() => {
+          status = 3
+          updateByStatus({ discountId, status })
+          .then(res => {
+            // this.getList();
+            if(res.code == 0){
+              this.$message({
+                type: 'success',
+                message: `审核通过成功!`
+              });
+              this.getList();
+            }
+          })
+          .catch(() => {});
+        }).catch(action => {
+          if (action == "cancel") {
+            status = 7;
+            updateByStatus({ discountId, status })
+              .then(res => {
+                if (res.code == 0) {
+                  this.$message({
+                    type: "warning",
+                    message: `审核不通过!`
+                  });
+                  this.getList();
+                }
+              })
+              .catch(() => {});
+          } else {
+            this.$message("取消审核");
+          }
+        });
     },
     // 编辑
     handleedit(row) {
@@ -414,6 +483,13 @@ export default {
       }).then(res => {
         console.log(res, "11111111");
         if (res.code == 0) {
+          allianceListByRegionId({ regionId: res.data.regionId })
+            .then(resp => {
+              if (resp.code == 0) {
+                this.allianceOptionsDialog = resp.data;
+              }
+            })
+            .catch(() => {});
           this.form = Object.assign(this.form, res.data);
         }
       });

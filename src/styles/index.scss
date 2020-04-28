@@ -218,6 +218,9 @@ aside {
     padding: 20px;
   }
 }
+.app-main /deep/ .el-drawer__header{
+  margin-bottom: 0px;
+}
 .create-button{
   display: flex;
   flex-direction: row;

@@ -1,7 +1,7 @@
 <template>
   <div class="franchisee-container">
     <div class="create-button">
-      <el-button type="primary" @click="handleCreate" icon="el-icon-edit">添加加盟商</el-button>
+      <el-button type="primary" @click="handleCreate" v-permission="button.franchisee_franchisee_add"  icon="el-icon-edit">添加加盟商</el-button>
     </div>
     <div class="search-container">
       <el-row :gutter="24">
@@ -61,8 +61,8 @@
         <el-table-column prop="electrombileCount" label="车辆数量" width="150" align="center"></el-table-column>
         <el-table-column label="操作" align="center" width="200" fixed="right">
           <template slot-scope="scope">
-            <el-button type="primary" size="mini" @click="handleedit(scope.row)">编辑</el-button>
-            <el-button type="danger" size="mini" @click="handleDelete(scope.row)">删除</el-button>
+            <el-button type="primary" size="mini" v-permission="button.franchisee_franchisee_edit" @click="handleedit(scope.row)">编辑</el-button>
+            <el-button type="danger" size="mini" v-permission="button.franchisee_franchisee_delete" @click="handleDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -261,10 +261,17 @@ import {
   selectByAllianceId
 } from "@/api/franchisee";
 import { allRegion } from "@/api/region";
+import permission from '@/directive/permission'
 export default {
   name: "franchisee",
+  directives: { permission },
   data() {
     return {
+      button: {
+        franchisee_franchisee_add: 'franchisee_franchisee_add',
+        franchisee_franchisee_edit: 'franchisee_franchisee_edit',
+        franchisee_franchisee_delete: 'franchisee_franchisee_delete',
+      },
       AllianOptions: [], // 查询大区
       AllianOptionsDialog: [],
       listQuery: {

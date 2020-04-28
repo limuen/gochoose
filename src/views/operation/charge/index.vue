@@ -1,7 +1,7 @@
 <template>
   <div class="charge-container">
     <div class="create-button">
-      <el-button type="primary" @click="handleCreate" icon="el-icon-edit">新增收费标准</el-button>
+      <el-button type="primary" @click="handleCreate" icon="el-icon-edit" v-permission="button.charge_charge_index_add">新增收费标准</el-button>
     </div>
     <div class="search-container">
       <el-row :gutter="24">
@@ -86,8 +86,8 @@
         </el-table-column>
         <el-table-column label="操作" align="center" width="200" fixed="right">
           <template slot-scope="scope">
-            <el-button type="primary" size="mini" @click="handleedit(scope.row)">编辑</el-button>
-            <el-button type="danger" size="mini" @click="handleDelete(scope.row)">删除</el-button>
+            <el-button type="primary" size="mini" v-permission="button.charge_charge_index_edit" @click="handleedit(scope.row)">编辑</el-button>
+            <el-button type="danger" size="mini" v-permission="button.charge_charge_index_delete" @click="handleDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -336,11 +336,17 @@ import {
   deletecharge
 } from "@/api/charge";
 import number from "@/directive/input-filter";
+import permission from "@/directive/permission";
 export default {
   name: "charge",
-  directives: { number },
+  directives: { number,permission },
   data() {
     return {
+      button: {
+        charge_charge_index_add: 'charge_charge_index_add',
+        charge_charge_index_edit: 'charge_charge_index_edit',
+        charge_charge_index_delete: 'charge_charge_index_delete'
+      },
       AllianOptions: [], // 查询大区
       allianceOptions: [], // 加盟商
       AllianOptionsDialog: [], // 查询大区
