@@ -469,6 +469,7 @@ export default {
     },
     // 设置地图中心
     setCenter(location) {
+      console.log("setCenter")
       var position = new AMap.LngLat(location.lng, location.lat); // 标准写法
       this.map.setCenter(position);
     },
