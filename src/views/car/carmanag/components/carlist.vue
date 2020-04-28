@@ -265,10 +265,19 @@
               v-permission="button.carmanag_carmanag_manage_location"
               @click="handleLocation(scope.row)"
             >定位</el-button>
-            <el-button type="text" v-permission="button.carmanag_carmanag_manage_order">订单</el-button>
+            <el-button
+              type="text"
+              v-permission="button.carmanag_carmanag_manage_order"
+              @click="handleGoRouter(scope.row)"
+            >订单</el-button>
             <el-button type="text" v-permission="button.carmanag_carmanag_manage_locus">轨迹</el-button>
             <el-button type="text" v-permission="button.carmanag_carmanag_manage_repairrd">维修记录</el-button>
-            <el-button type="text" v-permission="button.carmanag_carmanag_manage_exqrcode">二维码</el-button>
+            <el-button type="text" v-permission="button.carmanag_carmanag_manage_exqrcode">
+              <a
+                :href="`/api/electrombile/createQrCode?electrombileId=${scope.row.electrombileId}`"
+                download="二维码"
+              >二维码下载</a>
+            </el-button>
             <el-button
               type="text"
               v-permission="button.carmanag_carmanag_manage_details"
@@ -342,9 +351,10 @@
             </ol>
           </div>
         </el-form-item>
-        <el-form-item 
-          label="大区" v-if="resource == '1' || this.isUpload" 
-          :key="`${resource}electrombileRegionId`" 
+        <el-form-item
+          label="大区"
+          v-if="resource == '1' || this.isUpload"
+          :key="`${resource}electrombileRegionId`"
           prop="electrombileRegionId"
         >
           <el-select
@@ -362,7 +372,12 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="加盟商" v-if="resource=='1'  || this.isUpload" :key="`${resource}electrombileAllianceId`" prop="electrombileAllianceId">
+        <el-form-item
+          label="加盟商"
+          v-if="resource=='1'  || this.isUpload"
+          :key="`${resource}electrombileAllianceId`"
+          prop="electrombileAllianceId"
+        >
           <el-select
             v-model="form.electrombileAllianceId"
             ref="allianceName"
@@ -528,7 +543,8 @@ import {
   carInsert,
   carUpdate,
   carByelectrombileId,
-  importElectrombile
+  importElectrombile,
+  createQrCode
 } from "@/api/car";
 import { chargeFranchisee } from "@/api/charge";
 import Location from "../carmanagDialog/Location";
@@ -703,11 +719,13 @@ export default {
     this.getallianListDialog();
     // 获取车辆状态
     this.getCarStatus();
+    // this.listQuery.current = +this.$route.query.current || 1;
+    // this.listQuery.size = +this.$route.query.size || 10;
     this.getList();
   },
   methods: {
     handleChangeRadio(value) {
-      if(value){
+      if (value) {
         this.isUpload = false;
         this.form = {
           electrombileRegionId: "",
@@ -727,7 +745,7 @@ export default {
           equipmentImel2: "",
           equipmentSim2: "",
           remark: ""
-        }
+        };
       }
       // if(value == 1){
       //   this.$refs.form.resetFields()
@@ -936,6 +954,17 @@ export default {
           this.form.dutyArea2 = this.indexs;
           this.form.dutyArea = [];
           this.dialogding = false;
+        }
+      });
+    },
+    handleGoRouter(row) {
+      console.log(row, "handleGoRouter");
+      this.$router.replace({
+        path: "/order/orderrecord",
+        query: {
+          electrombileNumber: row.electrombileNumber,
+          // current: this.listQuery.current,
+          // size: this.listQuery.size
         }
       });
     },

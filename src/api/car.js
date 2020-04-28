@@ -161,3 +161,19 @@ export function importElectrombile(data) {
 }
 
 
+/**
+ * @description   车辆管理生成二维码
+ * @author LiMuEn
+ * @date 2020-04-08
+ * @export
+ * @param {Object} data
+ */
+export function createQrCode(params) {
+    return request({
+        url: "/electrombile/createQrCode",
+        method: "GET",
+        params
+    })
+}
+
+

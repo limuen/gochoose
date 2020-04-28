@@ -416,6 +416,14 @@ export default {
     this.getallianList();
     // 获取列表
     this.getList();
+    if (this.$route.query.electrombileNumber) {
+      let electrombileNumber = this.$route.query.electrombileNumber;
+      console.log(electrombileNumber)
+      this.listQuery.electrombileNumber = electrombileNumber;
+      this.getList();
+    }else{
+      this.getList();
+    }
   },
   methods: {
     // 获取本周
