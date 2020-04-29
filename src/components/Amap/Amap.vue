@@ -638,7 +638,7 @@ export default {
         this.fillColor = "#f56c6c";
       }
       // 判断多边形自相交
-      if (ccc(that.seeingRegionModelList)) {
+      if (ccc(this.drawData)) {
         this.$notify.error({
           title: "错误",
           message: "绘制区域有部分相交，请正确绘制"
@@ -692,7 +692,8 @@ export default {
         // console.log(count);
       }
       // 判断多边形自相交
-      function ccc(points) {
+      function ccc(_points) {
+        let points = _points.concat([]);
         function judgeIntersect(x1, y1, x2, y2, x3, y3, x4, y4) {
           //快速排斥实验
           if (
@@ -716,14 +717,18 @@ export default {
           }
           return true;
         }
-        console.log(points);
+        console.log(JSON.stringify(points), points.length);
         let count = Number(points.length);
         let arr = [];
         for (let i = 0; i < count; i++) {
           // console.log(i,(i+1)%count)
           arr.push([i, (i + 1) % count]);
+
+          if (Array.isArray(points[i])) {
+            points[i] = { lng: points[i][0], lat: points[i][1] };
+          }
         }
-        console.log(arr);
+        // console.log(arr);
         for (let i = 0; i < arr.length - 1; i++) {
           for (let j = i + 1; j < arr.length; j++) {
             if (Math.abs(j - i) == 1 || (i == 0 && j == arr.length - 1)) {
@@ -733,8 +738,8 @@ export default {
               point2 = points[arr[i][1]],
               point3 = points[arr[j][0]],
               point4 = points[arr[j][1]];
-            console.log(point1, point2, point3, point4);
-            console.log(i, j);
+            // console.log(point1, point2, point3, point4);
+            // console.log(i, j);
             if (
               judgeIntersect(
                 point1.lng,
@@ -812,7 +817,7 @@ export default {
         return;
       }
       that.seeingRegionModelList.pop();
-      // console.log(this.drawData);
+      console.log(this.drawData, "this.drawDatathis.drawDatathis.drawData");
       // console.log(that.markerarr,'that.markerarrthat.markerarrthat.markerarrthat.markerarrthat.markerarrthat.markerarr')
       // return;
       this.drawData.pop();
