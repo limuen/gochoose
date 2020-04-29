@@ -75,16 +75,16 @@ export default {
         electrombileId: this.LocationId
       })
         .then(res => {
-          this.marker = null;
+          let marker = null;
           this.markerAyyryCar = [];
           if (res.code == 0) {
             this.markerAyyryCar = [res.data.longitude, res.data.latitude];
-            this.marker = new AMap.Marker({
+            marker = new AMap.Marker({
               position: [res.data.longitude, res.data.latitude],
               icon: "https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png",
               offset: new AMap.Pixel(-13, -30)
             });
-            this.map.add(this.marker);
+            this.map.add(marker);
             this.map.setFitView();
             this.Maploading = false;
           }
@@ -93,7 +93,6 @@ export default {
     },
     initMap() {
       this.$nextTick(() => {
-        
         this.init();
       });
     },

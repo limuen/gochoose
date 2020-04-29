@@ -270,7 +270,11 @@
               v-permission="button.carmanag_carmanag_manage_order"
               @click="handleGoRouter(scope.row)"
             >订单</el-button>
-            <el-button type="text" v-permission="button.carmanag_carmanag_manage_locus">轨迹</el-button>
+            <el-button 
+              type="text" 
+              v-permission="button.carmanag_carmanag_manage_locus"
+              @click="handletrajectory(scope.row)"
+            >轨迹</el-button>
             <el-button type="text" v-permission="button.carmanag_carmanag_manage_repairrd">维修记录</el-button>
             <el-button type="text" v-permission="button.carmanag_carmanag_manage_exqrcode">
               <a
@@ -530,6 +534,11 @@
     <div v-if="this.LocationId != ''">
       <Location ref="Location" :LocationId="LocationId" />
     </div>
+
+    <!-- 轨迹弹窗 -->
+    <div v-if="this.trajectoryId != ''">
+      <trajectory ref="trajectory" :trajectoryId="trajectoryId" />
+    </div>
   </div>
 </template>
 
@@ -548,6 +557,7 @@ import {
 } from "@/api/car";
 import { chargeFranchisee } from "@/api/charge";
 import Location from "../carmanagDialog/Location";
+import trajectory from "../carmanagDialog/trajectory"
 import { operateRegionfindByLargeFranchisee } from "@/api/operationRegional";
 import permission from "@/directive/permission";
 export default {
@@ -555,7 +565,8 @@ export default {
   directives: { permission },
   components: {
     drawer,
-    Location
+    Location,
+    trajectory
   },
   data() {
     return {
@@ -658,6 +669,7 @@ export default {
         ]
       },
       LocationId: "",
+      trajectoryId: "",
       serverUrl: "/api/electrombile/importElectrombile", //上传地址
       fileList: [],
       isUpload: false // 控制变量
@@ -897,6 +909,14 @@ export default {
     handleFilter() {
       this.listQuery.current = 1;
       this.getList();
+    },
+    handletrajectory(row) {
+      console.log(row, "定位");
+      this.trajectoryId = row.electrombileId;
+      this.$nextTick(() => {
+        this.$refs.trajectory.dialogFormVisible = true;
+        this.$refs.trajectory.initMap();
+      });
     },
     // 新增
     handleCreate() {
