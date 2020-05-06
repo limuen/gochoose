@@ -8,7 +8,7 @@ import request from '@/utils/request'
  */
 export function getAdminRouterTree(params) {
   return request({
-    url: '/ruleMenu/authorizeQuery',
+    url: '/api/ruleMenu/authorizeQuery',
     method: 'get',
     params
   })
@@ -23,7 +23,7 @@ export function getAdminRouterTree(params) {
  */
 export function authorization(data) {
   return request({
-    url: '/ruleMenu/authorization',
+    url: '/api/ruleMenu/authorization',
     method: 'post',
     data
   })

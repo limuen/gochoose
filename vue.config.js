@@ -32,12 +32,28 @@ module.exports = {
     },
     proxy: {
       "/api": {
-        target: process.env.VUE_APP_BASE_API,
+        // target: process.env.VUE_APP_BASE_API,
+        target: 'http://192.168.0.124:8091', 
         changeOrigin: true,
         pathRewrite: {
           "^/api": ""
         }
-      }
+      },
+      "/api1": {
+        target: 'http://106.13.231.96:8066', 
+        changeOrigin: true,
+        pathRewrite: {
+          "^/api1": ""
+        }
+      },
+      // "/apizd": {
+      //   // target: process.env.VUE_APP_BASE_API,
+      //   target: 'http://47.104.78.109:8081', 
+      //   changeOrigin: true,
+      //   pathRewrite: {
+      //     "^/api": ""
+      //   }
+      // },
     }
   },
   configureWebpack: {

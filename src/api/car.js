@@ -9,7 +9,7 @@ import request from '@/utils/request'
  */
 export function batteryListPage(params) {
     return request({
-        url: "/batteryChange/queryManagerListPage",
+        url: "/api/batteryChange/queryManagerListPage",
         method: "get",
         params
     })
@@ -24,7 +24,7 @@ export function batteryListPage(params) {
  */
 export function batteryPage(params) {
     return request({
-        url: "/battery/queryManagerListPage",
+        url: "/api/battery/queryManagerListPage",
         method: "get",
         params
     })
@@ -39,7 +39,7 @@ export function batteryPage(params) {
  */
 export function batteryinsert(data) {
     return request({
-        url: "/battery/insert",
+        url: "/api/battery/insert",
         method: "post",
         data
     })
@@ -54,7 +54,7 @@ export function batteryinsert(data) {
  */
 export function carListPage(params) {
     return request({
-        url: "/electrombile/queryManagerListPage",
+        url: "/api/electrombile/queryManagerListPage",
         method: "GET",
         params
     })
@@ -70,11 +70,27 @@ export function carListPage(params) {
  */
 export function carInsert(data) {
     return request({
-        url: "/electrombile/insert",
+        url: "/api/electrombile/insert",
         method: "post",
         data
     })
 }
+
+/**
+ * @description   车辆管理批量新增
+ * @author LiMuEn
+ * @date 2020-04-08
+ * @export
+ * @param {Object} data
+ */
+export function batchcarInsert(data) {
+    return request({
+        url: "/api/electrombile/importInsert",
+        method: "post",
+        data
+    })
+}
+
 
 
 /**
@@ -86,7 +102,7 @@ export function carInsert(data) {
  */
 export function carByelectrombileId(params) {
     return request({
-        url: "/electrombile/selectByelectrombileId",
+        url: "/api/electrombile/selectByelectrombileId",
         method: "GET",
         params
     })
@@ -103,7 +119,7 @@ export function carByelectrombileId(params) {
  */
 export function carUpdate(data) {
     return request({
-        url: "/electrombile/update",
+        url: "/api/electrombile/update",
         method: "PUT",
         data
     })
@@ -122,7 +138,7 @@ export function carUpdate(data) {
  */
 export function electrombileLocation(params) {
     return request({
-        url: "/electrombile/electrombileLocation",
+        url: "/api/electrombile/electrombileLocation",
         method: "GET",
         params
     })
@@ -139,7 +155,7 @@ export function electrombileLocation(params) {
  */
 export function allElectrombileLocation(params) {
     return request({
-        url: "/electrombile/allElectrombileLocation",
+        url: "/api/electrombile/allElectrombileLocation",
         method: "GET",
         params
     })
@@ -154,7 +170,7 @@ export function allElectrombileLocation(params) {
  */
 export function importElectrombile(data) {
     return request({
-        url: "/electrombile/importElectrombile",
+        url: "/api/electrombile/importElectrombile",
         method: "POST",
         data
     })
@@ -170,10 +186,57 @@ export function importElectrombile(data) {
  */
 export function createQrCode(params) {
     return request({
-        url: "/electrombile/createQrCode",
+        url: "/api/electrombile/createQrCode",
         method: "GET",
         params
     })
 }
 
 
+
+/**
+ * @description   开锁锁车
+ * @author LiMuEn
+ * @date 2020-05-06
+ * @export
+ * @param {Object} data
+ */
+export function execute(data) {
+    return request({
+        url: "http://47.104.78.109:8081/command/manager/execute",
+        method: "POST",
+        data
+    })
+}
+
+
+/**
+ * @description   车辆编号生成二维码
+ * @author LiMuEn
+ * @date 2020-05-06
+ * @export
+ * @param {Object} params
+ */
+export function QrCodeByNumber(params) {
+    return request({
+        url: "/api/electrombile/QrCodeByNumber",
+        method: "GET",
+        params
+    })
+}
+
+
+/**
+ * @description   车辆编号生成二维码
+ * @author LiMuEn
+ * @date 2020-05-06
+ * @export
+ * @param {Object} params
+ */
+export function electrombileNumberVerify(params) {
+    return request({
+        url: "/api/electrombile/electrombileNumberVerify",
+        method: "GET",
+        params
+    })
+}

@@ -12,7 +12,7 @@ import request from '@/utils/request'
  */
 export function queryManagerListPage(params) {
     return request({
-        url: "/chargeSetUp/queryManagerListPage",
+        url: "/api/chargeSetUp/queryManagerListPage",
         method: "get",
         params
     })
@@ -28,7 +28,7 @@ export function queryManagerListPage(params) {
  */
 export function createCharge(data) {
     return request({
-        url: "/chargeSetUp/insert",
+        url: "/api/chargeSetUp/insert",
         method: "post",
         data
     })
@@ -44,7 +44,7 @@ export function createCharge(data) {
  */
 export function findById(params) {
     return request({
-        url: "/chargeSetUp/findById",
+        url: "/api/chargeSetUp/findById",
         method: "GET",
         params
     })
@@ -60,7 +60,7 @@ export function findById(params) {
  */
 export function update(data) {
     return request({
-        url: "/chargeSetUp/update",
+        url: "/api/chargeSetUp/update",
         method: "PUT",
         data
     })
@@ -76,7 +76,7 @@ export function update(data) {
  */
 export function deletecharge(params) {
     return request({
-        url: "/chargeSetUp/delete",
+        url: "/api/chargeSetUp/delete",
         method: "DELETE",
         params
     })
@@ -95,7 +95,7 @@ export function deletecharge(params) {
  */
 export function chargeFranchisee(params) {
     return request({
-        url: "/chargeSetUp/findByLargeFranchisee",
+        url: "/api/chargeSetUp/findByLargeFranchisee",
         method: "GET",
         params
     })

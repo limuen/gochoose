@@ -293,7 +293,6 @@
         </el-form>
       </el-row>
     </el-dialog>
-
     <el-dialog title="用户行程" width="40%" class="opearteform" :visible.sync="dialogorderRouteVisible">
       <el-row :gutter="24">
         <el-form ref="form1">
@@ -565,10 +564,10 @@ export default {
     },
     // 还车位置
     handleCar(row) {
+      console.log(row,'用户还车地点')
       this.dialogCarMapVisible = true;
       this.tabTitle = "用户还车地点";
       this.map = null;
-      
       this.$nextTick(() => {
         const that = this;
         that.map = new AMap.Map("container", {
@@ -588,7 +587,7 @@ export default {
           orderId: row.orderId
         })
           .then(res => {
-            console.log(res, "1111111res");
+            console.log(res, "用户还车地点res");
             let marker = null;
             marker = new AMap.Marker({
               position: [res.data.endLongitude, res.data.endLatitude],
@@ -774,7 +773,9 @@ export default {
     height: 100%;
   }
 }
-#container,
+#container /deep/ .amap-maptype-list {
+  display: none !important;
+}
 #container1 /deep/ .amap-maptype-list {
   display: none !important;
 }

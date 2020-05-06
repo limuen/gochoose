@@ -17,13 +17,13 @@
       <div class="drawer_buttonList">
         <ul>
           <li>
-            <el-button type="success">启动</el-button>
-            <el-button type="warning">还车</el-button>
-            <el-button type="danger">锁车</el-button>
+            <el-button type="success" @click="handleks(11)">启动</el-button>
+            <el-button type="warning" >还车</el-button>
+            <el-button type="danger" @click="handleks(1)">锁车</el-button>
           </li>
           <li>
-            <el-button type="primary">定位</el-button>
-            <el-button type="primary">订单</el-button>
+            <el-button type="primary" @click="handleLocal">定位</el-button>
+            <el-button type="primary" @click="handleGoRouter">订单</el-button>
             <el-button type="primary">轨迹</el-button>
           </li>
           <li>
@@ -98,6 +98,11 @@
       </ul>
     </el-dialog>
 
+    <!-- 定位弹窗 -->
+    <div v-if="this.LocationId != ''">
+      <Location ref="Location" :LocationId="LocationId" />
+    </div>
+
     <!-- 维修调度 -->
     <el-dialog
       :title="dialogtitle"
@@ -125,12 +130,16 @@
 </template>
 
 <script>
-import { carByelectrombileId } from "@/api/car";
+import { carByelectrombileId,execute } from "@/api/car";
+import Location from '../carmanagDialog/Location';
 export default {
   props: {
     drawerId: {
       type: Number
     }
+  },
+  components: {
+    Location
   },
   name: "drawer",
   data() {
@@ -146,7 +155,8 @@ export default {
       form: {
         electrombileNumber: "",
         region: ""
-      }
+      },
+      LocationId: "",
     };
   },
   methods: {
@@ -191,6 +201,32 @@ export default {
     handleDispatch() {
       this.dialogFormVisible = true;
       this.form.electrombileNumber = this.drawerData.electrombileNumber;
+    },
+    handleks(typecommand) {
+      console.log(this.drawerData.equipmentImel,'1111111');
+      execute({
+        command: typecommand,
+        deviceNo:this.drawerData.equipmentImel
+      }).then(res=>{
+        console.loh(res,'command')
+      }).catch(()=>{})
+    },
+    handleGoRouter() {
+      console.log(this.drawerData.electrombileNumber,'electrombileNumber');
+      this.$router.push({
+        path: "/order/orderrecord",
+        query: {
+          electrombileNumber: this.drawerData.electrombileNumber,
+        }
+      });
+    },
+    handleLocal() {
+      console.log(this.drawerData,'handleLocal');
+      this.LocationId = this.drawerData.electrombileId;
+      this.$nextTick(() => {
+        this.$refs.Location.dialogFormVisible = true;
+        this.$refs.Location.initMap();
+      });
     }
   }
 };

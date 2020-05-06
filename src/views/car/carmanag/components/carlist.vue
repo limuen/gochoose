@@ -270,8 +270,8 @@
               v-permission="button.carmanag_carmanag_manage_order"
               @click="handleGoRouter(scope.row)"
             >订单</el-button>
-            <el-button 
-              type="text" 
+            <el-button
+              type="text"
               v-permission="button.carmanag_carmanag_manage_locus"
               @click="handletrajectory(scope.row)"
             >轨迹</el-button>
@@ -553,11 +553,12 @@ import {
   carUpdate,
   carByelectrombileId,
   importElectrombile,
-  createQrCode
+  createQrCode,
+  batchcarInsert
 } from "@/api/car";
 import { chargeFranchisee } from "@/api/charge";
 import Location from "../carmanagDialog/Location";
-import trajectory from "../carmanagDialog/trajectory"
+import trajectory from "../carmanagDialog/trajectory";
 import { operateRegionfindByLargeFranchisee } from "@/api/operationRegional";
 import permission from "@/directive/permission";
 export default {
@@ -634,7 +635,8 @@ export default {
         equipmentSim: "",
         equipmentImel2: "",
         equipmentSim2: "",
-        remark: ""
+        remark: "",
+        excelKey: ""
       },
       indexs: [],
       dialogtitle: "",
@@ -923,6 +925,13 @@ export default {
       this.dialogtitle = "添加车辆";
       this.dialogFormVisible = true;
       this.isEdit = false;
+      this.fileList = [];
+      this.form.dutyArea = [];
+      this.form.remark = "";
+      this.form.equipmentImel2 = "";
+      this.form.equipmentSim2 = "";
+      this.form.excelKey = "";
+      this.resource = 1;
       this.$nextTick(() => {
         this.$refs.form.resetFields();
       });
@@ -982,7 +991,7 @@ export default {
       this.$router.push({
         path: "/order/orderrecord",
         query: {
-          electrombileNumber: row.electrombileNumber,
+          electrombileNumber: row.electrombileNumber
           // current: this.listQuery.current,
           // size: this.listQuery.size
         }
@@ -1067,47 +1076,56 @@ export default {
       console.log(res, file, "1111111");
       if (res.code == 0) {
         this.isUpload = true;
+        this.form.excelKey = res.data.excelKey;
       }
     },
     submitformUpload() {
-      this.$refs.form.validate(valid => {
-        if (valid) {
-          console.log(this.form, "上传提交的表单");
-          importElectrombile(this.form)
-            .then(res => {
-              console.log(res, "上传提交的表单成功函数");
-            })
-            .catch(() => {});
-          // this.form.dutyArea = [];
-          // this.indexs.forEach(index => {
-          //   const areaId = this.bilityOptions[index];
-          //   this.form.dutyArea.push({
-          //     areaId: areaId.id,
-          //     areaName: areaId.regionName
-          //   });
-          // });
-          // carInsert(this.form)
-          //   .then(res => {
-          //     if (res.code == 0) {
-          //       this.$notify({
-          //         title: "成功",
-          //         message: "创建成功",
-          //         type: "success"
-          //       });
-          //       this.getList();
-          //       this.form.dutyArea = [];
-          //       this.form.remark = "";
-          //       this.form.equipmentImel2 = "";
-          //       this.form.equipmentSim2 = "";
-          //       this.dialogFormVisible = false;
-          //       console.log(this.form, "提交完成的form");
-          //     }
-          //   })
-          //   .catch(() => {});
-        } else {
-          return false;
-        }
-      });
+        this.$refs.form.validate(valid => {
+          if (valid) {
+            console.log(this.form, "上传提交的表单");
+            importElectrombile(this.form)
+              .then(res => {
+                console.log(res, "上传提交的表单成功函数");
+              })
+              .catch(() => {});
+            this.form.dutyArea = [];
+            this.indexs.forEach(index => {
+              const areaId = this.bilityOptions[index];
+              this.form.dutyArea.push({
+                areaId: areaId.id,
+                areaName: areaId.regionName
+              });
+            });
+            batchcarInsert(this.form)
+              .then(res => {
+                console.log(res, "哈哈哈哈哈");
+                if (res.code == 0) {
+                  this.$notify({
+                    title: "成功",
+                    message: "创建成功",
+                    type: "success"
+                  });
+                  this.getList();
+                  this.form.dutyArea = [];
+                  this.form.remark = "";
+                  this.form.equipmentImel2 = "";
+                  this.form.equipmentSim2 = "";
+                  this.form.excelKey = ""
+                  this.dialogFormVisible = false;
+                  console.log(this.form, "提交完成的form");
+                }else{
+                  this.$notify.error({
+                    title: '错误',
+                    message: res.data
+                  });
+                }
+              })
+              .catch(() => {});
+          } else {
+            return false;
+          }
+        });
+      
     }
   }
 };

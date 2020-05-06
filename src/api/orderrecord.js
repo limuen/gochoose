@@ -15,7 +15,7 @@ import request from "@/utils/request";
 
 export function freesheetListPage(params) {
     return request({
-        url: "/refundRecord/queryManagerListPage",
+        url: "/api/refundRecord/queryManagerListPage",
         method: "get",
         params
     });
@@ -37,7 +37,7 @@ export function freesheetListPage(params) {
 
 export function orderListPage(params) {
     return request({
-        url: "/order/queryManagerListPage",
+        url: "/api/order/queryManagerListPage",
         method: "get",
         params
     });
@@ -59,7 +59,7 @@ export function orderListPage(params) {
 
 export function returnPosition(params) {
     return request({
-        url: "/order/returnPosition",
+        url: "/api/order/returnPosition",
         method: "get",
         params
     });
@@ -82,7 +82,7 @@ export function returnPosition(params) {
 
 export function returnorderRefund(params) {
     return request({
-        url: "/order/orderRefund",
+        url: "/api/order/orderRefund",
         method: "get",
         params
     });
@@ -105,7 +105,7 @@ export function returnorderRefund(params) {
 
 export function orderRoute(params) {
     return request({
-        url: "/order/orderRoute",
+        url: "/api/order/orderRoute",
         method: "get",
         params
     });

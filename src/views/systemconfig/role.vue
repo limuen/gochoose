@@ -238,7 +238,6 @@ export default {
     },
     // 修改
     handleUpdate(row) {
-      // this.$router.push({ name: "RoleEdit", query: { id: id } });
       this.idEdit = false;
       this.dialogFormVisible = true;
       this.form = { ...row}
@@ -250,10 +249,7 @@ export default {
         cancelButtonText: "取消",
         type: "warning"
       }).then(() => {
-          const data = {
-            id: id
-          };
-          deleteRole(data).then(res => {
+          deleteRole([id]).then(res => {
             if(res.code == 0){
               this.$notify({
                 title: '成功',
@@ -262,7 +258,7 @@ export default {
               });
               this.getmanagerlist()
             }
-          });
+          }).catch(() => {});
         })
         .catch(() => {});
     }

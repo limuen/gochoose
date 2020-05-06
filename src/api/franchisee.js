@@ -15,7 +15,7 @@ import request from "@/utils/request";
  */
 export function allianceList(params) {
   return request({
-    url: "/alliance/queryManagerListPage",
+    url: "/api/alliance/queryManagerListPage",
     method: "get",
     params
   });
@@ -30,7 +30,7 @@ export function allianceList(params) {
  */
 export function createalliance(data) {
   return request({
-    url: "/alliance/insert",
+    url: "/api/alliance/insert",
     method: "POST",
     data
   });
@@ -44,7 +44,7 @@ export function createalliance(data) {
  */
 export function selectByAllianceId(params) {
   return request({
-    url: "/alliance/selectByAllianceId",
+    url: "/api/alliance/selectByAllianceId",
     method: "GET",
     params
   });
@@ -59,7 +59,7 @@ export function selectByAllianceId(params) {
  */
 export function updatealliance(data) {
   return request({
-    url: "/alliance/update",
+    url: "/api/alliance/update",
     method: "PUT",
     data
   });
@@ -74,7 +74,7 @@ export function updatealliance(data) {
  */
 export function deletealliance(params) {
   return request({
-    url: "/alliance/deleteById",
+    url: "/api/alliance/deleteById",
     method: "GET",
     params
   });

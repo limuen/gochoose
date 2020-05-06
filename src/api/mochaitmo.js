@@ -9,7 +9,7 @@ import request from "@/utils/request";
  */
 export function queryManagerListPage(params) {
     return request({
-        url: "/operation/queryManagerListPage",
+        url: "/api/operation/queryManagerListPage",
         method: "get",
         params
     });
@@ -24,7 +24,7 @@ export function queryManagerListPage(params) {
  */
 export function createmochaitmo(data) {
     return request({
-        url: "/operation/insert",
+        url: "/api/operation/insert",
         method: "POST",
         data
     });
@@ -42,7 +42,7 @@ export function createmochaitmo(data) {
  */
 export function allRole(params) {
     return request({
-        url: "/role/allRole",
+        url: "/api/role/allRole",
         method: "get",
         params
     });
@@ -58,7 +58,7 @@ export function allRole(params) {
  */
 export function selectByOperationId(params) {
     return request({
-        url: "/operation/selectByOperationId",
+        url: "/api/operation/selectByOperationId",
         method: "get",
         params
     });
@@ -74,7 +74,7 @@ export function selectByOperationId(params) {
  */
 export function updatemochaitmo(data) {
     return request({
-        url: "/operation/update",
+        url: "/api/operation/update",
         method: "PUT",
         data
     });
@@ -90,7 +90,7 @@ export function updatemochaitmo(data) {
  */
 export function deleteById(params) {
     return request({
-        url: "/operation/deleteById",
+        url: "/api/operation/deleteById",
         method: "GET",
         params
     });
@@ -107,7 +107,7 @@ export function deleteById(params) {
 
 export function staffqueryManagerListPage(params) {
     return request({
-        url: "/managerUser/queryManagerListPage",
+        url: "/api/managerUser/queryManagerListPage",
         method: "GET",
         params
     });

@@ -15,7 +15,7 @@ import request from '@/utils/request'
 
 export function OpearteListPage(params) {
   return request({
-    url: '/operateRegion/queryManagerListPage',
+    url: '/api/operateRegion/queryManagerListPage',
     method: 'get',
     params
   })
@@ -31,7 +31,7 @@ export function OpearteListPage(params) {
 
 export function createRegional(data) {
   return request({
-    url: '/operateRegion/insert',
+    url: '/api/operateRegion/insert',
     method: 'POST',
     data
   })
@@ -47,7 +47,7 @@ export function createRegional(data) {
 
 export function findById(params) {
   return request({
-    url: '/operateRegion/findById',
+    url: '/api/operateRegion/findById',
     method: 'GET',
     params
   })
@@ -63,7 +63,7 @@ export function findById(params) {
 
 export function updateRegion(data) {
   return request({
-    url: '/operateRegion/update',
+    url: '/api/operateRegion/update',
     method: 'PUT',
     data
   })
@@ -79,7 +79,7 @@ export function updateRegion(data) {
 
 export function findPositionModelList(params) {
   return request({
-    url: '/operateRegion/findPositionModelList',
+    url: '/api/operateRegion/findPositionModelList',
     method: 'GET',
     params
   })
@@ -94,7 +94,7 @@ export function findPositionModelList(params) {
 
 export function operateRegionfindByLargeFranchisee(params) {
   return request({
-    url: '/operateRegion/findByLargeFranchisee',
+    url: '/api/operateRegion/findByLargeFranchisee',
     method: 'GET',
     params
   })
@@ -109,7 +109,7 @@ export function operateRegionfindByLargeFranchisee(params) {
 
 export function dutyParkQueryManagerListPage(params) {
   return request({
-    url: '/dutyRegion/dutyParkQueryManagerListPage',
+    url: '/api/dutyRegion/dutyParkQueryManagerListPage',
     method: 'GET',
     params
   })
@@ -125,7 +125,7 @@ export function dutyParkQueryManagerListPage(params) {
 
 export function dutyParkInsert(data) {
   return request({
-    url: '/dutyRegion/dutyParkInsert',
+    url: '/api/dutyRegion/dutyParkInsert',
     method: 'POST',
     data
   })
@@ -140,7 +140,7 @@ export function dutyParkInsert(data) {
 
 export function dutyParkUpdate(data) {
   return request({
-    url: '/dutyRegion/dutyParkUpdate',
+    url: '/api/dutyRegion/dutyParkUpdate',
     method: 'PUT',
     data
   })
@@ -155,7 +155,7 @@ export function dutyParkUpdate(data) {
 
 export function dutyParkDelete(params) {
   return request({
-    url: '/dutyRegion/delete',
+    url: '/api/dutyRegion/delete',
     method: 'DELETE',
     params
   })
@@ -170,7 +170,7 @@ export function dutyParkDelete(params) {
 
 export function findByLargeFranchisee(params) {
   return request({
-    url: '/dutyRegion/findByLargeFranchisee',
+    url: '/api/dutyRegion/findByLargeFranchisee',
     method: 'GET',
     params
   })
@@ -185,7 +185,7 @@ export function findByLargeFranchisee(params) {
 
 export function dutyParkFindPositionModelList(params) {
   return request({
-    url: '/dutyRegion/dutyParkFindPositionModelList',
+    url: '/api/dutyRegion/dutyParkFindPositionModelList',
     method: 'GET',
     params
   })
@@ -200,7 +200,7 @@ export function dutyParkFindPositionModelList(params) {
 
 export function dutyParkFindById(params) {
   return request({
-    url: '/dutyRegion/dutyParkFindById',
+    url: '/api/dutyRegion/dutyParkFindById',
     method: 'GET',
     params
   })
@@ -215,7 +215,7 @@ export function dutyParkFindById(params) {
 
 export function parkSpotavailable(params) {
   return request({
-    url: '/parkSpot/available',
+    url: '/api/parkSpot/available',
     method: 'PUT',
     params
   })
@@ -230,7 +230,7 @@ export function parkSpotavailable(params) {
 
 export function parkSpotdutyParkInsert(data) {
   return request({
-    url: '/parkSpot/dutyParkInsert',
+    url: '/api/parkSpot/dutyParkInsert',
     method: 'POST',
     data
   })
@@ -245,7 +245,7 @@ export function parkSpotdutyParkInsert(data) {
 
 export function parkSpotdutyParkUpdate(data) {
   return request({
-    url: '/parkSpot/dutyParkUpdate',
+    url: '/api/parkSpot/dutyParkUpdate',
     method: 'PUT',
     data
   })
@@ -260,7 +260,7 @@ export function parkSpotdutyParkUpdate(data) {
 
 export function parkSpotdutyParkQuery(params) {
   return request({
-    url: '/parkSpot/dutyParkQuery',
+    url: '/api/parkSpot/dutyParkQuery',
     method: 'GET',
     params
   })
@@ -275,7 +275,7 @@ export function parkSpotdutyParkQuery(params) {
 
 export function parkSpotdutyParkFindById(params) {
   return request({
-    url: '/parkSpot/dutyParkFindById',
+    url: '/api/parkSpot/dutyParkFindById',
     method: 'GET',
     params
   })
@@ -290,7 +290,7 @@ export function parkSpotdutyParkFindById(params) {
 
 export function parkSpotfindByLargeFranchisee(params) {
   return request({
-    url: '/parkSpot/findByLargeFranchisee',
+    url: '/api/parkSpot/findByLargeFranchisee',
     method: 'GET',
     params
   })
@@ -305,7 +305,7 @@ export function parkSpotfindByLargeFranchisee(params) {
 
 export function parkSpotdutyParkQueryManagerListPage(params) {
   return request({
-    url: '/parkSpot/dutyParkQueryManagerListPage',
+    url: '/api/parkSpot/dutyParkQueryManagerListPage',
     method: 'GET',
     params
   })
@@ -320,7 +320,7 @@ export function parkSpotdutyParkQueryManagerListPage(params) {
 
 export function parkSpotdutyParkFindPositionModelList(params) {
   return request({
-    url: '/parkSpot/dutyParkFindPositionModelList',
+    url: '/api/parkSpot/dutyParkFindPositionModelList',
     method: 'GET',
     params
   })
@@ -336,7 +336,7 @@ export function parkSpotdutyParkFindPositionModelList(params) {
 
 export function forbiddenRegionfindById(params) {
   return request({
-    url: '/forbiddenRegion/findById',
+    url: '/api/forbiddenRegion/findById',
     method: 'GET',
     params
   })
@@ -351,7 +351,7 @@ export function forbiddenRegionfindById(params) {
 
 export function forbiddenRegionfindByLargeFranchisee(params) {
   return request({
-    url: '/forbiddenRegion/findByLargeFranchisee',
+    url: '/api/forbiddenRegion/findByLargeFranchisee',
     method: 'GET',
     params
   })
@@ -366,7 +366,7 @@ export function forbiddenRegionfindByLargeFranchisee(params) {
 
 export function forbiddenRegionfindPositionModelList(params) {
   return request({
-    url: '/forbiddenRegion/findPositionModelList',
+    url: '/api/forbiddenRegion/findPositionModelList',
     method: 'GET',
     params
   })
@@ -381,7 +381,7 @@ export function forbiddenRegionfindPositionModelList(params) {
 
 export function forbiddenRegionqueryListPage(params) {
   return request({
-    url: '/forbiddenRegion/queryListPage',
+    url: '/api/forbiddenRegion/queryListPage',
     method: 'GET',
     params
   })
@@ -396,7 +396,7 @@ export function forbiddenRegionqueryListPage(params) {
 
 export function forbiddenRegionqueryManagerListPage(params) {
   return request({
-    url: '/forbiddenRegion/queryManagerListPage',
+    url: '/api/forbiddenRegion/queryManagerListPage',
     method: 'GET',
     params
   })
@@ -411,7 +411,7 @@ export function forbiddenRegionqueryManagerListPage(params) {
 
 export function forbiddenRegionupdate(data) {
   return request({
-    url: '/forbiddenRegion/update',
+    url: '/api/forbiddenRegion/update',
     method: 'PUT',
     data
   })
@@ -426,7 +426,7 @@ export function forbiddenRegionupdate(data) {
 
 export function forbiddenRegiondelete(params) {
   return request({
-    url: '/forbiddenRegion/delete',
+    url: '/api/forbiddenRegion/delete',
     method: 'DELETE',
     params
   })
@@ -441,7 +441,7 @@ export function forbiddenRegiondelete(params) {
 
 export function forbiddenRegioninsert(data) {
   return request({
-    url: '/forbiddenRegion/insert',
+    url: '/api/forbiddenRegion/insert',
     method: 'POST',
     data
   })

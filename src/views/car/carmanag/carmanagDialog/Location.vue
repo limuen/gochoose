@@ -6,7 +6,6 @@
     :close-on-click-modal="false"
     :before-close="cancelsubmitfotm"
     :visible.sync="dialogFormVisible"
-    
   >
     <el-row :gutter="24">
       <el-form ref="form">
@@ -75,6 +74,7 @@ export default {
         electrombileId: this.LocationId
       })
         .then(res => {
+          console.log(res,'res车辆位置')
           let marker = null;
           this.markerAyyryCar = [];
           if (res.code == 0) {

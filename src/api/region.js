@@ -9,7 +9,7 @@ import request from '@/utils/request'
  */
 export function allRegion(params) {
   return request({
-    url: '/region/allRegion',
+    url: '/api/region/allRegion',
     method: 'get',
     params
   })
@@ -24,7 +24,7 @@ export function allRegion(params) {
  */
 export function allianceListByRegionId(params) {
   return request({
-    url: '/alliance/allianceListByRegionId',
+    url: '/api/alliance/allianceListByRegionId',
     method: 'get',
     params
   })
@@ -39,7 +39,7 @@ export function allianceListByRegionId(params) {
  */
 export function queryManagerListPage(params) {
   return request({
-    url: '/areaManage/queryManagerListPage',
+    url: '/api/areaManage/queryManagerListPage',
     method: 'get',
     params
   })
@@ -54,7 +54,7 @@ export function queryManagerListPage(params) {
  */
 export function createarea(data) {
   return request({
-    url: '/areaManage/insert',
+    url: '/api/areaManage/insert',
     method: 'POST',
     data
   })
@@ -69,7 +69,7 @@ export function createarea(data) {
  */
 export function updatearea(data) {
   return request({
-    url: '/areaManage/update',
+    url: '/api/areaManage/update',
     method: 'PUT',
     data
   })
@@ -84,7 +84,7 @@ export function updatearea(data) {
  */
 export function deleteById(params) {
   return request({
-    url: '/areaManage/deleteById',
+    url: '/api/areaManage/deleteById',
     method: 'GET',
     params
   })
@@ -99,7 +99,7 @@ export function deleteById(params) {
  */
 export function selectByAreaManageId(params) {
   return request({
-    url: '/areaManage/selectByAreaManageId',
+    url: '/api/areaManage/selectByAreaManageId',
     method: 'GET',
     params
   })

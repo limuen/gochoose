@@ -22,10 +22,7 @@
           <div class="input-item">
             <input type="button" class="btn" value="开始动画" id="start" @click="startAnimation" />
             <input type="button" class="btn" value="暂停动画" id="pause" @click="pauseAnimation" />
-          </div>
-          <div class="input-item">
             <input type="button" class="btn" value="继续动画" id="resume" @click="resumeAnimation" />
-            <input type="button" class="btn" value="停止动画" id="stop" @click="stopAnimation" />
           </div>
         </el-col>
       </el-form>
@@ -127,9 +124,6 @@ export default {
     },
     resumeAnimation() {
       this.marker.resumeMove();
-    },
-    stopAnimation() {
-      this.marker.stopMove();
     },
     initMap() {
       this.$nextTick(() => {

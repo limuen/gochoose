@@ -11,7 +11,7 @@ import request from "@/utils/request";
  */
 export function findByLargeFranchisee(params) {
     return request({
-        url: "/dutyRegion/findByLargeFranchisee",
+        url: "/api/dutyRegion/findByLargeFranchisee",
         method: "get",
         params
     });

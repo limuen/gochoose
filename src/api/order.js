@@ -15,7 +15,7 @@ import request from "@/utils/request";
 
 export function administrationListPage(params) {
     return request({
-        url: "/customer/queryManagerListPage",
+        url: "/api/customer/queryManagerListPage",
         method: "get",
         params
     });
@@ -38,7 +38,7 @@ export function administrationListPage(params) {
 
 export function rechargeListPage(params) {
     return request({
-        url: "/rechargeBalance/queryManagerListPage",
+        url: "/api/rechargeBalance/queryManagerListPage",
         method: "get",
         params
     });
@@ -60,7 +60,7 @@ export function rechargeListPage(params) {
 
 export function PledgeListPage(params) {
     return request({
-        url: "/rechargePledge/queryManagerListPage",
+        url: "/api/rechargePledge/queryManagerListPage",
         method: "get",
         params
     });
@@ -83,7 +83,7 @@ export function PledgeListPage(params) {
 
 export function DispatchListPage(params) {
     return request({
-        url: "/rechargeDispatch/queryManagerListPage",
+        url: "/api/rechargeDispatch/queryManagerListPage",
         method: "get",
         params
     });
@@ -106,7 +106,7 @@ export function DispatchListPage(params) {
 
 export function RefundListPage(params) {
     return request({
-        url: "/rechargeRefund/queryManagerListPage",
+        url: "/api/rechargeRefund/queryManagerListPage",
         method: "get",
         params
     });
@@ -130,7 +130,7 @@ export function RefundListPage(params) {
 
 export function updateByBlackReason(params) {
     return request({
-        url: "/customer/updateByBlackReason",
+        url: "/api/customer/updateByBlackReason",
         method: "get",
         params
     });

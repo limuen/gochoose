@@ -11,7 +11,7 @@ import request from '@/utils/request'
  */
 export function queryManagerListPage(params) {
     return request({
-        url: "/activityDiscount/queryManagerListPage",
+        url: "/api/activityDiscount/queryManagerListPage",
         method: "get",
         params
     })
@@ -26,7 +26,7 @@ export function queryManagerListPage(params) {
  */
 export function insert(data) {
     return request({
-        url: "/activityDiscount/insert",
+        url: "/api/activityDiscount/insert",
         method: "POST",
         data
     })
@@ -41,7 +41,7 @@ export function insert(data) {
  */
 export function findById(params) {
     return request({
-        url: "/activityDiscount/findById",
+        url: "/api/activityDiscount/findById",
         method: "get",
         params
     })
@@ -57,7 +57,7 @@ export function findById(params) {
  */
 export function updateActivity(data) {
     return request({
-        url: "/activityDiscount/update",
+        url: "/api/activityDiscount/update",
         method: "PUT",
         data
     })
@@ -73,7 +73,7 @@ export function updateActivity(data) {
  */
 export function updateByStatus(params) {
     return request({
-        url: "/activityDiscount/updateByStatus",
+        url: "/api/activityDiscount/updateByStatus",
         method: "GET",
         params
     })
@@ -89,7 +89,7 @@ export function updateByStatus(params) {
  */
 export function NewListPage(params) {
     return request({
-        url: "/activityNew/queryManagerListPage",
+        url: "/api/activityNew/queryManagerListPage",
         method: "GET",
         params
     })
@@ -105,7 +105,7 @@ export function NewListPage(params) {
  */
 export function Newinsert(data) {
     return request({
-        url: "/activityNew/insert",
+        url: "/api/activityNew/insert",
         method: "POST",
         data
     })
@@ -120,7 +120,7 @@ export function Newinsert(data) {
  */
 export function NewfindById(params) {
     return request({
-        url: "/activityNew/findById",
+        url: "/api/activityNew/findById",
         method: "GET",
         params
     })
@@ -136,7 +136,7 @@ export function NewfindById(params) {
  */
 export function Newupdate(data) {
     return request({
-        url: "/activityNew/update",
+        url: "/api/activityNew/update",
         method: "PUT",
         data
     })
@@ -152,7 +152,7 @@ export function Newupdate(data) {
  */
 export function NewupdateByStatus(params) {
     return request({
-        url: "/activityNew/updateByStatus",
+        url: "/api/activityNew/updateByStatus",
         method: "GET",
         params
     })
@@ -170,7 +170,7 @@ export function NewupdateByStatus(params) {
  */
 export function ShareListPage(params) {
     return request({
-        url: "/activityShare/queryManagerListPage",
+        url: "/api/activityShare/queryManagerListPage",
         method: "GET",
         params
     })
@@ -187,7 +187,7 @@ export function ShareListPage(params) {
  */
 export function ShareByStatus(params) {
     return request({
-        url: "/activityShare/updateByStatus",
+        url: "/api/activityShare/updateByStatus",
         method: "GET",
         params
     })
@@ -204,7 +204,7 @@ export function ShareByStatus(params) {
  */
 export function insertShare(data) {
     return request({
-        url: "/activityShare/insert",
+        url: "/api/activityShare/insert",
         method: "POST",
         data
     })
@@ -219,7 +219,7 @@ export function insertShare(data) {
  */
 export function SharefindById(params) {
     return request({
-        url: "/activityShare/findById",
+        url: "/api/activityShare/findById",
         method: "GET",
         params
     })
@@ -236,7 +236,7 @@ export function SharefindById(params) {
  */
 export function Shareupdate(data) {
     return request({
-        url: "/activityShare/update",
+        url: "/api/activityShare/update",
         method: "PUT",
         data
     })

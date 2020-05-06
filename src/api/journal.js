@@ -11,7 +11,7 @@ import request from "@/utils/request";
  */
 export function gpsListPage(params) {
     return request({
-        url: "/vehicleInformation/queryManagerListPage",
+        url: "/api/vehicleInformation/queryManagerListPage",
         method: "get",
         params
     });
@@ -29,7 +29,7 @@ export function gpsListPage(params) {
  */
 export function gpsfindById(params) {
     return request({
-        url: "/vehicleInformation/findById",
+        url: "/api/vehicleInformation/findById",
         method: "get",
         params
     });

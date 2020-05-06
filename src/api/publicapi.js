@@ -11,7 +11,7 @@ import request from "@/utils/request";
  */
 export function queryByCode(params) {
   return request({
-    url: "/district/queryByCode",
+    url: "/api/district/queryByCode",
     method: "get",
     params
   })
@@ -27,7 +27,7 @@ export function queryByCode(params) {
  */
 export function uploadoss(data) {
   return request({
-    url: "/upload/oss",
+    url: "/api/upload/oss",
     method: "post",
     data
   })
@@ -44,7 +44,7 @@ export function uploadoss(data) {
  */
 export function CarselectByPid(params) {
   return request({
-    url: "/dict/selectByPid",
+    url: "/api/dict/selectByPid",
     method: "GET",
     params
   })

@@ -2,11 +2,12 @@ import request from '@/utils/request'
 
 export function login(data) {
   return request({
-    url: '/managerUser/login',
+    url: '/api/managerUser/login',
     method: 'post',
     data
   })
 }
+
 
 /**
  * 
@@ -15,7 +16,7 @@ export function login(data) {
 
 export function queryUserMenu(token) {
   return request({
-    url: '/ruleMenu/queryUserMenu',
+    url: '/api/ruleMenu/queryUserMenu',
     method: 'get',
     params: { token }
   })

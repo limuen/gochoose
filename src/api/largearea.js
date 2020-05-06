@@ -11,7 +11,7 @@ import request from "@/utils/request";
  */
 export function getlargeareaList(params) {
   return request({
-    url: "/region/queryManagerListPage",
+    url: "/api/region/queryManagerListPage",
     method: "get",
     params
   })
@@ -31,7 +31,7 @@ export function getlargeareaList(params) {
  */
 export function createlargearea(data) {
   return request({
-    url: "/region/insert",
+    url: "/api/region/insert",
     method: "POST",
     data
   })
@@ -51,7 +51,7 @@ export function createlargearea(data) {
  */
 export function updatelargearea(data) {
   return request({
-    url: "/region/update",
+    url: "/api/region/update",
     method: "PUT",
     data
   })
@@ -68,7 +68,7 @@ export function updatelargearea(data) {
  */
 export function selectByRegionId(params) {
   return request({
-    url: "/region/selectByRegionId",
+    url: "/api/region/selectByRegionId",
     method: "GET",
     params
   })
