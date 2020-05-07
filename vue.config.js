@@ -33,17 +33,18 @@ module.exports = {
     proxy: {
       "/api": {
         // target: process.env.VUE_APP_BASE_API,
-        target: 'http://192.168.0.124:8091', 
+        // target: 'http://192.168.0.124:8091', 
+        target: 'http://www.gochoose.cn:8091', 
         changeOrigin: true,
         pathRewrite: {
           "^/api": ""
         }
       },
-      "/api1": {
+      "/wbapi": {
         target: 'http://106.13.231.96:8066', 
         changeOrigin: true,
         pathRewrite: {
-          "^/api1": ""
+          "^/wbapi": ""
         }
       },
       // "/apizd": {

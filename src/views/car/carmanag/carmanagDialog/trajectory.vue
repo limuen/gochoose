@@ -18,11 +18,15 @@
             type="date"
             value-format="yyyy-MM-dd"
             placeholder="选择日期"
+            @change="handleDipkerReaje"
           ></el-date-picker>
           <div class="input-item">
-            <input type="button" class="btn" value="开始动画" id="start" @click="startAnimation" />
+            <!-- <input type="button" class="btn" value="开始动画" id="start" @click="startAnimation" />
             <input type="button" class="btn" value="暂停动画" id="pause" @click="pauseAnimation" />
-            <input type="button" class="btn" value="继续动画" id="resume" @click="resumeAnimation" />
+            <input type="button" class="btn" value="继续动画" id="resume" @click="resumeAnimation" />-->
+            <el-button type="primary" @click="startAnimation">开始回放</el-button>
+            <el-button type="warning" @click="pauseAnimation">暂停回放</el-button>
+            <el-button type="danger" @click="resumeAnimation">继续回放</el-button>
           </div>
         </el-col>
       </el-form>
@@ -32,8 +36,14 @@
 
 <script>
 import AMap from "AMap";
+import { electrombileTrack } from "@/api/car";
 export default {
   name: "trajectory",
+  props: {
+    trajectoryId: {
+      type: String
+    }
+  },
   data() {
     return {
       dialogFormVisible: false,
@@ -44,39 +54,24 @@ export default {
       },
       value1: "",
       marker: null,
-      arrayOry: [
-          [116.478935, 39.997761],
-          [116.478939, 39.997825],
-          [116.478912, 39.998549],
-          [116.478912, 39.998549],
-          [116.478998, 39.998555],
-          [116.478998, 39.998555],
-          [116.479282, 39.99856],
-          [116.479658, 39.998100],
-          [116.480151, 39.998453],
-          [116.480784, 39.998302],
-          [116.480784, 39.998302],
-          [116.481149, 39.998184],
-          [116.481573, 39.997997],
-          [116.481863, 39.997846],
-          [116.482072, 39.997718],
-          [116.482362, 39.997718],
-          [116.483633, 39.998935],
-          [116.48367, 39.998968],
-          [116.484648, 39.999861]
-        ],
-        videoUploadPercent: 0
+      arrayOry: [],
+      videoUploadPercent: 0
     };
   },
   mounted() {
     window.addEventListener("resize", this.getHeight);
     this.getHeight();
+    
+    console.log(this.trajectoryId, "trajectoryId");
   },
   methods: {
     getHeight() {
       this.contentStyleObj.height = window.innerHeight - 120 + "px";
     },
     init() {
+      this.Maploading = true;
+      this.arrayOry = [];
+      this.marker = null;
       const that = this;
       that.map = new AMap.Map("container", {
         resizeEnable: true,
@@ -92,32 +87,48 @@ export default {
       that.map.plugin(["AMap.MapType"], function() {
         that.map.addControl(new AMap.MapType());
       });
-      this.Maploading = false;
-      this.marker = new AMap.Marker({
-        map: that.map,
-        position: [116.478935, 39.997761],
-        icon: "https://webapi.amap.com/images/car.png",
-        offset: new AMap.Pixel(-26, -13),
-        autoRotation: true,
-        angle: -90
-      });
-      // 绘制轨迹
-      var polyline = new AMap.Polyline({
-        map: that.map,
-        path: this.arrayOry,
-        showDir: true,
-        strokeColor: "#28F", //线颜色
-        strokeWeight: 6 //线宽
-      });
-      var passedPolyline = new AMap.Polyline({
-        map: that.map,
-        strokeColor: "#AF5", //线颜色
-        strokeWeight: 6 //线宽
-      });
-      that.map.setFitView();
+      electrombileTrack({
+        deviceNo: this.trajectoryId
+      })
+        .then(res => {
+          if (res.code == 0) {
+            res.data.forEach(element => {
+              this.arrayOry.push([element.lng, element.lat]);
+            });
+            console.log(this.arrayOry[0], "arrayOry");
+            let arrayOryOne = this.arrayOry[0];
+            this.marker = new AMap.Marker({
+              map: this.map,
+              position: arrayOryOne,
+              icon: "https://webapi.amap.com/images/car.png",
+              offset: new AMap.Pixel(-26, -13),
+              autoRotation: true,
+              angle: -90
+            });
+            // // 绘制轨迹
+            var polyline = new AMap.Polyline({
+              map: this.map,
+              path: this.arrayOry,
+              showDir: true,
+              strokeColor: "#28F", //线颜色
+              strokeWeight: 6 //线宽
+            });
+            var passedPolyline = new AMap.Polyline({
+              map: this.map,
+              strokeColor: "#AF5", //线颜色
+              strokeWeight: 6 //线宽
+            });
+            this.marker.on("moving", function(e) {
+              passedPolyline.setPath(e.passedPath);
+            });
+            that.map.setFitView();
+            this.Maploading = false;
+          }
+        })
+        .catch(() => {});
     },
     startAnimation() {
-      this.marker.moveAlong(this.arrayOry, 200);
+      this.marker.moveAlong(this.arrayOry, 3000);
     },
     pauseAnimation() {
       this.marker.pauseMove();
@@ -130,9 +141,64 @@ export default {
         this.init();
       });
     },
-    cancelsubmitfotm() {
+    handleDipkerReaje(value) {
+      console.log(value);
+      this.arrayOry = [];
+      this.marker = null;
+      this.map.clearMap();
+      if (value != null) {
+        electrombileTrack({
+          deviceNo: this.trajectoryId,
+          time: value
+        })
+          .then(res => {
+            if (res.code == 0) {
+              console.log(res, "handleDipkerReajeres");
+              res.data.forEach(element => {
+                console.log(element, "element");
+                this.arrayOry.push([element.lng, element.lat]);
+              });
+              console.log(this.arrayOry, "arrayOry");
+              let arrayOryOne = this.arrayOry[0];
+              this.marker = new AMap.Marker({
+                map: this.map,
+                position: arrayOryOne,
+                icon: "https://webapi.amap.com/images/car.png",
+                offset: new AMap.Pixel(-26, -13),
+                autoRotation: true,
+                angle: -90
+              });
+              // // 绘制轨迹
+              var polyline = new AMap.Polyline({
+                map: this.map,
+                path: this.arrayOry,
+                showDir: true,
+                strokeColor: "#28F", //线颜色
+                strokeWeight: 6 //线宽
+              });
+              var passedPolyline = new AMap.Polyline({
+                map: this.map,
+                strokeColor: "#AF5", //线颜色
+                strokeWeight: 6 //线宽
+              });
+              this.marker.on("moving", function(e) {
+                passedPolyline.setPath(e.passedPath);
+              });
+              this.map.setFitView();
+              console.log("111111");
+              this.Maploading = false;
+            }
+          })
+          .catch(() => {});
+      } else {
+        this.init();
+      }
+    },
+    cancelsubmitfotm(trajectoryId) {
       this.activeClass = 0;
       this.dialogFormVisible = false;
+      this.pauseAnimation();
+      this.$emit('handleqkId',this.trajectoryId)
     }
   }
 };
@@ -147,6 +213,11 @@ export default {
     position: fixed;
     left: 45%;
     top: 16%;
+  }
+  .input-item{
+    position: fixed;
+    left: 42%;
+    bottom: 5%;
   }
   #container {
     width: 100%;

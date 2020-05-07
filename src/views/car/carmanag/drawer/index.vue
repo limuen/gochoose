@@ -24,7 +24,7 @@
           <li>
             <el-button type="primary" @click="handleLocal">定位</el-button>
             <el-button type="primary" @click="handleGoRouter">订单</el-button>
-            <el-button type="primary">轨迹</el-button>
+            <el-button type="primary" @click="handletrajectory">轨迹</el-button>
           </li>
           <li>
             <el-button type="primary">重置里程</el-button>
@@ -103,6 +103,11 @@
       <Location ref="Location" :LocationId="LocationId" />
     </div>
 
+    <!-- 轨迹弹窗 -->
+    <div v-if="this.trajectoryId != ''">
+      <trajectory ref="trajectory" @handleqkId="handleqkId" :trajectoryId="trajectoryId" />
+    </div>
+
     <!-- 维修调度 -->
     <el-dialog
       :title="dialogtitle"
@@ -132,6 +137,7 @@
 <script>
 import { carByelectrombileId,execute } from "@/api/car";
 import Location from '../carmanagDialog/Location';
+import trajectory from "../carmanagDialog/trajectory";
 export default {
   props: {
     drawerId: {
@@ -139,7 +145,8 @@ export default {
     }
   },
   components: {
-    Location
+    Location,
+    trajectory
   },
   name: "drawer",
   data() {
@@ -157,6 +164,7 @@ export default {
         region: ""
       },
       LocationId: "",
+      trajectoryId: "",
     };
   },
   methods: {
@@ -227,7 +235,19 @@ export default {
         this.$refs.Location.dialogFormVisible = true;
         this.$refs.Location.initMap();
       });
-    }
+    },
+    handletrajectory() {
+      console.log(this.drawerData,'handletrajectory');
+      this.trajectoryId = this.drawerData.equipmentImel;
+      console.log(this.trajectoryId,'trajectoryId')
+      this.$nextTick(() => {
+        this.$refs.trajectory.dialogFormVisible = true;
+        this.$refs.trajectory.initMap();
+      });
+    },
+    handleqkId(value) {
+      this.trajectoryId = "";
+    },
   }
 };
 </script>

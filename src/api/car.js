@@ -240,3 +240,19 @@ export function electrombileNumberVerify(params) {
         params
     })
 }
+
+
+/**
+ * @description   车辆轨迹
+ * @author LiMuEn
+ * @date 2020-05-07
+ * @export
+ * @param {Object} params
+ */
+export function electrombileTrack(params) {
+    return request({
+        url: "/api/electrombile/electrombileTrack",
+        method: "GET",
+        params
+    })
+}

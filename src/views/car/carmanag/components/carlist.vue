@@ -537,7 +537,7 @@
 
     <!-- 轨迹弹窗 -->
     <div v-if="this.trajectoryId != ''">
-      <trajectory ref="trajectory" :trajectoryId="trajectoryId" />
+      <trajectory ref="trajectory" @handleqkId="handleqkId" :trajectoryId="trajectoryId" />
     </div>
   </div>
 </template>
@@ -914,7 +914,7 @@ export default {
     },
     handletrajectory(row) {
       console.log(row, "定位");
-      this.trajectoryId = row.electrombileId;
+      this.trajectoryId = row.equipmentImel;
       this.$nextTick(() => {
         this.$refs.trajectory.dialogFormVisible = true;
         this.$refs.trajectory.initMap();
@@ -935,6 +935,9 @@ export default {
       this.$nextTick(() => {
         this.$refs.form.resetFields();
       });
+    },
+    handleqkId(value) {
+      this.trajectoryId = "";
     },
     // 编辑
     handleedit(row) {
