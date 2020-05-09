@@ -464,8 +464,8 @@ export default {
       this.listQuery.rentTimes = this.rentTimes.toString();
     },
     // 查询大区
-    getallianList() {
-      allRegion()
+    async getallianList() {
+        await allRegion()
         .then(res => {
           if (res.code == 0) {
             this.AllianOptions = res.data;

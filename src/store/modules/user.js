@@ -66,7 +66,6 @@ const actions = {
         if (!ruleName || ruleName.length <= 0) {
           reject('getInfo: ruleName must be a non-null array!')
         }
-
         commit('SET_ROLES', ruleName)
         commit('SET_USERID', id)
         commit('SET_NAME', userName)
