@@ -1,7 +1,12 @@
 <template>
   <div class="betterylist-container">
     <div class="create-button">
-      <el-button type="primary" @click="handleCreate" icon="el-icon-edit" v-permission="button.battery_battery_batterylist_addbattery">添加电池</el-button>
+      <el-button
+        type="primary"
+        @click="handleCreate"
+        icon="el-icon-edit"
+        v-permission="button.battery_battery_batterylist_addbattery"
+      >添加电池</el-button>
     </div>
     <div class="search-container">
       <el-row :gutter="24">
@@ -77,43 +82,44 @@
       </el-row>
     </div>
 
-    <div class="permission-table">
-      <el-table
-        v-loading="loading"
-        ref="multipleTable"
-        :data="tableData"
-        tooltip-effect="dark"
-        style="width: 100%"
-        :header-cell-style="{background:'#EBEFF4'}"
-      >
-        <el-table-column type="index" width="50"></el-table-column>
-        <el-table-column prop="batteryImei" label="电池IMEI" align="center"></el-table-column>
-        <el-table-column prop="batteryCapacity" label="电池容量/Ah" align="center"></el-table-column>
-        <el-table-column prop="enduranceMileage" label="总续航里程/km" align="center"></el-table-column>
-        <el-table-column prop="batteryManufacturer" label="电池厂商" align="center"></el-table-column>
-        <el-table-column prop="remark" label="电池描述" align="center"></el-table-column>
-        <el-table-column prop="createTime" label="添加时间" align="center"></el-table-column>
-        <el-table-column prop="allianceName" label="加盟商" align="center"></el-table-column>
-        <el-table-column prop="regionName" label="大区" align="center"></el-table-column>
-      </el-table>
-    </div>
-    <div class="page-excel">
-      <div class="page-container">
-        <el-pagination
-          background
-          align="left"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page.sync="listQuery.current"
-          :page-sizes="[10, 20, 30, 40]"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-        ></el-pagination>
+    <div v-loading="loading">
+      <div class="permission-table">
+        <el-table
+          ref="multipleTable"
+          :data="tableData"
+          tooltip-effect="dark"
+          style="width: 100%"
+          :header-cell-style="{background:'#EBEFF4'}"
+        >
+          <el-table-column type="index" width="50"></el-table-column>
+          <el-table-column prop="batteryImei" label="电池IMEI" align="center"></el-table-column>
+          <el-table-column prop="batteryCapacity" label="电池容量/Ah" align="center"></el-table-column>
+          <el-table-column prop="enduranceMileage" label="总续航里程/km" align="center"></el-table-column>
+          <el-table-column prop="batteryManufacturer" label="电池厂商" align="center"></el-table-column>
+          <el-table-column prop="remark" label="电池描述" align="center"></el-table-column>
+          <el-table-column prop="createTime" label="添加时间" align="center"></el-table-column>
+          <el-table-column prop="allianceName" label="加盟商" align="center"></el-table-column>
+          <el-table-column prop="regionName" label="大区" align="center"></el-table-column>
+        </el-table>
+      </div>
+      <div class="page-excel">
+        <div class="page-container">
+          <el-pagination
+            background
+            align="left"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page.sync="listQuery.current"
+            :page-sizes="[10, 20, 30, 40]"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+          ></el-pagination>
+        </div>
       </div>
     </div>
 
     <!-- 编辑 -->
-    <el-dialog :title="dialogtitle"  width="30%" :visible.sync="dialogFormVisible">
+    <el-dialog :title="dialogtitle" width="30%" :visible.sync="dialogFormVisible">
       <el-form :model="form" class="form" ref="form" :rules="rules" label-width="120px">
         <el-form-item label="操作方式">
           <el-radio-group v-model="resource">
@@ -122,7 +128,7 @@
             <el-radio :label="3">批量修改</el-radio>
           </el-radio-group>
         </el-form-item>
-        
+
         <el-form-item label="大区" prop="regionId">
           <el-select
             v-model="form.regionId"
@@ -172,11 +178,7 @@
         <el-form-item label="电池描述" v-if="resource=='1'" prop="remark">
           <el-input type="textarea" :rows="3" placeholder="请输入内容" v-model="form.remark"></el-input>
         </el-form-item>
-        <el-form-item
-          label="电池信息文件"
-          v-if="resource=='2' || resource=='3'"
-          class="upload-create"
-        >
+        <el-form-item label="电池信息文件" v-if="resource=='2' || resource=='3'" class="upload-create">
           <el-upload
             class="upload-add"
             drag
@@ -207,11 +209,7 @@
             </ol>
           </div>
         </el-form-item>
-        <el-form-item
-          label="电池信息文件"
-          v-if="resource=='5'"
-          class="upload-create"
-        >
+        <el-form-item label="电池信息文件" v-if="resource=='5'" class="upload-create">
           <el-upload
             class="upload-add"
             drag
@@ -255,7 +253,7 @@
 <script>
 import { allRegion, allianceListByRegionId } from "@/api/region";
 import { getDay, transTime } from "@/utils/index.js";
-import { batteryPage,batteryinsert } from '@/api/car'
+import { batteryPage, batteryinsert } from "@/api/car";
 import permission from "@/directive/permission";
 export default {
   name: "betterylist",
@@ -263,7 +261,8 @@ export default {
   data() {
     return {
       button: {
-        battery_battery_batterylist_addbattery: "battery_battery_batterylist_addbattery",
+        battery_battery_batterylist_addbattery:
+          "battery_battery_batterylist_addbattery"
       },
       AllianOptions: [], // 查询大区
       allianceOptions: [], // 加盟商
@@ -292,7 +291,7 @@ export default {
         batteryManufacturer: "",
         batteryCapacity: "",
         enduranceMileage: "",
-        remark: "",
+        remark: ""
       },
       dialogtitle: "",
       dialogFormVisible: false,
@@ -324,7 +323,7 @@ export default {
   mounted() {
     // 查询大区
     this.getallianList();
-    this.getallianListDialog()
+    this.getallianListDialog();
     // 获取列表
     this.getList();
   },
@@ -379,12 +378,12 @@ export default {
       });
     },
     changeClose(value) {
-      console.log(value)
-      if (value == null){
-        this.createTime = []
-        this.listQuery.createTimes = '';
-      }else{
-        this.listQuery.createTimes = value.toString()
+      console.log(value);
+      if (value == null) {
+        this.createTime = [];
+        this.listQuery.createTimes = "";
+      } else {
+        this.listQuery.createTimes = value.toString();
       }
     },
     // 获取本周
@@ -396,7 +395,7 @@ export default {
       // end
       let end = `${date.slice(-1)} 23:59:59`;
       this.createTimes = [start, end];
-      this.listQuery.createTimes  = this.createTimes.toString()
+      this.listQuery.createTimes = this.createTimes.toString();
     },
     // 获取本月
     Thismonth() {
@@ -407,7 +406,7 @@ export default {
       // end
       let end = `${date.slice(-1)} 23:59:59`;
       this.createTimes = [start, end];
-      this.listQuery.createTimes  = this.createTimes.toString()
+      this.listQuery.createTimes = this.createTimes.toString();
     },
     // 获取季度
     Thisquarter() {
@@ -418,7 +417,7 @@ export default {
       // end
       let end = `${date.slice(-1)} 23:59:59`;
       this.createTimes = [start, end];
-      this.listQuery.createTimes  = this.createTimes.toString()
+      this.listQuery.createTimes = this.createTimes.toString();
     },
     // 获取列表
     getList() {
@@ -456,25 +455,25 @@ export default {
     },
     submitform() {
       this.$refs.form.validate(valid => {
-          if (valid) {
-            batteryinsert(this.form)
-              .then(res => {
-                if (res.code == 0) {
-                  this.$notify({
-                    title: "成功",
-                    message: "创建成功",
-                    type: "success"
-                  });
-                  this.getList();
-                  this.dialogFormVisible = false;
-                }
-              })
-              .catch(() => {});
-          } else {
-            return false;
-          }
-        });
-    },
+        if (valid) {
+          batteryinsert(this.form)
+            .then(res => {
+              if (res.code == 0) {
+                this.$notify({
+                  title: "成功",
+                  message: "创建成功",
+                  type: "success"
+                });
+                this.getList();
+                this.dialogFormVisible = false;
+              }
+            })
+            .catch(() => {});
+        } else {
+          return false;
+        }
+      });
+    }
   }
 };
 </script>
@@ -512,15 +511,16 @@ export default {
         }
       }
     }
-    .upload-create{
-      h3,ol{
+    .upload-create {
+      h3,
+      ol {
         margin: 0px;
         padding: 0px;
         line-height: 20px;
       }
-      ol{
+      ol {
         margin-left: 15px;
-        span{
+        span {
           color: red;
         }
       }
@@ -545,7 +545,8 @@ export default {
 .betterylist-container .search-container /deep/ .el-input {
   width: 230px;
 }
-.betterylist-container .form /deep/ .el-input,.el-textarea {
+.betterylist-container .form /deep/ .el-input,
+.el-textarea {
   width: 350px;
 }
 </style>

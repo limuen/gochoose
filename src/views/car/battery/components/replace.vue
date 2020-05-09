@@ -86,69 +86,70 @@
       </el-row>
     </div>
 
-    <div class="permission-table">
-      <el-table
-        ref="multipleTable"
-        :data="tableData"
-        tooltip-effect="dark"
-        style="width: 100%"
-        :header-cell-style="{background:'#EBEFF4'}"
-        v-loading="loading"
-      >
-        <el-table-column type="index" width="50"></el-table-column>
-        <el-table-column prop="electrombileNumber" label="车辆编号" align="center"></el-table-column>
-        <el-table-column prop="batteryImei" label="电池imei" align="center"></el-table-column>
-        <el-table-column prop="residueEndurance" width="190" label="更换前剩余里程/km" align="center"></el-table-column>
-        <el-table-column prop="residueElectric" width="190" label="更换前剩余电量" align="center"></el-table-column>
-        <el-table-column prop="batteryImeiEx" width="190" label="更换前电池imei" align="center"></el-table-column>
-        <el-table-column prop="changePersonName" label="更换人员" align="center"></el-table-column>
-        <el-table-column prop="changePicture1" label="更换照片1" width="200" align="center">
-          <template slot-scope="scope">
-            <el-image 
-              style="width: 100px; height: 100px"
-              :src="scope.row.changePicture1"
-              :preview-src-list="scope.row.changePicture1.split(' ')">
-            </el-image>
-            <div>{{scope.row.remark}}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="changePicture2" label="更换照片2" width="200" align="center">
-          <template slot-scope="scope">
-            <el-image 
-              style="width: 100px; height: 100px"
-              :src="scope.row.changePicture2"
-              :preview-src-list="scope.row.changePicture2.split(' ')">
-            </el-image>
-            <div>{{scope.row.remark}}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="changePicture3" label="更换照片3" width="200" align="center">
-          <template slot-scope="scope">
-            <el-image 
-              style="width: 100px; height: 100px"
-              :src="scope.row.changePicture3"
-              :preview-src-list="scope.row.changePicture3.split(' ')">
-            </el-image>
-            <div>{{scope.row.remark}}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="remark" label="备注"  align="center"></el-table-column>
-        <el-table-column prop="distributeTime" width="200" label="派单时间" align="center"></el-table-column>
-        <el-table-column prop="changeTime" width="200" label="更换时间" align="center"></el-table-column>
-      </el-table>
-    </div>
-    <div class="page-excel">
-      <div class="page-container">
-        <el-pagination
-          background
-          align="left"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page.sync="listQuery.current"
-          :page-sizes="[10, 20, 30, 40]"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-        ></el-pagination>
+    <div v-loading="loading">
+      <div class="permission-table">
+        <el-table
+          ref="multipleTable"
+          :data="tableData"
+          tooltip-effect="dark"
+          style="width: 100%"
+          :header-cell-style="{background:'#EBEFF4'}"
+        >
+          <el-table-column type="index" width="50"></el-table-column>
+          <el-table-column prop="electrombileNumber" label="车辆编号" align="center"></el-table-column>
+          <el-table-column prop="batteryImei" label="电池imei" align="center"></el-table-column>
+          <el-table-column prop="residueEndurance" width="190" label="更换前剩余里程/km" align="center"></el-table-column>
+          <el-table-column prop="residueElectric" width="190" label="更换前剩余电量" align="center"></el-table-column>
+          <el-table-column prop="batteryImeiEx" width="190" label="更换前电池imei" align="center"></el-table-column>
+          <el-table-column prop="changePersonName" label="更换人员" align="center"></el-table-column>
+          <el-table-column prop="changePicture1" label="更换照片1" width="200" align="center">
+            <template slot-scope="scope">
+              <el-image
+                style="width: 100px; height: 100px"
+                :src="scope.row.changePicture1"
+                :preview-src-list="scope.row.changePicture1.split(' ')"
+              ></el-image>
+              <div>{{scope.row.remark}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="changePicture2" label="更换照片2" width="200" align="center">
+            <template slot-scope="scope">
+              <el-image
+                style="width: 100px; height: 100px"
+                :src="scope.row.changePicture2"
+                :preview-src-list="scope.row.changePicture2.split(' ')"
+              ></el-image>
+              <div>{{scope.row.remark}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="changePicture3" label="更换照片3" width="200" align="center">
+            <template slot-scope="scope">
+              <el-image
+                style="width: 100px; height: 100px"
+                :src="scope.row.changePicture3"
+                :preview-src-list="scope.row.changePicture3.split(' ')"
+              ></el-image>
+              <div>{{scope.row.remark}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="remark" label="备注" align="center"></el-table-column>
+          <el-table-column prop="distributeTime" width="200" label="派单时间" align="center"></el-table-column>
+          <el-table-column prop="changeTime" width="200" label="更换时间" align="center"></el-table-column>
+        </el-table>
+      </div>
+      <div class="page-excel">
+        <div class="page-container">
+          <el-pagination
+            background
+            align="left"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page.sync="listQuery.current"
+            :page-sizes="[10, 20, 30, 40]"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+          ></el-pagination>
+        </div>
       </div>
     </div>
   </div>
@@ -173,7 +174,7 @@ export default {
         changePersonName: "",
         batteryImei: "",
         batteryImeiEx: "",
-        changeTimes: '',
+        changeTimes: "",
         current: 1,
         size: 10
       },
@@ -220,7 +221,7 @@ export default {
       // end
       let end = `${date.slice(-1)} 23:59:59`;
       this.changeTimes = [start, end];
-      this.listQuery.changeTimes  = this.changeTimes.toString()
+      this.listQuery.changeTimes = this.changeTimes.toString();
     },
     // 获取本月
     Thismonth() {
@@ -231,7 +232,7 @@ export default {
       // end
       let end = `${date.slice(-1)} 23:59:59`;
       this.changeTimes = [start, end];
-      this.listQuery.changeTimes  = this.changeTimes.toString()
+      this.listQuery.changeTimes = this.changeTimes.toString();
     },
     // 获取季度
     Thisquarter() {
@@ -242,7 +243,7 @@ export default {
       // end
       let end = `${date.slice(-1)} 23:59:59`;
       this.changeTimes = [start, end];
-      this.listQuery.changeTimes  = this.changeTimes.toString()
+      this.listQuery.changeTimes = this.changeTimes.toString();
     },
     // 获取列表
     getList() {
@@ -259,12 +260,12 @@ export default {
         .catch(() => {});
     },
     changeClose(value) {
-      console.log(value)
-      if (value == null){
-        this.changeTimes = []
-        this.listQuery.changeTimes = '';
-      }else{
-        this.listQuery.changeTimes = value.toString()
+      console.log(value);
+      if (value == null) {
+        this.changeTimes = [];
+        this.listQuery.changeTimes = "";
+      } else {
+        this.listQuery.changeTimes = value.toString();
       }
     },
     handleSizeChange(val) {

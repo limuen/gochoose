@@ -91,92 +91,93 @@
       </el-row>
     </div>
 
-    <div class="permission-table">
-      <el-table
-        v-loading="loading"
-        ref="multipleTable"
-        :data="tableData"
-        tooltip-effect="dark"
-        style="width: 100%"
-        :header-cell-style="{background:'#EBEFF4'}"
-      >
-        <el-table-column type="index" width="50"></el-table-column>
-        <el-table-column prop="customerName" label="姓名" align="center"></el-table-column>
-        <el-table-column prop="mobile" label="用户手机号" width="120" align="center"></el-table-column>
-        <el-table-column prop="customerIdcard" label="身份证号码" width="180" align="center"></el-table-column>
-        <el-table-column prop="isBlacklist" label="是否黑名单" width="100" align="center">
-          <template slot-scope="scope">
-            <div>{{scope.row.isBlacklist | isBlacklist}}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="sex" label="性别" align="center">
-          <template slot-scope="scope">
-            <div v-if="scope.row.sex == 1">男</div>
-            <div v-else-if="scope.row.sex == 2">女</div>
-            <div v-else>未知</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="cashPledge" label="押金" align="center"></el-table-column>
-        <el-table-column prop="dispatchMoney" label="调度费" align="center"></el-table-column>
-        <el-table-column prop="balanceMoney" label="充值余额" align="center"></el-table-column>
-        <el-table-column prop="giveMoney" label="赠送余额" align="center"></el-table-column>
-        <el-table-column prop="totalCardNumber" label="骑行券数量" width="120" align="center"></el-table-column>
-        <el-table-column prop="rideTotalDistance" width="120" label="骑行总里程" align="center"></el-table-column>
-        <el-table-column prop="rideTotalTime" width="120" label="骑行总时长" align="center"></el-table-column>
-        <el-table-column prop="offLineDay" width="120" label="已离线天数" align="center"></el-table-column>
-        <el-table-column prop="处理结果图片与备注" width="120" label="故障上报次数" align="center"></el-table-column>
-        <el-table-column prop="moneyTotal" width="120" label="余额总充值" align="center"></el-table-column>
-        <el-table-column prop="giveupTotal" width="120" label="余额总赠送" align="center"></el-table-column>
-        <el-table-column prop="totalCardNumber" width="130" label="红包/卡券总领取" align="center"></el-table-column>
-        <el-table-column prop="expenseCalendarTotsl" label="消费记录" align="center"></el-table-column>
-        <el-table-column prop="allianceName" width="120" label="加盟商" align="center"></el-table-column>
-        <el-table-column prop="regionName" width="120" label="大区" align="center"></el-table-column>
-        <el-table-column prop="createTime" width="200" label="注册时间" align="center"></el-table-column>
-        <el-table-column label="操作" align="center" width="350" fixed="right">
-          <template slot-scope="scope">
-            <el-tooltip
-              class="item"
-              effect="dark"
-              :content="scope.row.blackcount.toString()"
-              placement="top"
-            >
-              <span v-if="scope.row.blackcount != 0">{{scope.row.blackcount}}</span>
-            </el-tooltip>
-            <el-button
-              type="primary"
-              v-permission="button.administration_administration_whitelist"
-              @click="handleBlacklist(scope.row)"
-            >加入黑名单</el-button>
-            <el-button
-              type="primary"
-              v-permission="button.administration_administration_rouse"
-              @click="handleAwaken(scope.row)"
-            >唤醒用户</el-button>
-            <el-button
-              type="primary"
-              v-permission="button.administration_administration_refund"
-              @click="handleRefund(scope.row)"
-            >退款</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
-    <div class="page-excel">
-      <div class="page-container">
-        <el-pagination
-          background
-          align="left"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page.sync="listQuery.current"
-          :page-sizes="[10, 20, 30, 40]"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-        ></el-pagination>
+    <div v-loading="loading">
+      <div class="permission-table">
+        <el-table
+          ref="multipleTable"
+          :data="tableData"
+          tooltip-effect="dark"
+          style="width: 100%"
+          :header-cell-style="{background:'#EBEFF4'}"
+        >
+          <el-table-column type="index" width="50"></el-table-column>
+          <el-table-column prop="customerName" label="姓名" align="center"></el-table-column>
+          <el-table-column prop="mobile" label="用户手机号" width="120" align="center"></el-table-column>
+          <el-table-column prop="customerIdcard" label="身份证号码" width="180" align="center"></el-table-column>
+          <el-table-column prop="isBlacklist" label="是否黑名单" width="100" align="center">
+            <template slot-scope="scope">
+              <div>{{scope.row.isBlacklist | isBlacklist}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="sex" label="性别" align="center">
+            <template slot-scope="scope">
+              <div v-if="scope.row.sex == 1">男</div>
+              <div v-else-if="scope.row.sex == 2">女</div>
+              <div v-else>未知</div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="cashPledge" label="押金" align="center"></el-table-column>
+          <el-table-column prop="dispatchMoney" label="调度费" align="center"></el-table-column>
+          <el-table-column prop="balanceMoney" label="充值余额" align="center"></el-table-column>
+          <el-table-column prop="giveMoney" label="赠送余额" align="center"></el-table-column>
+          <el-table-column prop="totalCardNumber" label="骑行券数量" width="120" align="center"></el-table-column>
+          <el-table-column prop="rideTotalDistance" width="120" label="骑行总里程" align="center"></el-table-column>
+          <el-table-column prop="rideTotalTime" width="120" label="骑行总时长" align="center"></el-table-column>
+          <el-table-column prop="offLineDay" width="120" label="已离线天数" align="center"></el-table-column>
+          <el-table-column prop="处理结果图片与备注" width="120" label="故障上报次数" align="center"></el-table-column>
+          <el-table-column prop="moneyTotal" width="120" label="余额总充值" align="center"></el-table-column>
+          <el-table-column prop="giveupTotal" width="120" label="余额总赠送" align="center"></el-table-column>
+          <el-table-column prop="totalCardNumber" width="130" label="红包/卡券总领取" align="center"></el-table-column>
+          <el-table-column prop="expenseCalendarTotsl" label="消费记录" align="center"></el-table-column>
+          <el-table-column prop="allianceName" width="120" label="加盟商" align="center"></el-table-column>
+          <el-table-column prop="regionName" width="120" label="大区" align="center"></el-table-column>
+          <el-table-column prop="createTime" width="200" label="注册时间" align="center"></el-table-column>
+          <el-table-column label="操作" align="center" width="350" fixed="right">
+            <template slot-scope="scope">
+              <el-tooltip
+                class="item"
+                effect="dark"
+                :content="scope.row.blackcount.toString()"
+                placement="top"
+              >
+                <span v-if="scope.row.blackcount != 0">{{scope.row.blackcount}}</span>
+              </el-tooltip>
+              <el-button
+                type="primary"
+                v-permission="button.administration_administration_whitelist"
+                @click="handleBlacklist(scope.row)"
+              >加入黑名单</el-button>
+              <el-button
+                type="primary"
+                v-permission="button.administration_administration_rouse"
+                @click="handleAwaken(scope.row)"
+              >唤醒用户</el-button>
+              <el-button
+                type="primary"
+                v-permission="button.administration_administration_refund"
+                @click="handleRefund(scope.row)"
+              >退款</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
       </div>
-      <div>
-        <i class="el-icon-folder-opened excel-blue"></i>
-        <span>导出excel</span>
+      <div class="page-excel">
+        <div class="page-container">
+          <el-pagination
+            background
+            align="left"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page.sync="listQuery.current"
+            :page-sizes="[10, 20, 30, 40]"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+          ></el-pagination>
+        </div>
+        <div>
+          <i class="el-icon-folder-opened excel-blue"></i>
+          <span>导出excel</span>
+        </div>
       </div>
     </div>
 

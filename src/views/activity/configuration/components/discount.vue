@@ -1,14 +1,24 @@
 <template>
   <div class="discount-container">
     <div class="create-button">
-      <el-button type="primary" @click="handleCreate" v-permission="button.configuration_configuration_ride_addactivity" icon="el-icon-edit">添加活动</el-button>
+      <el-button
+        type="primary"
+        @click="handleCreate"
+        v-permission="button.configuration_configuration_ride_addactivity"
+        icon="el-icon-edit"
+      >添加活动</el-button>
     </div>
     <div class="search-container">
       <el-row :gutter="24">
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>大区</span>
-            <el-select v-model="listQuery.regionId" @change="allianValue" clearable placeholder="请选择大区">
+            <el-select
+              v-model="listQuery.regionId"
+              @change="allianValue"
+              clearable
+              placeholder="请选择大区"
+            >
               <el-option
                 v-for="item in AllianOptions"
                 :key="item.regionId"
@@ -56,7 +66,6 @@
             <el-input
               v-model="listQuery.discountId"
               type="number"
-              
               placeholder="请输入0.0-1.0之间的数字(0免费,1原价)"
             ></el-input>
           </div>
@@ -89,55 +98,81 @@
       </el-row>
     </div>
 
-    <div class="permission-table">
-      <el-table
-        ref="multipleTable"
-        :data="tableData"
-        tooltip-effect="dark"
-        style="width: 100%"
-        v-loading="loading"
-        :header-cell-style="{background:'#EBEFF4'}"
-      >
-        <el-table-column type="index" width="50"></el-table-column>
-        <el-table-column prop="allianceName" width="200" label="加盟商" align="center"></el-table-column>
-        <el-table-column prop="createName" label="创建人" align="center"></el-table-column>
-        <el-table-column prop="activityName"  width="150" label="活动名称" align="center"></el-table-column>
-        <el-table-column prop="status" label="活动状态" align="center"></el-table-column>
-        <el-table-column prop="discountPercent" label="折扣" align="center"></el-table-column>
-        <el-table-column prop="discountTotal" width="150" label="发行总数量" align="center"></el-table-column>
-        <el-table-column prop="remainNumber" width="150" label="已领取数量" align="center"></el-table-column>
-        <el-table-column prop="useNumber"  width="150" label="已使用数量" align="center"></el-table-column>
-        <el-table-column prop="activityStartTime" width="210" label="活动开始日期" align="center"></el-table-column>
-        <el-table-column prop="activityEndTime" width="210" label="活动结束时间" align="center"></el-table-column>
-        <el-table-column prop="auditName" label="审核人" align="center"></el-table-column>
-        <el-table-column prop="applyTime" width="210" label="申请日期" align="center"></el-table-column>
-        <el-table-column label="操作" align="center" width="400" fixed="right">
-          <template slot-scope="scope">
-            <el-button type="primary" size="mini" v-permission="button.configuration_configuration_ride_apply"  @click="handleStatus(scope.row.discountId,1,'申请')">申请</el-button>
-            <el-button type="primary" size="mini" v-permission="button.configuration_configuration_ride_examine" @click="handleexamine(scope.row.discountId)">审核</el-button>
-            <el-button type="primary" size="mini" v-permission="button.configuration_configuration_ride_up" @click="handleStatus(scope.row.discountId,3,'启用')">启用</el-button>
-            <el-button type="warning" size="mini" v-permission="button.configuration_configuration_ride_stop" @click="handleStatus(scope.row.discountId,4,'停止')">停止</el-button>
-            <el-button type="primary" size="mini" v-permission="button.configuration_configuration_ride_edit" @click="handleedit(scope.row)">编辑</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
-    <div class="page-excel">
-      <div class="page-container">
-        <el-pagination
-          background
-          align="left"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page.sync="listQuery.current"
-          :page-sizes="[10, 20, 30, 40]"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-        ></el-pagination>
+    <div v-loading="loading">
+      <div class="permission-table">
+        <el-table
+          ref="multipleTable"
+          :data="tableData"
+          tooltip-effect="dark"
+          style="width: 100%"
+          :header-cell-style="{background:'#EBEFF4'}"
+        >
+          <el-table-column type="index" width="50"></el-table-column>
+          <el-table-column prop="allianceName" width="200" label="加盟商" align="center"></el-table-column>
+          <el-table-column prop="createName" label="创建人" align="center"></el-table-column>
+          <el-table-column prop="activityName" width="150" label="活动名称" align="center"></el-table-column>
+          <el-table-column prop="status" label="活动状态" align="center"></el-table-column>
+          <el-table-column prop="discountPercent" label="折扣" align="center"></el-table-column>
+          <el-table-column prop="discountTotal" width="150" label="发行总数量" align="center"></el-table-column>
+          <el-table-column prop="remainNumber" width="150" label="已领取数量" align="center"></el-table-column>
+          <el-table-column prop="useNumber" width="150" label="已使用数量" align="center"></el-table-column>
+          <el-table-column prop="activityStartTime" width="210" label="活动开始日期" align="center"></el-table-column>
+          <el-table-column prop="activityEndTime" width="210" label="活动结束时间" align="center"></el-table-column>
+          <el-table-column prop="auditName" label="审核人" align="center"></el-table-column>
+          <el-table-column prop="applyTime" width="210" label="申请日期" align="center"></el-table-column>
+          <el-table-column label="操作" align="center" width="400" fixed="right">
+            <template slot-scope="scope">
+              <el-button
+                type="primary"
+                size="mini"
+                v-permission="button.configuration_configuration_ride_apply"
+                @click="handleStatus(scope.row.discountId,1,'申请')"
+              >申请</el-button>
+              <el-button
+                type="primary"
+                size="mini"
+                v-permission="button.configuration_configuration_ride_examine"
+                @click="handleexamine(scope.row.discountId)"
+              >审核</el-button>
+              <el-button
+                type="primary"
+                size="mini"
+                v-permission="button.configuration_configuration_ride_up"
+                @click="handleStatus(scope.row.discountId,3,'启用')"
+              >启用</el-button>
+              <el-button
+                type="warning"
+                size="mini"
+                v-permission="button.configuration_configuration_ride_stop"
+                @click="handleStatus(scope.row.discountId,4,'停止')"
+              >停止</el-button>
+              <el-button
+                type="primary"
+                size="mini"
+                v-permission="button.configuration_configuration_ride_edit"
+                @click="handleedit(scope.row)"
+              >编辑</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
       </div>
-      <div>
-        <i class="el-icon-folder-opened excel-blue"></i>
-        <span>导出excel</span>
+      <div class="page-excel">
+        <div class="page-container">
+          <el-pagination
+            background
+            align="left"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page.sync="listQuery.current"
+            :page-sizes="[10, 20, 30, 40]"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+          ></el-pagination>
+        </div>
+        <div>
+          <i class="el-icon-folder-opened excel-blue"></i>
+          <span>导出excel</span>
+        </div>
       </div>
     </div>
 
@@ -145,7 +180,7 @@
     <el-dialog :title="dialogtitle" width="30%" :visible.sync="dialogFormVisible">
       <el-form :model="form" class="form" ref="form" :rules="rules" label-width="120px">
         <el-form-item label="大区" prop="regionId">
-           <el-select
+          <el-select
             v-model="form.regionId"
             ref="reginoName"
             @change="allianValuedialog"
@@ -157,10 +192,10 @@
               :label="item.regionName"
               :value="item.regionId"
             ></el-option>
-            </el-select>
+          </el-select>
         </el-form-item>
-        <el-form-item label="加盟商"  prop="allianceId">
-            <el-select
+        <el-form-item label="加盟商" prop="allianceId">
+          <el-select
             v-model="form.allianceId"
             ref="allianceName"
             @change="getdutyListDialog"
@@ -181,7 +216,7 @@
           <el-input v-model="form.discountPercent" type="number" v-number="2" placeholder="请输入优惠折扣"></el-input>
         </el-form-item>
         <el-form-item label="发行总量" prop="discountTotal">
-          <el-input placeholder="请输入发行总量" type="number" v-number="0"  v-model="form.discountTotal">
+          <el-input placeholder="请输入发行总量" type="number" v-number="0" v-model="form.discountTotal">
             <template slot="append">张</template>
           </el-input>
         </el-form-item>
@@ -226,22 +261,34 @@
 </template>
 
 <script>
-import { queryManagerListPage,insert,findById,updateActivity,updateByStatus } from "@/api/activity";
+import {
+  queryManagerListPage,
+  insert,
+  findById,
+  updateActivity,
+  updateByStatus
+} from "@/api/activity";
 import { allRegion, allianceListByRegionId } from "@/api/region";
 import number from "@/directive/input-filter";
 import permission from "@/directive/permission";
 export default {
   name: "betterylist",
-  directives: { number,permission },
+  directives: { number, permission },
   data() {
     return {
       button: {
-        configuration_configuration_ride_addactivity: "configuration_configuration_ride_addactivity",
-        configuration_configuration_ride_apply: "configuration_configuration_ride_apply",
-        configuration_configuration_ride_up: "configuration_configuration_ride_up",
-        configuration_configuration_ride_stop: "configuration_configuration_ride_stop",
-        configuration_configuration_ride_edit: "configuration_configuration_ride_edit",
-        configuration_configuration_ride_examine: "configuration_configuration_ride_examine"
+        configuration_configuration_ride_addactivity:
+          "configuration_configuration_ride_addactivity",
+        configuration_configuration_ride_apply:
+          "configuration_configuration_ride_apply",
+        configuration_configuration_ride_up:
+          "configuration_configuration_ride_up",
+        configuration_configuration_ride_stop:
+          "configuration_configuration_ride_stop",
+        configuration_configuration_ride_edit:
+          "configuration_configuration_ride_edit",
+        configuration_configuration_ride_examine:
+          "configuration_configuration_ride_examine"
       },
       AllianOptions: [], // 查询大区
       allianceOptions: [], // 加盟商
@@ -282,7 +329,7 @@ export default {
         discountTotal: "",
         activityStartTime: "",
         activityEndTime: "",
-        applyTime: "",
+        applyTime: ""
       },
       rules: {
         regionId: [
@@ -408,53 +455,57 @@ export default {
       });
     },
     handleStatus(discountId, status, name) {
-      this.$confirm(`是否${name}`, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
+      this.$confirm(`是否${name}`, "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
           updateByStatus({ discountId, status })
-          .then(res => {
-            // this.getList();
-            if(res.code == 0){
-              this.$message({
-                type: 'success',
-                message: `${name}成功!`
-              });
-              this.getList();
-            }
-          })
-          .catch(() => {});
-        }).catch(() => {
+            .then(res => {
+              // this.getList();
+              if (res.code == 0) {
+                this.$message({
+                  type: "success",
+                  message: `${name}成功!`
+                });
+                this.getList();
+              }
+            })
+            .catch(() => {});
+        })
+        .catch(() => {
           this.$message({
-            type: 'info',
+            type: "info",
             message: `已取消${name}`
-          });          
+          });
         });
     },
     // 审核
-    handleexamine(discountId){
+    handleexamine(discountId) {
       let status;
-      this.$confirm(`是否审核通过`, '提示', {
-          distinguishCancelAndClose: true,
-          confirmButtonText: '通过',
-          cancelButtonText: '不通过',
-          type: 'warning'
-        }).then(() => {
-          status = 3
+      this.$confirm(`是否审核通过`, "提示", {
+        distinguishCancelAndClose: true,
+        confirmButtonText: "通过",
+        cancelButtonText: "不通过",
+        type: "warning"
+      })
+        .then(() => {
+          status = 3;
           updateByStatus({ discountId, status })
-          .then(res => {
-            // this.getList();
-            if(res.code == 0){
-              this.$message({
-                type: 'success',
-                message: `审核通过成功!`
-              });
-              this.getList();
-            }
-          })
-          .catch(() => {});
-        }).catch(action => {
+            .then(res => {
+              // this.getList();
+              if (res.code == 0) {
+                this.$message({
+                  type: "success",
+                  message: `审核通过成功!`
+                });
+                this.getList();
+              }
+            })
+            .catch(() => {});
+        })
+        .catch(action => {
           if (action == "cancel") {
             status = 7;
             updateByStatus({ discountId, status })
@@ -520,10 +571,10 @@ export default {
       } else {
         this.$refs.form.validate(valid => {
           if (valid) {
-            if(this.form.applyTime == 1){
-              this.form.applyTime = new Date().getTime()
-            }else{
-              this.form.applyTime = ''
+            if (this.form.applyTime == 1) {
+              this.form.applyTime = new Date().getTime();
+            } else {
+              this.form.applyTime = "";
             }
             insert(this.form)
               .then(res => {

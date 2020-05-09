@@ -1,7 +1,12 @@
 <template>
   <div class="discount-container">
     <div class="create-button">
-      <el-button type="primary" @click="handleCreate" v-permission="button.configuration_configuration_dossier_addactivity" icon="el-icon-edit">添加活动</el-button>
+      <el-button
+        type="primary"
+        @click="handleCreate"
+        v-permission="button.configuration_configuration_dossier_addactivity"
+        icon="el-icon-edit"
+      >添加活动</el-button>
     </div>
     <div class="search-container">
       <el-row :gutter="24">
@@ -63,55 +68,81 @@
       </el-row>
     </div>
 
-    <div class="permission-table">
-      <el-table
-        ref="multipleTable"
-        :data="tableData"
-        tooltip-effect="dark"
-        style="width: 100%"
-        v-loading="loading"
-        :header-cell-style="{background:'#EBEFF4'}"
-      >
-        <el-table-column type="index" width="50"></el-table-column>
-        <el-table-column prop="allianceName" width="200" label="加盟商" align="center"></el-table-column>
-        <el-table-column prop="createName" label="创建人" align="center"></el-table-column>
-        <el-table-column prop="activityName" width="150" label="活动名称" align="center"></el-table-column>
-        <el-table-column prop="status" label="活动状态" align="center"></el-table-column>
-        <el-table-column prop="newMomey" label="面额" align="center"></el-table-column>
-        <el-table-column prop="newTotal" width="150" label="发行总数量" align="center"></el-table-column>
-        <el-table-column prop="remainNumber" width="150" label="已领取数量" align="center"></el-table-column>
-        <el-table-column prop="useNumber" width="150" label="已使用数量" align="center"></el-table-column>
-        <el-table-column prop="activityStartTime" width="210" label="活动开始日期" align="center"></el-table-column>
-        <el-table-column prop="activityEndTime" width="210" label="活动结束时间" align="center"></el-table-column>
-        <el-table-column prop="auditName" label="审核人" align="center"></el-table-column>
-        <el-table-column prop="applyTime" width="210" label="申请日期" align="center"></el-table-column>
-        <el-table-column label="操作" align="center" width="400" fixed="right">
-          <template slot-scope="scope">
-            <el-button type="primary" size="mini" v-permission="button.configuration_configuration_dossier_apply" @click="handleStatus(scope.row.newId,1,'申请')">申请</el-button>
-            <el-button type="primary" size="mini" v-permission="button.configuration_configuration_dossier_examine" @click="handleexamine(scope.row.newId)">审核</el-button>
-            <el-button type="primary" size="mini" v-permission="button.configuration_configuration_dossier_up" @click="handleStatus(scope.row.newId,3,'启用')">启用</el-button>
-            <el-button type="warning" size="mini" v-permission="button.configuration_configuration_dossier_stop" @click="handleStatus(scope.row.newId,4,'停止')">停止</el-button>
-            <el-button type="primary" size="mini" v-permission="button.configuration_configuration_dossier_edit" @click="handleedit(scope.row)">编辑</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
-    <div class="page-excel">
-      <div class="page-container">
-        <el-pagination
-          background
-          align="left"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page.sync="listQuery.current"
-          :page-sizes="[10, 20, 30, 40]"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-        ></el-pagination>
+    <div v-loading="loading">
+      <div class="permission-table">
+        <el-table
+          ref="multipleTable"
+          :data="tableData"
+          tooltip-effect="dark"
+          style="width: 100%"
+          :header-cell-style="{background:'#EBEFF4'}"
+        >
+          <el-table-column type="index" width="50"></el-table-column>
+          <el-table-column prop="allianceName" width="200" label="加盟商" align="center"></el-table-column>
+          <el-table-column prop="createName" label="创建人" align="center"></el-table-column>
+          <el-table-column prop="activityName" width="150" label="活动名称" align="center"></el-table-column>
+          <el-table-column prop="status" label="活动状态" align="center"></el-table-column>
+          <el-table-column prop="newMomey" label="面额" align="center"></el-table-column>
+          <el-table-column prop="newTotal" width="150" label="发行总数量" align="center"></el-table-column>
+          <el-table-column prop="remainNumber" width="150" label="已领取数量" align="center"></el-table-column>
+          <el-table-column prop="useNumber" width="150" label="已使用数量" align="center"></el-table-column>
+          <el-table-column prop="activityStartTime" width="210" label="活动开始日期" align="center"></el-table-column>
+          <el-table-column prop="activityEndTime" width="210" label="活动结束时间" align="center"></el-table-column>
+          <el-table-column prop="auditName" label="审核人" align="center"></el-table-column>
+          <el-table-column prop="applyTime" width="210" label="申请日期" align="center"></el-table-column>
+          <el-table-column label="操作" align="center" width="400" fixed="right">
+            <template slot-scope="scope">
+              <el-button
+                type="primary"
+                size="mini"
+                v-permission="button.configuration_configuration_dossier_apply"
+                @click="handleStatus(scope.row.newId,1,'申请')"
+              >申请</el-button>
+              <el-button
+                type="primary"
+                size="mini"
+                v-permission="button.configuration_configuration_dossier_examine"
+                @click="handleexamine(scope.row.newId)"
+              >审核</el-button>
+              <el-button
+                type="primary"
+                size="mini"
+                v-permission="button.configuration_configuration_dossier_up"
+                @click="handleStatus(scope.row.newId,3,'启用')"
+              >启用</el-button>
+              <el-button
+                type="warning"
+                size="mini"
+                v-permission="button.configuration_configuration_dossier_stop"
+                @click="handleStatus(scope.row.newId,4,'停止')"
+              >停止</el-button>
+              <el-button
+                type="primary"
+                size="mini"
+                v-permission="button.configuration_configuration_dossier_edit"
+                @click="handleedit(scope.row)"
+              >编辑</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
       </div>
-      <div>
-        <i class="el-icon-folder-opened excel-blue"></i>
-        <span>导出excel</span>
+      <div class="page-excel">
+        <div class="page-container">
+          <el-pagination
+            background
+            align="left"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page.sync="listQuery.current"
+            :page-sizes="[10, 20, 30, 40]"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+          ></el-pagination>
+        </div>
+        <div>
+          <i class="el-icon-folder-opened excel-blue"></i>
+          <span>导出excel</span>
+        </div>
       </div>
     </div>
 
@@ -230,16 +261,22 @@ import number from "@/directive/input-filter";
 import permission from "@/directive/permission";
 export default {
   name: "betterylist",
-  directives: { number,permission },
+  directives: { number, permission },
   data() {
     return {
       button: {
-        configuration_configuration_dossier_addactivity: "configuration_configuration_dossier_addactivity",
-        configuration_configuration_dossier_apply: "configuration_configuration_dossier_apply",
-        configuration_configuration_dossier_up: "configuration_configuration_dossier_up",
-        configuration_configuration_dossier_stop: "configuration_configuration_dossier_stop",
-        configuration_configuration_dossier_edit: "configuration_configuration_dossier_edit",
-        configuration_configuration_dossier_examine: "configuration_configuration_dossier_examine"
+        configuration_configuration_dossier_addactivity:
+          "configuration_configuration_dossier_addactivity",
+        configuration_configuration_dossier_apply:
+          "configuration_configuration_dossier_apply",
+        configuration_configuration_dossier_up:
+          "configuration_configuration_dossier_up",
+        configuration_configuration_dossier_stop:
+          "configuration_configuration_dossier_stop",
+        configuration_configuration_dossier_edit:
+          "configuration_configuration_dossier_edit",
+        configuration_configuration_dossier_examine:
+          "configuration_configuration_dossier_examine"
       },
       AllianOptions: [], // 查询大区
       allianceOptions: [], // 加盟商

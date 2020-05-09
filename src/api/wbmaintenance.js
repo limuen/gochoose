@@ -16,3 +16,23 @@ export function findOperateLogPage(data) {
     data
   });
 }
+
+
+/**
+ * @description   下载操作日志
+ * @author LiMuEn
+ * @date 2020-05-09
+ * @export
+ * @param {Object} data
+ */
+export function downloadOperateLog(data) {
+  return request({
+    url: `${url}/back/oOperateLog/downloadOperateLog`,
+    // url: "http://106.13.231.96:8066/api/back/oOperateLog/findOperateLogPage",
+    // url: '/wbapi/api/back/oOperateLog/findOperateLogPage',
+    method: "post",
+    data
+  });
+}
+
+

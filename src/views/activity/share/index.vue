@@ -1,7 +1,12 @@
 <template>
   <div class="share-container">
     <div class="create-button">
-      <el-button type="primary" @click="handleCreate" v-permission="button.share_share_addshare" icon="el-icon-edit">添加新分享</el-button>
+      <el-button
+        type="primary"
+        @click="handleCreate"
+        v-permission="button.share_share_addshare"
+        icon="el-icon-edit"
+      >添加新分享</el-button>
     </div>
     <div class="search-container">
       <el-row :gutter="24">
@@ -50,53 +55,79 @@
       </el-row>
     </div>
 
-    <div class="permission-table">
-      <el-table
-        ref="multipleTable"
-        :data="tableData"
-        tooltip-effect="dark"
-        style="width: 100%"
-        v-loading="loading"
-        :header-cell-style="{background:'#EBEFF4'}"
-      >
-        <el-table-column type="index" width="50"></el-table-column>
-        <el-table-column prop="allianceName" label="加盟商" align="center"></el-table-column>
-        <el-table-column prop="车辆编号" label="创建人" align="center"></el-table-column>
-        <el-table-column prop="activityName" label="活动名称" align="center"></el-table-column>
-        <el-table-column prop="activityStatus" label="活动状态" align="center"></el-table-column>
-        <el-table-column prop="shareMomey" label="面额" align="center"></el-table-column>
-        <el-table-column prop="getNumber" label="可领取数量" align="center"></el-table-column>
-        <el-table-column prop="shareType" label="分享类型" align="center"></el-table-column>
-        <el-table-column prop="shareTotal" label="发行总数量" align="center"></el-table-column>
-        <el-table-column prop="remainNumber" label="已领取数量" align="center"></el-table-column>
-        <el-table-column prop="useNumber" label="已使用数量" align="center"></el-table-column>
-        <el-table-column prop="activityStartTime" label="活动开始日期" width="200" align="center"></el-table-column>
-        <el-table-column prop="activityEndTime" label="活动结束日期" width="200" align="center"></el-table-column>
-        <el-table-column prop="auditName" label="审核人" align="center"></el-table-column>
-        <el-table-column prop="评分" label="申请日期" align="center"></el-table-column>
-        <el-table-column label="操作" align="center" width="400" fixed="right">
-          <template slot-scope="scope">
-            <el-button type="primary" size="mini" v-permission="button.share_share_apply" @click="handleStatus(scope.row.shareId,1,'申请')">申请</el-button>
-            <el-button type="primary" size="mini" v-permission="button.share_share_examine" @click="handleexamine(scope.row.shareId)">审核</el-button>
-            <el-button type="primary" size="mini" v-permission="button.share_share_up" @click="handleStatus(scope.row.shareId,3,'启用')">启用</el-button>
-            <el-button type="warning" size="mini" v-permission="button.share_share_stop" @click="handleStatus(scope.row.shareId,4,'停止')">停止</el-button>
-            <el-button type="primary" size="mini" v-permission="button.share_share_edit" @click="handleedit(scope.row)">编辑</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
-    <div class="page-excel">
-      <div class="page-container">
-        <el-pagination
-          background
-          align="left"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page.sync="listQuery.current"
-          :page-sizes="[10, 20, 30, 40]"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-        ></el-pagination>
+    <div v-loading="loading">
+      <div class="permission-table">
+        <el-table
+          ref="multipleTable"
+          :data="tableData"
+          tooltip-effect="dark"
+          style="width: 100%"
+          :header-cell-style="{background:'#EBEFF4'}"
+        >
+          <el-table-column type="index" width="50"></el-table-column>
+          <el-table-column prop="allianceName" label="加盟商" align="center"></el-table-column>
+          <el-table-column prop="车辆编号" label="创建人" align="center"></el-table-column>
+          <el-table-column prop="activityName" label="活动名称" align="center"></el-table-column>
+          <el-table-column prop="activityStatus" label="活动状态" align="center"></el-table-column>
+          <el-table-column prop="shareMomey" label="面额" align="center"></el-table-column>
+          <el-table-column prop="getNumber" label="可领取数量" align="center"></el-table-column>
+          <el-table-column prop="shareType" label="分享类型" align="center"></el-table-column>
+          <el-table-column prop="shareTotal" label="发行总数量" align="center"></el-table-column>
+          <el-table-column prop="remainNumber" label="已领取数量" align="center"></el-table-column>
+          <el-table-column prop="useNumber" label="已使用数量" align="center"></el-table-column>
+          <el-table-column prop="activityStartTime" label="活动开始日期" width="200" align="center"></el-table-column>
+          <el-table-column prop="activityEndTime" label="活动结束日期" width="200" align="center"></el-table-column>
+          <el-table-column prop="auditName" label="审核人" align="center"></el-table-column>
+          <el-table-column prop="评分" label="申请日期" align="center"></el-table-column>
+          <el-table-column label="操作" align="center" width="400" fixed="right">
+            <template slot-scope="scope">
+              <el-button
+                type="primary"
+                size="mini"
+                v-permission="button.share_share_apply"
+                @click="handleStatus(scope.row.shareId,1,'申请')"
+              >申请</el-button>
+              <el-button
+                type="primary"
+                size="mini"
+                v-permission="button.share_share_examine"
+                @click="handleexamine(scope.row.shareId)"
+              >审核</el-button>
+              <el-button
+                type="primary"
+                size="mini"
+                v-permission="button.share_share_up"
+                @click="handleStatus(scope.row.shareId,3,'启用')"
+              >启用</el-button>
+              <el-button
+                type="warning"
+                size="mini"
+                v-permission="button.share_share_stop"
+                @click="handleStatus(scope.row.shareId,4,'停止')"
+              >停止</el-button>
+              <el-button
+                type="primary"
+                size="mini"
+                v-permission="button.share_share_edit"
+                @click="handleedit(scope.row)"
+              >编辑</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <div class="page-excel">
+        <div class="page-container">
+          <el-pagination
+            background
+            align="left"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page.sync="listQuery.current"
+            :page-sizes="[10, 20, 30, 40]"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+          ></el-pagination>
+        </div>
       </div>
     </div>
 

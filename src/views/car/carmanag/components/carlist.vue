@@ -210,116 +210,124 @@
         </el-col>
       </el-row>
     </div>
-
-    <div class="permission-table">
-      <el-table
-        ref="multipleTable"
-        :data="tableData"
-        tooltip-effect="dark"
-        style="width: 100%"
-        v-loading="loading"
-        :header-cell-style="{background:'#EBEFF4'}"
-      >
-        <el-table-column type="index" width="50"></el-table-column>
-        <el-table-column prop="electrombileNumber" width="150" label="车辆编号" align="center"></el-table-column>
-        <el-table-column prop="operationState	" label="运维方式" align="center">
-          <template slot-scope="scope">
-            <div>{{scope.row.operationState | operationState}}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="rentStatus" label="出租状态" align="center">
-          <template slot-scope="scope">
-            <div>{{scope.row.rentStatus | rentStatus}}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="electrombileStatus" label="车辆状态" align="center">
-          <template slot-scope="scope">
-            <el-tag
-              style="margin-right:5px;"
-              effect="dark"
-              :type=" scope.row.electrombileStatus | electrombileStatusType"
-            >{{scope.row.electrombileStatus | electrombileStatus}}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="equipmentImel" width="150" label="设备IMEI" align="center"></el-table-column>
-        <el-table-column prop="equipmentSim" label="SIM卡号" width="150" align="center"></el-table-column>
-        <el-table-column prop="enduranceMileage" label="总续航里程" width="150" align="center"></el-table-column>
-        <el-table-column prop="residueEndurance" label="剩余里程" align="center"></el-table-column>
-        <el-table-column prop="residueElectric" label="剩余电量" align="center"></el-table-column>
-        <el-table-column prop="lastCustomerId" width="150" label="当前/最后用户" align="center"></el-table-column>
-        <el-table-column prop="lastUseTime" label="时间" width="200" align="center"></el-table-column>
-        <el-table-column prop="dutyArea" label="运营区域" width="200" align="center">
-          <template slot-scope="scope">
-            <div
-              v-for="(item,index) in scope.row.dutyArea"
-              :key="item.index"
-            >{{index+1}}-{{item.areaName}}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="electrombileAllianceName" label="归属加盟商" width="200" align="center"></el-table-column>
-        <el-table-column prop="electrombileRegionName" width="150" label="大区" align="center"></el-table-column>
-        <el-table-column label="操作" align="center" width="360" fixed="right">
-          <template slot-scope="scope">
-            <el-button
-              type="text"
-              v-permission="button.carmanag_carmanag_manage_location"
-              @click="handleLocation(scope.row)"
-            >定位</el-button>
-            <el-button
-              type="text"
-              v-permission="button.carmanag_carmanag_manage_order"
-              @click="handleGoRouter(scope.row)"
-            >订单</el-button>
-            <el-button
-              type="text"
-              v-permission="button.carmanag_carmanag_manage_locus"
-              @click="handletrajectory(scope.row)"
-            >轨迹</el-button>
-            <el-button type="text" v-permission="button.carmanag_carmanag_manage_repairrd">维修记录</el-button>
-            <el-button type="text" v-permission="button.carmanag_carmanag_manage_exqrcode">
-              <a
-                :href="`/api/electrombile/createQrCode?electrombileId=${scope.row.electrombileId}`"
-                download="二维码"
-              >二维码下载</a>
-            </el-button>
-            <el-button
-              type="text"
-              v-permission="button.carmanag_carmanag_manage_details"
-              @click="handleDetail(scope.row)"
-            >详情</el-button>
-            <el-button
-              type="text"
-              v-permission="button.carmanag_carmanag_manage_edit"
-              @click="handleedit(scope.row)"
-            >编辑</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
-    <div class="page-excel">
-      <div class="page-container">
-        <el-pagination
-          background
-          align="left"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page.sync="listQuery.current"
-          :page-sizes="[10, 20, 30, 40]"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-        ></el-pagination>
+    <div v-loading="loading">
+      <div class="permission-table">
+        <el-table
+          ref="multipleTable"
+          :data="tableData"
+          tooltip-effect="dark"
+          style="width: 100%"
+          :header-cell-style="{background:'#EBEFF4'}"
+        >
+          <el-table-column type="index" width="50"></el-table-column>
+          <el-table-column prop="electrombileNumber" width="150" label="车辆编号" align="center"></el-table-column>
+          <el-table-column prop="operationState	" label="运维方式" align="center">
+            <template slot-scope="scope">
+              <div>{{scope.row.operationState | operationState}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="rentStatus" label="出租状态" align="center">
+            <template slot-scope="scope">
+              <div>{{scope.row.rentStatus | rentStatus}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="electrombileStatus" label="车辆状态" align="center">
+            <template slot-scope="scope">
+              <el-tag
+                style="margin-right:5px;"
+                effect="dark"
+                :type=" scope.row.electrombileStatus | electrombileStatusType"
+              >{{scope.row.electrombileStatus | electrombileStatus}}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="equipmentImel" width="150" label="设备IMEI" align="center"></el-table-column>
+          <el-table-column prop="equipmentSim" label="SIM卡号" width="150" align="center"></el-table-column>
+          <el-table-column prop="enduranceMileage" label="总续航里程" width="150" align="center"></el-table-column>
+          <el-table-column prop="residueEndurance" label="剩余里程" align="center"></el-table-column>
+          <el-table-column prop="residueElectric" label="剩余电量" align="center"></el-table-column>
+          <el-table-column prop="lastCustomerId" width="150" label="当前/最后用户" align="center"></el-table-column>
+          <el-table-column prop="lastUseTime" label="时间" width="200" align="center"></el-table-column>
+          <el-table-column prop="dutyArea" label="运营区域" width="200" align="center">
+            <template slot-scope="scope">
+              <div
+                v-for="(item,index) in scope.row.dutyArea"
+                :key="item.index"
+              >{{index+1}}-{{item.areaName}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="electrombileAllianceName" label="归属加盟商" width="200" align="center"></el-table-column>
+          <el-table-column prop="electrombileRegionName" width="150" label="大区" align="center"></el-table-column>
+          <el-table-column label="操作" align="center" min-width="390" fixed="right">
+            <template slot-scope="scope">
+              <el-button
+                type="text"
+                v-permission="button.carmanag_carmanag_manage_location"
+                @click="handleLocation(scope.row)"
+              >定位</el-button>
+              <el-button
+                type="text"
+                v-permission="button.carmanag_carmanag_manage_order"
+                @click="handleGoRouter(scope.row)"
+              >订单</el-button>
+              <el-button
+                type="text"
+                v-permission="button.carmanag_carmanag_manage_locus"
+                @click="handletrajectory(scope.row)"
+              >轨迹</el-button>
+              <el-button type="text" v-permission="button.carmanag_carmanag_manage_repairrd">维修记录</el-button>
+              <el-button type="text" v-permission="button.carmanag_carmanag_manage_exqrcode">
+                <a
+                  :href="`/api/electrombile/createQrCode?electrombileId=${scope.row.electrombileId}`"
+                  download="二维码"
+                >二维码下载</a>
+              </el-button>
+              <el-button
+                type="text"
+                v-permission="button.carmanag_carmanag_manage_details"
+                @click="handleDetail(scope.row)"
+              >详情</el-button>
+              <el-button
+                type="text"
+                v-permission="button.carmanag_carmanag_manage_edit"
+                @click="handleedit(scope.row)"
+              >编辑</el-button>
+              <!-- v-permission="button.carmanag_carmanag_manage_edit" -->
+            </template>
+          </el-table-column>
+        </el-table>
       </div>
-      <div>
-        <i class="el-icon-folder-opened excel-blue"></i>
-        <span>导出excel</span>
+      <div class="page-excel">
+        <div class="page-container">
+          <el-pagination
+            background
+            align="left"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page.sync="listQuery.current"
+            :page-sizes="[10, 20, 30, 40]"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+          ></el-pagination>
+        </div>
+        <div @click="handleExcel">
+          <i class="el-icon-folder-opened excel-blue"></i>
+          <span>导出excel</span>
+        </div>
       </div>
     </div>
 
-    <!-- 编辑 -->
+    <!-- 编辑新增 -->
     <el-dialog :title="dialogtitle" width="30%" :visible.sync="dialogFormVisible">
-      <el-form :model="form" class="form" ref="form" :rules="rules" label-width="120px">
+      <el-form
+        :model="form"
+        class="form"
+        ref="form"
+        v-loading="dialogding"
+        :rules="rules"
+        label-width="120px"
+      >
         <el-form-item label="添加方式">
-          <el-radio-group v-model="resource" @change="handleChangeRadio">
+          <el-radio-group v-model="resource" :disabled="isEdit" @change="handleChangeRadio">
             <el-radio :label="1">单量添加</el-radio>
             <el-radio :label="2">批量添加</el-radio>
             <el-radio :label="3">批量修改</el-radio>
@@ -543,6 +551,7 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 import drawer from "../drawer";
 import { allRegion, allianceListByRegionId } from "@/api/region";
 import { findByLargeFranchisee } from "@/api/responsibility";
@@ -554,7 +563,8 @@ import {
   carByelectrombileId,
   importElectrombile,
   createQrCode,
-  batchcarInsert
+  batchcarInsert,
+  excelDate
 } from "@/api/car";
 import { chargeFranchisee } from "@/api/charge";
 import Location from "../carmanagDialog/Location";
@@ -674,9 +684,16 @@ export default {
       trajectoryId: "",
       serverUrl: "/api/electrombile/importElectrombile", //上传地址
       fileList: [],
-      isUpload: false // 控制变量
+      isUpload: false, // 控制变量
+      Editradio: false,
+      dialogding: false
     };
   },
+  // computed: {
+  //   ...mapState({
+  //     id: state => state.user.id,
+  //   })
+  // },
   filters: {
     operationState(key) {
       const operationStateMap = {
@@ -728,6 +745,7 @@ export default {
   //   }
   // },
   mounted() {
+    // console.log(this.$store.state.user.id)
     // 查询大区
     this.getallianList();
     this.getallianListDialog();
@@ -927,6 +945,7 @@ export default {
       this.isEdit = false;
       this.fileList = [];
       this.form.dutyArea = [];
+      this.form.alarmSwitch = "";
       this.form.remark = "";
       this.form.equipmentImel2 = "";
       this.form.equipmentSim2 = "";
@@ -1007,6 +1026,12 @@ export default {
         this.indexs = index;
       });
     },
+    handleExcel() {
+      let data = JSON.stringify(this.listQuery);
+      window.open(
+        `${process.env.VUE_APP_BASE_API_DOWNLOAD}/electrombile/excelDate?electrombile=${data}`
+      );
+    },
     submitform() {
       if (this.isEdit) {
         this.$refs.form.validate(valid => {
@@ -1082,53 +1107,60 @@ export default {
         this.form.excelKey = res.data.excelKey;
       }
     },
+    // // 编辑单个车辆
+    // handleEdit(row, index){
+    //   this.$refs.updateBusinessInfo.initData(row.shopId)
+    //   this.$refs.updateBusinessInfo.dialogEditShopInfo = true
+    // },
+    handleEditSuccess() {
+      this.getList();
+    },
     submitformUpload() {
-        this.$refs.form.validate(valid => {
-          if (valid) {
-            console.log(this.form, "上传提交的表单");
-            importElectrombile(this.form)
-              .then(res => {
-                console.log(res, "上传提交的表单成功函数");
-              })
-              .catch(() => {});
-            this.form.dutyArea = [];
-            this.indexs.forEach(index => {
-              const areaId = this.bilityOptions[index];
-              this.form.dutyArea.push({
-                areaId: areaId.id,
-                areaName: areaId.regionName
-              });
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          console.log(this.form, "上传提交的表单");
+          importElectrombile(this.form)
+            .then(res => {
+              console.log(res, "上传提交的表单成功函数");
+            })
+            .catch(() => {});
+          this.form.dutyArea = [];
+          this.indexs.forEach(index => {
+            const areaId = this.bilityOptions[index];
+            this.form.dutyArea.push({
+              areaId: areaId.id,
+              areaName: areaId.regionName
             });
-            batchcarInsert(this.form)
-              .then(res => {
-                console.log(res, "哈哈哈哈哈");
-                if (res.code == 0) {
-                  this.$notify({
-                    title: "成功",
-                    message: "创建成功",
-                    type: "success"
-                  });
-                  this.getList();
-                  this.form.dutyArea = [];
-                  this.form.remark = "";
-                  this.form.equipmentImel2 = "";
-                  this.form.equipmentSim2 = "";
-                  this.form.excelKey = ""
-                  this.dialogFormVisible = false;
-                  console.log(this.form, "提交完成的form");
-                }else{
-                  this.$notify.error({
-                    title: '错误',
-                    message: res.data
-                  });
-                }
-              })
-              .catch(() => {});
-          } else {
-            return false;
-          }
-        });
-      
+          });
+          batchcarInsert(this.form)
+            .then(res => {
+              console.log(res, "哈哈哈哈哈");
+              if (res.code == 0) {
+                this.$notify({
+                  title: "成功",
+                  message: "创建成功",
+                  type: "success"
+                });
+                this.getList();
+                this.form.dutyArea = [];
+                this.form.remark = "";
+                this.form.equipmentImel2 = "";
+                this.form.equipmentSim2 = "";
+                this.form.excelKey = "";
+                this.dialogFormVisible = false;
+                console.log(this.form, "提交完成的form");
+              } else {
+                this.$notify.error({
+                  title: "错误",
+                  message: res.data
+                });
+              }
+            })
+            .catch(() => {});
+        } else {
+          return false;
+        }
+      });
     }
   }
 };

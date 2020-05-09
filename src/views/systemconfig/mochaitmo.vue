@@ -1,7 +1,12 @@
 <template>
   <div class="mochaitmo-container">
     <div class="create-button">
-      <el-button type="primary" @click="handleCreate" icon="el-icon-edit" v-permission="button.mochaitmo_mochaitmo_add">新增运维员</el-button>
+      <el-button
+        type="primary"
+        @click="handleCreate"
+        icon="el-icon-edit"
+        v-permission="button.mochaitmo_mochaitmo_add"
+      >新增运维员</el-button>
     </div>
     <div class="search-container">
       <el-row :gutter="24">
@@ -74,73 +79,84 @@
       </el-row>
     </div>
 
-    <div class="permission-table">
-      <el-table
-        ref="multipleTable"
-        :data="tableData"
-        tooltip-effect="dark"
-        style="width: 100%"
-        v-loading="loading"
-        :header-cell-style="{background:'#EBEFF4'}"
-      >
-        <el-table-column type="index" width="50"></el-table-column>
-        <el-table-column prop="operationName" label="联系人" align="center">
-          <template slot-scope="scope">
-            <img :src="scope.row.headImage" alt style="width:120px;height:auto;" />
-            <div>{{scope.row.operationName}}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="operationPhone" label="联系电话" align="center"></el-table-column>
-        <el-table-column prop="roleModelList" label="运维角色" align="center">
-          <template slot-scope="scope">
-            <el-tag
-              style="margin-right:5px;"
-              v-for="item in scope.row.roleModelList"
-              :key="item.index"
-              effect="dark"
-              :type=" item.roleName | roleName"
-            >{{item.roleName}}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="status" label="派单状态" align="center">
-          <template slot-scope="scope">
-            <div v-if="scope.row.status == 0">
-              {{scope.row.allocationStartTime.substring(scope.row.allocationStartTime.lastIndexOf(' ')+1)}}
-              -
-              {{scope.row.allocationEndTime.substring(scope.row.allocationEndTime.lastIndexOf(' ')+1)}}
-            </div>
-            <div v-else>{{scope.row.status | status}}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="dutyModelList" label="责任区域" align="center">
-          <template slot-scope="scope">
-            <div
-              v-for="(item,index) in scope.row.dutyModelList"
-              :key="item.index"
-            >{{index+1}}-{{item.areaName}}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="allianceName" label="所属加盟商" align="center"></el-table-column>
-        <el-table-column label="操作" align="center" width="200" fixed="right">
-          <template slot-scope="scope">
-            <el-button type="primary" size="mini" v-permission="button.mochaitmo_mochaitmo_edit" @click="handleedit(scope.row)">编辑</el-button>
-            <el-button type="danger" size="mini" v-permission="button.mochaitmo_mochaitmo_delete" @click="handleDelete(scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
-    <div class="page-excel">
-      <div class="page-container">
-        <el-pagination
-          background
-          align="left"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page.sync="listQuery.current"
-          :page-sizes="[10, 20, 30, 40]"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-        ></el-pagination>
+    <div v-loading="loading">
+      <div class="permission-table">
+        <el-table
+          ref="multipleTable"
+          :data="tableData"
+          tooltip-effect="dark"
+          style="width: 100%"
+          :header-cell-style="{background:'#EBEFF4'}"
+        >
+          <el-table-column type="index" width="50"></el-table-column>
+          <el-table-column prop="operationName" label="联系人" align="center">
+            <template slot-scope="scope">
+              <img :src="scope.row.headImage" alt style="width:120px;height:auto;" />
+              <div>{{scope.row.operationName}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="operationPhone" label="联系电话" align="center"></el-table-column>
+          <el-table-column prop="roleModelList" label="运维角色" align="center">
+            <template slot-scope="scope">
+              <el-tag
+                style="margin-right:5px;"
+                v-for="item in scope.row.roleModelList"
+                :key="item.index"
+                effect="dark"
+                :type=" item.roleName | roleName"
+              >{{item.roleName}}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="status" label="派单状态" align="center">
+            <template slot-scope="scope">
+              <div v-if="scope.row.status == 0">
+                {{scope.row.allocationStartTime.substring(scope.row.allocationStartTime.lastIndexOf(' ')+1)}}
+                -
+                {{scope.row.allocationEndTime.substring(scope.row.allocationEndTime.lastIndexOf(' ')+1)}}
+              </div>
+              <div v-else>{{scope.row.status | status}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="dutyModelList" label="责任区域" align="center">
+            <template slot-scope="scope">
+              <div
+                v-for="(item,index) in scope.row.dutyModelList"
+                :key="item.index"
+              >{{index+1}}-{{item.areaName}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="allianceName" label="所属加盟商" align="center"></el-table-column>
+          <el-table-column label="操作" align="center" width="200" fixed="right">
+            <template slot-scope="scope">
+              <el-button
+                type="primary"
+                size="mini"
+                v-permission="button.mochaitmo_mochaitmo_edit"
+                @click="handleedit(scope.row)"
+              >编辑</el-button>
+              <el-button
+                type="danger"
+                size="mini"
+                v-permission="button.mochaitmo_mochaitmo_delete"
+                @click="handleDelete(scope.row)"
+              >删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <div class="page-excel">
+        <div class="page-container">
+          <el-pagination
+            background
+            align="left"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page.sync="listQuery.current"
+            :page-sizes="[10, 20, 30, 40]"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+          ></el-pagination>
+        </div>
       </div>
     </div>
 
@@ -211,7 +227,7 @@
           </el-checkbox-group>
         </el-form-item>
         <el-form-item label="开启派单" prop="sendorderStatus">
-          <el-radio-group v-model="form.sendorderStatus" >
+          <el-radio-group v-model="form.sendorderStatus">
             <el-radio :label="0" border>开启</el-radio>
             <el-radio :label="1" border>关闭</el-radio>
           </el-radio-group>
@@ -285,16 +301,16 @@ import {
   deleteById
 } from "@/api/mochaitmo";
 import { findByLargeFranchisee } from "@/api/responsibility";
-import permission from '@/directive/permission'
+import permission from "@/directive/permission";
 export default {
   name: "mochaitmo",
   directives: { permission },
   data() {
     return {
       button: {
-        mochaitmo_mochaitmo_add: 'mochaitmo_mochaitmo_add',
-        mochaitmo_mochaitmo_edit: 'mochaitmo_mochaitmo_edit',
-        mochaitmo_mochaitmo_delete: 'mochaitmo_mochaitmo_delete',
+        mochaitmo_mochaitmo_add: "mochaitmo_mochaitmo_add",
+        mochaitmo_mochaitmo_edit: "mochaitmo_mochaitmo_edit",
+        mochaitmo_mochaitmo_delete: "mochaitmo_mochaitmo_delete"
       },
       AllianOptions: [], // 查询大区
       allianceOptions: [], // 加盟商
@@ -562,7 +578,7 @@ export default {
       this.$nextTick(() => {
         this.form.regionName = this.$refs.reginoName.selectedLabel;
       });
-      this.bilityOptions = []
+      this.bilityOptions = [];
       this.form.allianceId = "";
       this.form.dutyModelList = [];
       this.form.dutyModelList2 = [];

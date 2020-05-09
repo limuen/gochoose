@@ -39,9 +39,11 @@
             <el-date-picker
               v-model="pickDate"
               type="datetimerange"
+              value-format="yyyy-MM-dd HH:mm:ss"
               range-separator="至"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
+              @change="handlechangePickdate"
             ></el-date-picker>
           </div>
         </el-col>
@@ -53,51 +55,52 @@
       </el-row>
     </div>
 
-    <div class="permission-table">
-      <el-table
-        v-loading="loading"
-        ref="multipleTable"
-        :data="tableData"
-        tooltip-effect="dark"
-        style="width: 100%"
-        :header-cell-style="{background:'#EBEFF4'}"
-      >
-        <el-table-column type="index" width="50"></el-table-column>
-        <el-table-column prop="createName" label="操作员工" align="center"></el-table-column>
-        <el-table-column prop="operateType" label="操作类型" align="center">
-          <template slot-scope="scope">
-            <div>{{scope.row.operateType | operateTypeState}}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="electrombileNumber" label="车辆编号" align="center"></el-table-column>
-        <el-table-column prop="equipmentImel" label="IMEI" align="center"></el-table-column>
-        <el-table-column prop="createTime" label="日期" align="center"></el-table-column>
-        <el-table-column prop="allianceName" label="加盟商" align="center"></el-table-column>
-      </el-table>
-    </div>
-    <div class="page-excel">
-      <div class="page-container">
-        <el-pagination
-         background
-        align="left"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page.sync="listQuery.pageNum"
-        :page-sizes="[10, 20, 30, 40]"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-        ></el-pagination>
+    <div v-loading="loading">
+      <div class="permission-table">
+        <el-table
+          ref="multipleTable"
+          :data="tableData"
+          tooltip-effect="dark"
+          style="width: 100%"
+          :header-cell-style="{background:'#EBEFF4'}"
+        >
+          <el-table-column type="index" width="50"></el-table-column>
+          <el-table-column prop="createName" label="操作员工" align="center"></el-table-column>
+          <el-table-column prop="operateType" label="操作类型" align="center">
+            <template slot-scope="scope">
+              <div>{{scope.row.operateType | operateTypeState}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="electrombileNumber" label="车辆编号" align="center"></el-table-column>
+          <el-table-column prop="equipmentImel" label="IMEI" align="center"></el-table-column>
+          <el-table-column prop="createTime" label="日期" align="center"></el-table-column>
+          <el-table-column prop="allianceName" label="加盟商" align="center"></el-table-column>
+        </el-table>
       </div>
-      <div>
-        <i class="el-icon-folder-opened excel-blue"></i>
-        <span>导出excel</span>
+      <div class="page-excel">
+        <div class="page-container">
+          <el-pagination
+            background
+            align="left"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page.sync="listQuery.pageNum"
+            :page-sizes="[10, 20, 30, 40]"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+          ></el-pagination>
+        </div>
+        <div @click="handledownloadExcel">
+          <i class="el-icon-folder-opened excel-blue"></i>
+          <span>导出excel</span>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { findOperateLogPage } from "@/api/wbmaintenance";
+import { findOperateLogPage, downloadOperateLog } from "@/api/wbmaintenance";
 export default {
   name: "operations",
   data() {
@@ -129,6 +132,8 @@ export default {
         equipmentImel: "",
         operateType: "",
         createName: "",
+        startTime: "",
+        endTime: "",
         pageNum: 1,
         pageSize: 10
       }
@@ -143,23 +148,25 @@ export default {
         4: "寻车"
       };
       return operateTypeMap[key];
-    },
+    }
   },
   mounted() {
-    this.getList()
+    this.getList();
   },
   methods: {
-    getList(){
+    getList() {
       this.loading = true;
-      findOperateLogPage(this.listQuery).then(res=>{
-        console.log(res,'111111111')
-        if(res.code == 0){
-          // res.data.data.createTime = res.data.data.createTime.substr(0, 19).replace('T', ' ').replace(/-/g, '-')
-          this.tableData = res.data.data;
-          this.total = res.data.total;
-          this.loading = false;
-        }
-      }).catch(() => {});
+      findOperateLogPage(this.listQuery)
+        .then(res => {
+          console.log(res, "111111111");
+          if (res.code == 0) {
+            // res.data.data.createTime = res.data.data.createTime.substr(0, 19).replace('T', ' ').replace(/-/g, '-')
+            this.tableData = res.data.data;
+            this.total = res.data.total;
+            this.loading = false;
+          }
+        })
+        .catch(() => {});
     },
     handleSizeChange(val) {
       this.listQuery.pageNum = 1;
@@ -177,6 +184,21 @@ export default {
     handleCreate() {
       console.log("111");
       this.dialogcustormer = true;
+    },
+    handlechangePickdate(value) {
+      console.log(value, "111111111");
+      if (value != null) {
+        this.listQuery.startTime = new Date().getTime(value[0]);
+        this.listQuery.endTime = new Date().getTime(value[1]);
+      } else {
+        this.listQuery.startTime = "";
+        this.listQuery.endTime = "";
+      }
+    },
+    handledownloadExcel() {
+      window.open(
+        process.env.VUE_APP_BASE_API_WB + "/back/oOperateLog/downloadOperateLog"
+      );
     }
   }
 };

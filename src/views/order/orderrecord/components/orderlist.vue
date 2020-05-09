@@ -153,7 +153,9 @@
       </el-row>
     </div>
 
-    <div class="permission-table">
+
+    <div  v-loading="loading">
+      <div class="permission-table">
       <el-table
         ref="multipleTable"
         :data="tableData"
@@ -246,6 +248,9 @@
         <span>导出excel</span>
       </div>
     </div>
+    </div>
+
+    
 
     <!-- 退款 -->
     <el-dialog

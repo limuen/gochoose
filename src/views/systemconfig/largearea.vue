@@ -1,44 +1,54 @@
 <template>
   <div class="grouping-container">
     <div class="create-button">
-      <el-button type="primary" @click="handleCreate" icon="el-icon-edit" v-permission="button.largearea_largearea_addarea">添加大区</el-button>
+      <el-button
+        type="primary"
+        @click="handleCreate"
+        icon="el-icon-edit"
+        v-permission="button.largearea_largearea_addarea"
+      >添加大区</el-button>
     </div>
 
-    <div class="permission-table">
-      <el-table
-        v-loading="loading"
-        ref="multipleTable"
-        :data="tableData"
-        tooltip-effect="dark"
-        style="width: 100%"
-        :header-cell-style="{background:'#EBEFF4'}"
-      >
-        <el-table-column type="index" width="50"></el-table-column>
-        <el-table-column prop="regionName" label="大区" width="200" align="center"></el-table-column>
-        <el-table-column prop="regionCharge" label="负责人" align="center"></el-table-column>
-        <el-table-column prop="chargePhone" label="手机号" align="center"></el-table-column>
-        <el-table-column prop="allianceCount" label="加盟商" align="center"></el-table-column>
-        <el-table-column prop="electrombileCount" label="车辆数量" align="center"></el-table-column>
-        <el-table-column prop="regionAddress" label="联系地址" align="center"></el-table-column>
-        <el-table-column label="操作" align="center" width="100" fixed="right">
-          <template slot-scope="scope">
-            <el-button type="text" v-permission="button.largearea_largearea_edit" @click="handleedit(scope.row)">编辑</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
-    <div class="page-excel">
-      <div class="page-container">
-        <el-pagination
-          background
-          align="left"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page.sync="listQuery.current"
-          :page-sizes="[10, 20, 30, 40]"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-        ></el-pagination>
+    <div v-loading="loading">
+      <div class="permission-table">
+        <el-table
+          ref="multipleTable"
+          :data="tableData"
+          tooltip-effect="dark"
+          style="width: 100%"
+          :header-cell-style="{background:'#EBEFF4'}"
+        >
+          <el-table-column type="index" width="50"></el-table-column>
+          <el-table-column prop="regionName" label="大区" width="200" align="center"></el-table-column>
+          <el-table-column prop="regionCharge" label="负责人" align="center"></el-table-column>
+          <el-table-column prop="chargePhone" label="手机号" align="center"></el-table-column>
+          <el-table-column prop="allianceCount" label="加盟商" align="center"></el-table-column>
+          <el-table-column prop="electrombileCount" label="车辆数量" align="center"></el-table-column>
+          <el-table-column prop="regionAddress" label="联系地址" align="center"></el-table-column>
+          <el-table-column label="操作" align="center" width="100" fixed="right">
+            <template slot-scope="scope">
+              <el-button
+                type="text"
+                v-permission="button.largearea_largearea_edit"
+                @click="handleedit(scope.row)"
+              >编辑</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <div class="page-excel">
+        <div class="page-container">
+          <el-pagination
+            background
+            align="left"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page.sync="listQuery.current"
+            :page-sizes="[10, 20, 30, 40]"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+          ></el-pagination>
+        </div>
       </div>
     </div>
 
@@ -91,7 +101,7 @@ export default {
     return {
       button: {
         largearea_largearea_addarea: "largearea_largearea_addarea",
-        largearea_largearea_edit: "largearea_largearea_edit",
+        largearea_largearea_edit: "largearea_largearea_edit"
       },
       loading: false,
       dialogding: false,
@@ -166,11 +176,11 @@ export default {
       this.dialogtitle = "新增大区";
       this.form.regionPassword = "";
       this.dialogFormVisible = true;
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         this.$refs.Form.resetFields();
-      })
+      });
     },
-    cancelsubmitfotm(){
+    cancelsubmitfotm() {
       this.$refs.Form.resetFields();
       this.dialogFormVisible = false;
     },
@@ -181,13 +191,13 @@ export default {
       this.dialogtitle = "编辑大区";
       this.dialogFormVisible = true;
       selectByRegionId({
-        regionId:row.regionId
-      }).then(res=>{
-        if(res.code == 0){
-          this.form = Object.assign({}, res.data)
+        regionId: row.regionId
+      }).then(res => {
+        if (res.code == 0) {
+          this.form = Object.assign({}, res.data);
           this.dialogding = false;
         }
-      })
+      });
     },
     // 新增修改提交
     submitform() {

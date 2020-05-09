@@ -22,36 +22,37 @@
       </el-row>
     </div>
 
-    <div class="permission-table">
-      <el-table
-        ref="multipleTable"
-        :data="tableData"
-        tooltip-effect="dark"
-        style="width: 100%"
-        v-loading="loading"
-        :header-cell-style="{background:'#EBEFF4'}"
-      >
-        <el-table-column type="index" width="50"></el-table-column>
-        <el-table-column prop="orderNumber" label="订单编号"  align="center"></el-table-column>
-        <el-table-column prop="refundOperator" label="退款操作员" align="center"></el-table-column>
-        <el-table-column prop="运维方式" label="免单前金额" align="center"></el-table-column>
-        <el-table-column prop="维修部件" label="免单后金额" align="center"></el-table-column>
-        <el-table-column prop="reason" label="免单原因" align="center"></el-table-column>
-        <el-table-column prop="createTime" label="免单时间" align="center"></el-table-column>
-      </el-table>
-    </div>
-    <div class="page-excel">
-      <div class="page-container">
-        <el-pagination
-          background
-          align="left"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page.sync="listQuery.current"
-          :page-sizes="[10, 20, 30, 40]"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-        ></el-pagination>
+    <div v-loading="loading">
+      <div class="permission-table">
+        <el-table
+          ref="multipleTable"
+          :data="tableData"
+          tooltip-effect="dark"
+          style="width: 100%"
+          :header-cell-style="{background:'#EBEFF4'}"
+        >
+          <el-table-column type="index" width="50"></el-table-column>
+          <el-table-column prop="orderNumber" label="订单编号" align="center"></el-table-column>
+          <el-table-column prop="refundOperator" label="退款操作员" align="center"></el-table-column>
+          <el-table-column prop="运维方式" label="免单前金额" align="center"></el-table-column>
+          <el-table-column prop="维修部件" label="免单后金额" align="center"></el-table-column>
+          <el-table-column prop="reason" label="免单原因" align="center"></el-table-column>
+          <el-table-column prop="createTime" label="免单时间" align="center"></el-table-column>
+        </el-table>
+      </div>
+      <div class="page-excel">
+        <div class="page-container">
+          <el-pagination
+            background
+            align="left"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page.sync="listQuery.current"
+            :page-sizes="[10, 20, 30, 40]"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+          ></el-pagination>
+        </div>
       </div>
     </div>
   </div>

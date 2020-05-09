@@ -6,11 +6,11 @@
           <div class="grid-content bg-purple">
             <span>大区</span>
             <el-select
-                v-model="listQuery.regionId"
-                clearable
-                @change="allianValue"
-                placeholder="请选择大区"
-              >
+              v-model="listQuery.regionId"
+              clearable
+              @change="allianValue"
+              placeholder="请选择大区"
+            >
               <el-option
                 v-for="item in AllianOptions"
                 :key="item.regionId"
@@ -23,11 +23,7 @@
         <el-col :span="6">
           <div class="grid-content bg-purple">
             <span>加盟商</span>
-             <el-select
-              v-model="listQuery.allianceId"
-              clearable
-              placeholder="请选择加盟商"
-            >
+            <el-select v-model="listQuery.allianceId" clearable placeholder="请选择加盟商">
               <el-option
                 v-for="item in allianceOptions"
                 :key="item.allianceId"
@@ -49,7 +45,7 @@
             <el-input v-model="listQuery.phoneNumber" placeholder="请输入电话"></el-input>
           </div>
         </el-col>
-        
+
         <el-col :span="24">
           <div class="grid-content bg-purple">
             <el-button type="primary" @click="handleFilter">查询</el-button>
@@ -58,43 +54,44 @@
       </el-row>
     </div>
 
-    <div class="permission-table">
-      <el-table
-        ref="multipleTable"
-        :data="tableData"
-        tooltip-effect="dark"
-        style="width: 100%"
-        v-loading="loading"
-        :header-cell-style="{background:'#EBEFF4'}"
-      >
-        <el-table-column type="index" width="50"></el-table-column>
-        <el-table-column prop="userName" label="姓名" align="center"></el-table-column>
-        <el-table-column prop="phoneNumber" label="联系电话" align="center"></el-table-column>
-        <el-table-column prop="ruleNames" label="运维角色" align="center"></el-table-column>
-        <el-table-column prop="regionName" label="责任区域" align="center"></el-table-column>
-        <el-table-column prop="franchiseeName" label="所属加盟商" align="center"></el-table-column>
-      </el-table>
-    </div>
-    <div class="page-excel">
-      <div class="page-container">
-        <el-pagination
-          background
-          align="left"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page.sync="listQuery.current"
-          :page-sizes="[10, 20, 30, 40]"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-        ></el-pagination>
+    <div v-loading="loading">
+      <div class="permission-table">
+        <el-table
+          ref="multipleTable"
+          :data="tableData"
+          tooltip-effect="dark"
+          style="width: 100%"
+          :header-cell-style="{background:'#EBEFF4'}"
+        >
+          <el-table-column type="index" width="50"></el-table-column>
+          <el-table-column prop="userName" label="姓名" align="center"></el-table-column>
+          <el-table-column prop="phoneNumber" label="联系电话" align="center"></el-table-column>
+          <el-table-column prop="ruleNames" label="运维角色" align="center"></el-table-column>
+          <el-table-column prop="regionName" label="责任区域" align="center"></el-table-column>
+          <el-table-column prop="franchiseeName" label="所属加盟商" align="center"></el-table-column>
+        </el-table>
+      </div>
+      <div class="page-excel">
+        <div class="page-container">
+          <el-pagination
+            background
+            align="left"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page.sync="listQuery.current"
+            :page-sizes="[10, 20, 30, 40]"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+          ></el-pagination>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { staffqueryManagerListPage } from '@/api/mochaitmo';
-import { allRegion,allianceListByRegionId } from "@/api/region";
+import { staffqueryManagerListPage } from "@/api/mochaitmo";
+import { allRegion, allianceListByRegionId } from "@/api/region";
 export default {
   name: "staff",
   data() {
@@ -111,13 +108,13 @@ export default {
       },
       total: 0,
       tableData: [],
-      loading: false,
+      loading: false
     };
   },
   mounted() {
     // 查询大区
     this.getallianList();
-    this.getList() 
+    this.getList();
   },
   methods: {
     // 查询大区
@@ -167,7 +164,7 @@ export default {
     handleFilter() {
       this.listQuery.current = 1;
       this.getList();
-    },
+    }
   }
 };
 </script>
@@ -175,11 +172,11 @@ export default {
 <style lang="scss" scoped>
 .staff {
   &-container {
-    .create-button{
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-end;
-        margin-bottom: 20px;
+    .create-button {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-end;
+      margin-bottom: 20px;
     }
     .search-container {
       .el-row {

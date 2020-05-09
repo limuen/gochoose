@@ -7,7 +7,8 @@ const state = {
   name: '',
   user_id: '',
   avatar: '',
-  roles: []
+  roles: [],
+  id: '',
 }
 
 const mutations = {
@@ -25,6 +26,9 @@ const mutations = {
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
+  },
+  SET_ID: (state, id) => {
+    state.id = id
   }
 }
 
@@ -35,7 +39,11 @@ const actions = {
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
         const { data } = response
+        console.log(data,'登陆')
         commit('SET_TOKEN', data.userName)
+        commit('SET_ID',data.id)
+        window.sessionStorage.setItem('id',data.id)
+        // Cookies.set('id', data.id)
         setToken(data.userName)
         resolve()
       }).catch(error => {
@@ -114,6 +122,7 @@ const actions = {
       commit('SET_ROLES', [])
       removeToken()
       resetRouter()
+      window.sessionStorage.clear()
       resolve()
     })
   },
@@ -124,6 +133,7 @@ const actions = {
       commit('SET_TOKEN', '')
       commit('SET_ROLES', [])
       removeToken()
+      window.sessionStorage.clear()
       resolve()
     })
   },

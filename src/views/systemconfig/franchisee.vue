@@ -1,7 +1,12 @@
 <template>
   <div class="franchisee-container">
     <div class="create-button">
-      <el-button type="primary" @click="handleCreate" v-permission="button.franchisee_franchisee_add"  icon="el-icon-edit">添加加盟商</el-button>
+      <el-button
+        type="primary"
+        @click="handleCreate"
+        v-permission="button.franchisee_franchisee_add"
+        icon="el-icon-edit"
+      >添加加盟商</el-button>
     </div>
     <div class="search-container">
       <el-row :gutter="24">
@@ -32,53 +37,64 @@
       </el-row>
     </div>
 
-    <div class="permission-table">
-      <el-table
-        ref="multipleTable"
-        :data="tableData"
-        v-loading="loading"
-        tooltip-effect="dark"
-        style="width: 100%"
-        :header-cell-style="{background:'#EBEFF4'}"
-      >
-        <el-table-column type="index" width="50"></el-table-column>
-        <el-table-column prop="allianceName" label="加盟商名称" width="200" align="center"></el-table-column>
-        <el-table-column prop="regionName" label="所属大区" align="center"></el-table-column>
-        <el-table-column prop="numberPrefix" label="车辆编号前缀" align="center"></el-table-column>
-        <el-table-column prop="allianceContact" label="联系人" align="center"></el-table-column>
-        <el-table-column prop="contactPhone" label="联系电话" align="center"></el-table-column>
-        <el-table-column prop="address" label="联系地址" align="center">
-          <template slot-scope="scope">{{scope.row.provinceCityCounty+scope.row.address}}</template>
-        </el-table-column>
-        <el-table-column prop="areaList" label="运营区域" align="center">
-          <template slot-scope="scope">
-            <div
-              v-for="(item,index) in scope.row.areaList"
-              :key="item.index"
-            >{{index+1}}-{{item.allianceCityName}}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="electrombileCount" label="车辆数量" width="150" align="center"></el-table-column>
-        <el-table-column label="操作" align="center" width="200" fixed="right">
-          <template slot-scope="scope">
-            <el-button type="primary" size="mini" v-permission="button.franchisee_franchisee_edit" @click="handleedit(scope.row)">编辑</el-button>
-            <el-button type="danger" size="mini" v-permission="button.franchisee_franchisee_delete" @click="handleDelete(scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
-    <div class="page-excel">
-      <div class="page-container">
-        <el-pagination
-          background
-          align="left"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page.sync="listQuery.current"
-          :page-sizes="[10, 20, 30, 40]"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-        ></el-pagination>
+    <div v-loading="loading">
+      <div class="permission-table">
+        <el-table
+          ref="multipleTable"
+          :data="tableData"
+          tooltip-effect="dark"
+          style="width: 100%"
+          :header-cell-style="{background:'#EBEFF4'}"
+        >
+          <el-table-column type="index" width="50"></el-table-column>
+          <el-table-column prop="allianceName" label="加盟商名称" width="200" align="center"></el-table-column>
+          <el-table-column prop="regionName" label="所属大区" align="center"></el-table-column>
+          <el-table-column prop="numberPrefix" label="车辆编号前缀" align="center"></el-table-column>
+          <el-table-column prop="allianceContact" label="联系人" align="center"></el-table-column>
+          <el-table-column prop="contactPhone" label="联系电话" align="center"></el-table-column>
+          <el-table-column prop="address" label="联系地址" align="center">
+            <template slot-scope="scope">{{scope.row.provinceCityCounty+scope.row.address}}</template>
+          </el-table-column>
+          <el-table-column prop="areaList" label="运营区域" align="center">
+            <template slot-scope="scope">
+              <div
+                v-for="(item,index) in scope.row.areaList"
+                :key="item.index"
+              >{{index+1}}-{{item.allianceCityName}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="electrombileCount" label="车辆数量" width="150" align="center"></el-table-column>
+          <el-table-column label="操作" align="center" width="200" fixed="right">
+            <template slot-scope="scope">
+              <el-button
+                type="primary"
+                size="mini"
+                v-permission="button.franchisee_franchisee_edit"
+                @click="handleedit(scope.row)"
+              >编辑</el-button>
+              <el-button
+                type="danger"
+                size="mini"
+                v-permission="button.franchisee_franchisee_delete"
+                @click="handleDelete(scope.row)"
+              >删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <div class="page-excel">
+        <div class="page-container">
+          <el-pagination
+            background
+            align="left"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page.sync="listQuery.current"
+            :page-sizes="[10, 20, 30, 40]"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+          ></el-pagination>
+        </div>
       </div>
     </div>
 
@@ -261,16 +277,16 @@ import {
   selectByAllianceId
 } from "@/api/franchisee";
 import { allRegion } from "@/api/region";
-import permission from '@/directive/permission'
+import permission from "@/directive/permission";
 export default {
   name: "franchisee",
   directives: { permission },
   data() {
     return {
       button: {
-        franchisee_franchisee_add: 'franchisee_franchisee_add',
-        franchisee_franchisee_edit: 'franchisee_franchisee_edit',
-        franchisee_franchisee_delete: 'franchisee_franchisee_delete',
+        franchisee_franchisee_add: "franchisee_franchisee_add",
+        franchisee_franchisee_edit: "franchisee_franchisee_edit",
+        franchisee_franchisee_delete: "franchisee_franchisee_delete"
       },
       AllianOptions: [], // 查询大区
       AllianOptionsDialog: [],
@@ -456,12 +472,12 @@ export default {
           console.log(res, "1111111");
           if (res.code == 0) {
             allRegion()
-            .then(res => {
-              if (res.code == 0) {
-                this.AllianOptionsDialog = res.data;
-              }
-            })
-            .catch(() => {});
+              .then(res => {
+                if (res.code == 0) {
+                  this.AllianOptionsDialog = res.data;
+                }
+              })
+              .catch(() => {});
             this.getProvincesList(
               { parent: res.data.province },
               "cityListRadio"

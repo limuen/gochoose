@@ -1,7 +1,12 @@
 <template>
   <div class="charge-container">
     <div class="create-button">
-      <el-button type="primary" @click="handleCreate" icon="el-icon-edit" v-permission="button.charge_charge_index_add">新增收费标准</el-button>
+      <el-button
+        type="primary"
+        @click="handleCreate"
+        icon="el-icon-edit"
+        v-permission="button.charge_charge_index_add"
+      >新增收费标准</el-button>
     </div>
     <div class="search-container">
       <el-row :gutter="24">
@@ -58,51 +63,62 @@
       </el-row>
     </div>
 
-    <div class="permission-table">
-      <el-table
-        ref="multipleTable"
-        :data="tableData"
-        tooltip-effect="dark"
-        style="width: 100%"
-        v-loading="loading"
-        :header-cell-style="{background:'#EBEFF4'}"
-      >
-        <el-table-column type="index" width="50"></el-table-column>
-        <el-table-column prop="largeAreaName" label="大区" align="center"></el-table-column>
-        <el-table-column prop="franchiseeName" label="加盟商" align="center"></el-table-column>
-        <el-table-column prop="name" label="收费名称" align="center"></el-table-column>
-        <el-table-column prop="feeType" label="计费方式" align="center">
-          <template slot-scope="scope">{{scope.row.feeType | feeType}}</template>
-        </el-table-column>
-        <el-table-column prop="startPrice" width="500" label="收费标准" align="center">
-          <template slot-scope="scope">
-            <div
-              v-if="scope.row.feeType == 1"
-            >免费时长：{{scope.row.freeDuration}}分钟 基本单价： {{scope.row.price}}元/{{scope.row.unitTime}}{{scope.row.unit | unitType}} 最高限额：{{scope.row.maxLimitAmount}}元/{{scope.row.maxLimitAmountUnitTime}}{{scope.row.maxLimitAmountUnit | maxUnit}}</div>
-            <div
-              v-else
-            >起步价：{{scope.row.startPrice}}元 基本单价：{{scope.row.price}}元/{{scope.row.unitTime}}{{scope.row.unit | unitType}} 里程单价：{{scope.row.mileagePrice}}元/{{scope.row.mileagePriceUnitValue}}千米</div>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" align="center" width="200" fixed="right">
-          <template slot-scope="scope">
-            <el-button type="primary" size="mini" v-permission="button.charge_charge_index_edit" @click="handleedit(scope.row)">编辑</el-button>
-            <el-button type="danger" size="mini" v-permission="button.charge_charge_index_delete" @click="handleDelete(scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
-    <div class="page-container">
-      <el-pagination
-        background
-        align="left"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page.sync="listQuery.current"
-        :page-sizes="[10, 20, 30, 40]"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-      ></el-pagination>
+    <div v-loading="loading">
+      <div class="permission-table">
+        <el-table
+          ref="multipleTable"
+          :data="tableData"
+          tooltip-effect="dark"
+          style="width: 100%"
+          :header-cell-style="{background:'#EBEFF4'}"
+        >
+          <el-table-column type="index" width="50"></el-table-column>
+          <el-table-column prop="largeAreaName" label="大区" align="center"></el-table-column>
+          <el-table-column prop="franchiseeName" label="加盟商" align="center"></el-table-column>
+          <el-table-column prop="name" label="收费名称" align="center"></el-table-column>
+          <el-table-column prop="feeType" label="计费方式" align="center">
+            <template slot-scope="scope">{{scope.row.feeType | feeType}}</template>
+          </el-table-column>
+          <el-table-column prop="startPrice" width="500" label="收费标准" align="center">
+            <template slot-scope="scope">
+              <div
+                v-if="scope.row.feeType == 1"
+              >免费时长：{{scope.row.freeDuration}}分钟 基本单价： {{scope.row.price}}元/{{scope.row.unitTime}}{{scope.row.unit | unitType}} 最高限额：{{scope.row.maxLimitAmount}}元/{{scope.row.maxLimitAmountUnitTime}}{{scope.row.maxLimitAmountUnit | maxUnit}}</div>
+              <div
+                v-else
+              >起步价：{{scope.row.startPrice}}元 基本单价：{{scope.row.price}}元/{{scope.row.unitTime}}{{scope.row.unit | unitType}} 里程单价：{{scope.row.mileagePrice}}元/{{scope.row.mileagePriceUnitValue}}千米</div>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" align="center" width="200" fixed="right">
+            <template slot-scope="scope">
+              <el-button
+                type="primary"
+                size="mini"
+                v-permission="button.charge_charge_index_edit"
+                @click="handleedit(scope.row)"
+              >编辑</el-button>
+              <el-button
+                type="danger"
+                size="mini"
+                v-permission="button.charge_charge_index_delete"
+                @click="handleDelete(scope.row)"
+              >删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <div class="page-container">
+        <el-pagination
+          background
+          align="left"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page.sync="listQuery.current"
+          :page-sizes="[10, 20, 30, 40]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+        ></el-pagination>
+      </div>
     </div>
 
     <!-- 新增收费标准 -->
@@ -339,13 +355,13 @@ import number from "@/directive/input-filter";
 import permission from "@/directive/permission";
 export default {
   name: "charge",
-  directives: { number,permission },
+  directives: { number, permission },
   data() {
     return {
       button: {
-        charge_charge_index_add: 'charge_charge_index_add',
-        charge_charge_index_edit: 'charge_charge_index_edit',
-        charge_charge_index_delete: 'charge_charge_index_delete'
+        charge_charge_index_add: "charge_charge_index_add",
+        charge_charge_index_edit: "charge_charge_index_edit",
+        charge_charge_index_delete: "charge_charge_index_delete"
       },
       AllianOptions: [], // 查询大区
       allianceOptions: [], // 加盟商
@@ -571,12 +587,12 @@ export default {
       this.form.maxLimitAmount = "";
       this.form.maxLimitAmountUnit = 2;
       this.form.maxLimitAmountUnitTime = "";
-      delete this.form.id
-      delete this.form.largeAreaName
+      delete this.form.id;
+      delete this.form.largeAreaName;
       this.$nextTick(() => {
         this.$refs.form.resetFields();
       });
-      console.log(this.form,'111111')
+      console.log(this.form, "111111");
     },
     cancelsubmitfotm() {
       this.$nextTick(() => {

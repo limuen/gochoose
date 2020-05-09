@@ -1,7 +1,12 @@
 <template>
   <div class="region-container">
     <div class="create-button">
-      <el-button type="primary" @click="handleCreate" icon="el-icon-edit" v-permission="button.region_region_add">新增区域管理</el-button>
+      <el-button
+        type="primary"
+        @click="handleCreate"
+        icon="el-icon-edit"
+        v-permission="button.region_region_add"
+      >新增区域管理</el-button>
     </div>
     <div class="search-container">
       <el-row :gutter="24">
@@ -56,47 +61,58 @@
       </el-row>
     </div>
 
-    <div class="permission-table">
-      <el-table
-        v-loading="loading"
-        ref="multipleTable"
-        :data="tableData"
-        tooltip-effect="dark"
-        style="width: 100%"
-        :header-cell-style="{background:'#EBEFF4'}"
-      >
-        <el-table-column type="index" width="50"></el-table-column>
-        <el-table-column prop="manageName" label="负责人" align="center"></el-table-column>
-        <el-table-column prop="managePhone" label="联系电话" align="center"></el-table-column>
-        <el-table-column prop="dutyList" label="责任区域" align="center">
-          <template slot-scope="scope">
-            <div
-              v-for="(item,index) in scope.row.dutyList"
-              :key="item.index"
-            >{{index+1}}-{{item.areaName}}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="allianceName" label="所属加盟商" align="center"></el-table-column>
-        <el-table-column label="操作" align="center" width="200" fixed="right">
-          <template slot-scope="scope">
-            <el-button type="primary" size="mini" v-permission="button.region_region_edit" @click="handleedit(scope.row)">编辑</el-button>
-            <el-button type="danger" size="mini" v-permission="button.region_region_delete" @click="handleDelete(scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
-    <div class="page-excel">
-      <div class="page-container">
-        <el-pagination
-          background
-          align="left"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page.sync="listQuery.current"
-          :page-sizes="[10, 20, 30, 40]"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-        ></el-pagination>
+    <div v-loading="loading">
+      <div class="permission-table">
+        <el-table
+          ref="multipleTable"
+          :data="tableData"
+          tooltip-effect="dark"
+          style="width: 100%"
+          :header-cell-style="{background:'#EBEFF4'}"
+        >
+          <el-table-column type="index" width="50"></el-table-column>
+          <el-table-column prop="manageName" label="负责人" align="center"></el-table-column>
+          <el-table-column prop="managePhone" label="联系电话" align="center"></el-table-column>
+          <el-table-column prop="dutyList" label="责任区域" align="center">
+            <template slot-scope="scope">
+              <div
+                v-for="(item,index) in scope.row.dutyList"
+                :key="item.index"
+              >{{index+1}}-{{item.areaName}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="allianceName" label="所属加盟商" align="center"></el-table-column>
+          <el-table-column label="操作" align="center" width="200" fixed="right">
+            <template slot-scope="scope">
+              <el-button
+                type="primary"
+                size="mini"
+                v-permission="button.region_region_edit"
+                @click="handleedit(scope.row)"
+              >编辑</el-button>
+              <el-button
+                type="danger"
+                size="mini"
+                v-permission="button.region_region_delete"
+                @click="handleDelete(scope.row)"
+              >删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <div class="page-excel">
+        <div class="page-container">
+          <el-pagination
+            background
+            align="left"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page.sync="listQuery.current"
+            :page-sizes="[10, 20, 30, 40]"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+          ></el-pagination>
+        </div>
       </div>
     </div>
 
@@ -226,16 +242,16 @@ import {
   selectByAreaManageId,
   deleteById
 } from "@/api/region";
-import permission from '@/directive/permission'
+import permission from "@/directive/permission";
 export default {
   name: "region",
   directives: { permission },
   data() {
     return {
       button: {
-        region_region_add: 'region_region_add',
-        region_region_edit: 'region_region_edit',
-        region_region_delete: 'region_region_delete',
+        region_region_add: "region_region_add",
+        region_region_edit: "region_region_edit",
+        region_region_delete: "region_region_delete"
       },
       AllianOptions: [], // 查询大区
       allianceOptions: [], // 加盟商

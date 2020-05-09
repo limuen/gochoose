@@ -17,19 +17,19 @@
       <div class="drawer_buttonList">
         <ul>
           <li>
-            <el-button type="success" @click="handleks(11)">启动</el-button>
-            <el-button type="warning" @click="handlehc">还车</el-button>
-            <el-button type="danger" @click="handleks(1)">锁车</el-button>
+            <el-button type="success" v-permission="button.carmanag_carmanag_manage_startup" @click="handleks(11)">启动</el-button>
+            <el-button type="warning" v-permission="button.carmanag_carmanag_manage_returncar" @click="handlehc">还车</el-button>
+            <el-button type="danger" v-permission="button.carmanag_carmanag_manage_lockcar" @click="handleks(1)">锁车</el-button>
           </li>
           <li>
-            <el-button type="primary" @click="handleLocal">定位</el-button>
-            <el-button type="primary" @click="handleGoRouter">订单</el-button>
-            <el-button type="primary" @click="handletrajectory">轨迹</el-button>
+            <el-button type="primary" v-permission="button.carmanag_carmanag_manage_location" @click="handleLocal">定位</el-button>
+            <el-button type="primary" v-permission="button.carmanag_carmanag_manage_order" @click="handleGoRouter">订单</el-button>
+            <el-button type="primary" v-permission="button.carmanag_carmanag_manage_locus" @click="handletrajectory">轨迹</el-button>
           </li>
           <li>
-            <el-button type="primary" @click="handlereset">重置里程</el-button>
-            <el-button @click="handleDeatil" type="primary">车型详情</el-button>
-            <el-button @click="handleDispatch" type="primary">维修调度</el-button>
+            <el-button type="primary" v-permission="button.carmanag_carmanag_manage_reset" @click="handlereset">重置里程</el-button>
+            <el-button @click="handleDeatil" v-permission="button.carmanag_carmanag_manage_carmodel" type="primary">车型详情</el-button>
+            <el-button @click="handleDispatch" v-permission="button.carmanag_carmanag_manage_dispatch" type="primary">维修调度</el-button>
           </li>
         </ul>
       </div>
@@ -138,12 +138,14 @@
 import { carByelectrombileId,execute,mileageReset,compulsiveFinishOrder } from "@/api/car";
 import Location from '../carmanagDialog/Location';
 import trajectory from "../carmanagDialog/trajectory";
+import permission from "@/directive/permission";
 export default {
   props: {
     drawerId: {
       type: Number
     }
   },
+  directives: { permission },
   components: {
     Location,
     trajectory
@@ -151,6 +153,17 @@ export default {
   name: "drawer",
   data() {
     return {
+      button: {
+        carmanag_carmanag_manage_startup: "carmanag_carmanag_manage_startup",
+        carmanag_carmanag_manage_location: "carmanag_carmanag_manage_location",
+        carmanag_carmanag_manage_order: "carmanag_carmanag_manage_order",
+        carmanag_carmanag_manage_locus: "carmanag_carmanag_manage_locus",
+        carmanag_carmanag_manage_returncar: "carmanag_carmanag_manage_returncar",
+        carmanag_carmanag_manage_lockcar: "carmanag_carmanag_manage_lockcar",
+        carmanag_carmanag_manage_reset: "carmanag_carmanag_manage_reset",
+        carmanag_carmanag_manage_carmodel: "carmanag_carmanag_manage_carmodel",
+        carmanag_carmanag_manage_dispatch: "carmanag_carmanag_manage_dispatch"
+      },
       drawer: false,
       direction: "rtl",
       drawerData: {},

@@ -84,57 +84,58 @@
       </el-row>
     </div>
 
-    <div class="permission-table">
-      <el-table
-        ref="multipleTable"
-        :data="tableData"
-        tooltip-effect="dark"
-        style="width: 100%"
-        v-loading="loading"
-        :header-cell-style="{background:'#EBEFF4'}"
-      >
-        <el-table-column type="index" width="50"></el-table-column>
-        <el-table-column prop="rechargeType" label="充值类型" align="center"></el-table-column>
-        <el-table-column prop="refundNumber" label="退款单号" align="center"></el-table-column>
-        <el-table-column prop="billNumber" label="对账单号" align="center"></el-table-column>
-        <el-table-column prop="refundChannel" label="退款渠道" align="center">
-          <template slot-scope="scope">
-            <div>{{refundChannelStateMap[scope.row.refundChannel]}}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="refundOperator" label="退款操作人" align="center"></el-table-column>
-        <el-table-column prop="customerName" label="用户名" align="center"></el-table-column>
-        <el-table-column prop="customerPhone" label="用户手机号" align="center"></el-table-column>
-        <el-table-column prop="refundMoney" label="退款金额" align="center"></el-table-column>
-        <el-table-column prop="refundTime" label="退款发起时间" align="center"></el-table-column>
-        <el-table-column prop="refundEndTime" label="退款到账时间" align="center"></el-table-column>
-        <el-table-column prop="refundStatus" label="付款状态" align="center">
-          <template slot-scope="scope">
-            <div>{{scope.row.refundStatus | refundStatusState}}</div>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
-    <div class="page-excel">
-      <div class="page-content">
-        <div class="page-container">
-          <el-pagination
-            background
-            align="left"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-            :current-page.sync="listQuery.current"
-            :page-sizes="[10, 20, 30, 40]"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="total"
-          ></el-pagination>
-        </div>
-        <div>
-          <i class="el-icon-folder-opened excel-blue"></i>
-          <span>导出excel</span>
-        </div>
+    <div v-loading="loading">
+      <div class="permission-table">
+        <el-table
+          ref="multipleTable"
+          :data="tableData"
+          tooltip-effect="dark"
+          style="width: 100%"
+          :header-cell-style="{background:'#EBEFF4'}"
+        >
+          <el-table-column type="index" width="50"></el-table-column>
+          <el-table-column prop="rechargeType" label="充值类型" align="center"></el-table-column>
+          <el-table-column prop="refundNumber" label="退款单号" align="center"></el-table-column>
+          <el-table-column prop="billNumber" label="对账单号" align="center"></el-table-column>
+          <el-table-column prop="refundChannel" label="退款渠道" align="center">
+            <template slot-scope="scope">
+              <div>{{refundChannelStateMap[scope.row.refundChannel]}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="refundOperator" label="退款操作人" align="center"></el-table-column>
+          <el-table-column prop="customerName" label="用户名" align="center"></el-table-column>
+          <el-table-column prop="customerPhone" label="用户手机号" align="center"></el-table-column>
+          <el-table-column prop="refundMoney" label="退款金额" align="center"></el-table-column>
+          <el-table-column prop="refundTime" label="退款发起时间" align="center"></el-table-column>
+          <el-table-column prop="refundEndTime" label="退款到账时间" align="center"></el-table-column>
+          <el-table-column prop="refundStatus" label="付款状态" align="center">
+            <template slot-scope="scope">
+              <div>{{scope.row.refundStatus | refundStatusState}}</div>
+            </template>
+          </el-table-column>
+        </el-table>
       </div>
-      <div class="page-info">总金额：290元，收益：603元， 已退款：30元，未付款：58元</div>
+      <div class="page-excel">
+        <div class="page-content">
+          <div class="page-container">
+            <el-pagination
+              background
+              align="left"
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page.sync="listQuery.current"
+              :page-sizes="[10, 20, 30, 40]"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="total"
+            ></el-pagination>
+          </div>
+          <div>
+            <i class="el-icon-folder-opened excel-blue"></i>
+            <span>导出excel</span>
+          </div>
+        </div>
+        <div class="page-info">总金额：290元，收益：603元， 已退款：30元，未付款：58元</div>
+      </div>
     </div>
   </div>
 </template>
@@ -163,7 +164,7 @@ export default {
       tableData: [],
       total: 0,
       loading: false,
-      refundChannelStateMap : {
+      refundChannelStateMap: {
         0: "微信",
         1: "支付宝"
       }
