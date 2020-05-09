@@ -18,7 +18,7 @@
         <ul>
           <li>
             <el-button type="success" @click="handleks(11)">启动</el-button>
-            <el-button type="warning" >还车</el-button>
+            <el-button type="warning" @click="handlehc">还车</el-button>
             <el-button type="danger" @click="handleks(1)">锁车</el-button>
           </li>
           <li>
@@ -27,7 +27,7 @@
             <el-button type="primary" @click="handletrajectory">轨迹</el-button>
           </li>
           <li>
-            <el-button type="primary">重置里程</el-button>
+            <el-button type="primary" @click="handlereset">重置里程</el-button>
             <el-button @click="handleDeatil" type="primary">车型详情</el-button>
             <el-button @click="handleDispatch" type="primary">维修调度</el-button>
           </li>
@@ -135,7 +135,7 @@
 </template>
 
 <script>
-import { carByelectrombileId,execute } from "@/api/car";
+import { carByelectrombileId,execute,mileageReset,compulsiveFinishOrder } from "@/api/car";
 import Location from '../carmanagDialog/Location';
 import trajectory from "../carmanagDialog/trajectory";
 export default {
@@ -247,6 +247,37 @@ export default {
     },
     handleqkId(value) {
       this.trajectoryId = "";
+    },
+    handlereset() {
+      mileageReset({
+        electrombileId: this.drawerData.electrombileId
+      }).then(res=>{
+        console.log(res,'重置')
+        if(res.code == 0){
+          this.$notify({
+              title: '成功',
+              message: '重置成功',
+              type: 'success'
+          });
+          this.$parent.getList();
+        }
+      }).catch(()=>{})
+    },
+    handlehc() {
+      console.log(this.drawerData,'handletrajectory');
+      compulsiveFinishOrder({
+        electrombileId: this.drawerData.electrombileId
+      }).then(res=>{
+        console.log(res,'还车')
+        if(res.code == 0){
+          this.$notify({
+              title: '成功',
+              message: '还车成功',
+              type: 'success'
+          });
+          this.$parent.getList();
+        }
+      }).catch(()=>{})
     },
   }
 };

@@ -256,3 +256,34 @@ export function electrombileTrack(params) {
         params
     })
 }
+
+
+/**
+ * @description   里程重置
+ * @author LiMuEn
+ * @date 2020-05-07
+ * @export
+ * @param {Object} params
+ */
+export function mileageReset(params) {
+    return request({
+        url: "/api/electrombile/mileageReset",
+        method: "GET",
+        params
+    })
+}
+
+/**
+ * @description   里程重置
+ * @author LiMuEn
+ * @date 2020-05-07
+ * @export
+ * @param {Object} params
+ */
+export function compulsiveFinishOrder(params) {
+    return request({
+        url: "/api/electrombile/compulsiveFinishOrder",
+        method: "GET",
+        params
+    })
+}
