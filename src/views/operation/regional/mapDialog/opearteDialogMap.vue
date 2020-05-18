@@ -161,11 +161,11 @@ export default {
       AllianOptions: [], // 查询大区
       allianceOptions: [], // 加盟商
       activeName: 'Visible',
-      tabsList: this.areaType=='stop'? [
-        
+      tabsList: this.areaType == 'stop' ? [
+
         { label: '实际区域', name: 'Visible' },
         { label: '用户可见区域', name: 'Actual' }
-      ]:[
+      ] : [
         { label: '用户可见区域', name: 'Visible' },
         { label: '实际区域', name: 'Actual' }
       ],
@@ -397,12 +397,12 @@ export default {
         drawType: 'edit',
         polygonSetting: {
           fillColor: '#67c23a',
-          strokeColor: '#67c23a',
+          strokeColor: '#67c23a'
         },
         polylineSetting: {
-          strokeColor: '#67c23a',
+          strokeColor: '#67c23a'
         }
-        
+
       })
       amap.drawMapArr({
         dataList: [actArr],
@@ -410,10 +410,10 @@ export default {
         polygonSetting: {
           fillColor: '#f56c6c',
           strokeColor: '#f56c6c',
-          zIndex:1
+          zIndex: 1
         },
         polylineSetting: {
-          strokeColor: '#f56c6c',zIndex:1
+          strokeColor: '#f56c6c', zIndex: 1
         }
       })
       this.Maploading = false
@@ -428,7 +428,7 @@ export default {
     },
     // 实际区域可见区域切换
     handleClick(tab, event) {
-      console.log(tab,event,'11111111')
+      console.log(tab, event, '11111111')
       const _drawData = this._drawData || []
       if (this.activeName == 'Actual') {
         if (this.form.seeingRegionModelList.length < 3) {
