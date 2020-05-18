@@ -119,7 +119,11 @@
           <el-col :span="12">
             <div class="grid-content bg-purple">
               <el-form-item label="加盟商" :label-width="formLabelWidth" prop="franchiseeId">
-                <el-select v-model="form.franchiseeId" placeholder="请选择加盟商">
+                <el-select
+                  v-model="form.franchiseeId"
+                  placeholder="请选择加盟商"
+                  @change="changeAlliance"
+                >
                   <el-option
                     v-for="item in formallianceOptions"
                     :key="item.allianceId"
@@ -188,7 +192,7 @@
 </template>
 
 <script>
-import { allRegion, allianceListByRegionId } from '@/api/region'
+import { allRegion, allianceListByRegionId } from "@/api/region";
 import {
   dutyParkQueryManagerListPage,
   dutyParkFindById,
@@ -196,287 +200,327 @@ import {
   dutyParkUpdate,
   dutyParkDelete,
   dutyParkFindPositionModelList
-} from '@/api/operationRegional'
-import OpearteModelList from '../mapDialog/OpearteModelList'
+} from "@/api/operationRegional";
+import OpearteModelList from "../mapDialog/OpearteModelList";
 export default {
-  name: 'Sibility',
+  name: "Sibility",
   components: {
     OpearteModelList
   },
   data() {
     return {
       listQuery: {
-        largeAreaId: '',
-        franchiseeId: '',
-        regionName: '',
+        largeAreaId: "",
+        franchiseeId: "",
+        regionName: "",
         current: 1,
         size: 10
       },
       total: 0,
       mapLading: false,
-      componentName: 'Amap',
+      componentName: "Amap",
       query: {},
       AllianOptions: [], // 大区数据
       allianceOptions: [], // 加盟商数据
       formallianceOptions: [], // 弹窗的加盟商数据
-      value: '',
+      value: "",
       tableData: [],
-      checkList: ['选中且禁用', '复选框 A'],
+      checkList: ["选中且禁用", "复选框 A"],
 
       form: {
-        largeAreaId: '',
-        franchiseeId: '',
-        regionName: '',
+        largeAreaId: "",
+        franchiseeId: "",
+        regionName: "",
         actualRegionModelList: [] // 经纬度列表
       },
-      formLabelWidth: '120px',
+      formLabelWidth: "120px",
       dialogFormVisible: false, // dialog弹窗的显示开关(用来强制刷新弹窗v-if)
       dialogForm: false, // dialog弹窗的显示开关(element开关属性)
-      dialogtitle: '', // dialog弹窗的标题
+      dialogtitle: "", // dialog弹窗的标题
       // form校验规则
       rules: {
         largeAreaId: [
-          { required: true, message: '请选择大区', trigger: 'change' }
+          { required: true, message: "请选择大区", trigger: "change" }
         ],
         franchiseeId: [
-          { required: true, message: '请选择加盟商', trigger: 'change' }
+          { required: true, message: "请选择加盟商", trigger: "change" }
         ],
         regionName: [
-          { required: true, message: '请输入区域名称', trigger: 'blur' }
+          { required: true, message: "请输入区域名称", trigger: "blur" }
         ]
       }
-    }
+    };
   },
   watch: {
     dialogForm: {
       handler(newValue, oldValue) {
-        this.dialogFormVisible = this.dialogForm
+        this.dialogFormVisible = this.dialogForm;
       }
     }
   },
   mounted() {
     // 获取列表
-    this.getList()
+    this.getList();
     // 查询大区
-    this.getallianList()
+    this.getallianList();
   },
   methods: {
     // 获取列表
     getList() {
       dutyParkQueryManagerListPage(this.listQuery).then(res => {
         if (res.code == 0) {
-          this.total = res.data.total
-          this.tableData = res.data.rows
-          this.loading = false
+          this.total = res.data.total;
+          this.tableData = res.data.rows;
+          this.loading = false;
         }
-      })
+      });
     },
     // 查询大区
     getallianList() {
       allRegion()
         .then(res => {
           if (res.code == 0) {
-            this.AllianOptions = res.data
+            this.AllianOptions = res.data;
           }
         })
-        .catch(() => {})
+        .catch(() => {});
     },
     // 获取到大区的id去请求加盟商
     allianValue(value) {
-      if (value == '') {
-        return
+      if (value == "") {
+        return;
       }
-      this.listQuery.franchiseeId = ''
-      this.allianceOptions = []
+      this.listQuery.franchiseeId = "";
+      this.allianceOptions = [];
       allianceListByRegionId({ regionId: value })
         .then(res => {
           if (res.code == 0) {
-            this.allianceOptions = res.data
+            this.allianceOptions = res.data;
           }
         })
-        .catch(() => {})
+        .catch(() => {});
     },
     // 获取到大区的id去请求加盟商(弹窗里的)
     formallianValue(value) {
-      this.form.franchiseeId = ''
-      this.formallianceOptions = []
+      this.form.franchiseeId = "";
+      this.formallianceOptions = [];
       allianceListByRegionId({ regionId: value })
         .then(res => {
           if (res.code == 0) {
-            this.formallianceOptions = res.data
+            this.formallianceOptions = res.data;
           }
         })
-        .catch(() => {})
+        .catch(() => {});
     },
-    // 根据ID查询责任区域信息
-    getArea(id) {},
+    // 表单里的改变加盟商
+    changeAlliance() {
+      if (this.dialogtitle == "新增责任区域") {
+        this.getOtherArea();
+      }
+    },
+    // 查询加盟商其他责任区域信息
+    getOtherArea(noClear = false) {
+      console.log(this.form);
+      dutyParkFindPositionModelList({
+        largeAreaId: this.form.largeAreaId,
+        franchiseeId: this.form.franchiseeId,
+        dutyParkId: this.form.id || -1
+      }).then(res => {
+        let amap = this.$refs.MapRegion;
+        if (!noClear) {
+          amap.clearMap();
+        }
+        let actArr = [];
+        for (let n of res.data) {
+          actArr.push(n.actualRegionModelList);
+        }
+        amap.blackArr = actArr;
+        amap.drawMapArr({
+          dataList: actArr,
+          polygonSetting: {
+            strokeColor: "#000",
+            fillColor: "#000",
+            strokeWeight: 0,
+            zIndex: 1
+          }
+        });
+      });
+    },
+
     // 编辑
     tapEdit(v) {
-      console.log(v)
-      this.dialogtitle = '编辑责任区域'
-      this.dialogForm = true
+      console.log(v);
+      this.dialogtitle = "编辑责任区域";
+      this.dialogForm = true;
 
       // 查询当前大区的加盟商并把数据给到弹窗的select
-      this.formallianValue(v.largeAreaId)
+      this.formallianValue(v.largeAreaId);
       // 修改form表单数据(显示当前数据)
-      this.changeForm(v)
+      this.changeForm(v);
 
+
+      // 画其他区域
+      this.getOtherArea(true);
       // 查询本区域数据
       dutyParkFindById({ id: v.id }).then(res => {
-        console.log(res)
+        console.log(res);
         if (res.code == 0) {
-          this.Maploading = true
-          const amap = this.$refs.MapRegion
+          this.Maploading = true;
+          const amap = this.$refs.MapRegion;
           // 清理地图
-          amap.clearMap()
-          amap.setCenter(res.data.actualRegionModelList[0])
-          amap.Mapobject.seeingRegion.seeingRegionModelList =
-            res.data.actualRegionModelList.concat([])
+          amap.clearMap();
+          amap.setCenter(res.data.actualRegionModelList[0]);
+          amap.Mapobject.seeingRegion.seeingRegionModelList = res.data.actualRegionModelList.concat(
+            []
+          );
           amap.drawMapArr({
             dataList: [res.data.actualRegionModelList],
             isEdit: true,
-            target: 'seeingRegion'
-          })
-          this.form.actualRegionModelList = res.data.actualRegionModelList.concat([])
+            target: "seeingRegion"
+          });
+          this.form.actualRegionModelList = res.data.actualRegionModelList.concat(
+            []
+          );
         }
-      })
+      });
     },
     // 查看区域
     tapArea(row) {
       // console.log(row)
-      this.dialogtitle = '运营区域'
+      this.dialogtitle = "运营区域";
       dutyParkFindPositionModelList({
         largeAreaId: row.largeAreaId,
         franchiseeId: row.franchiseeId,
         dutyParkId: row.id
       }).then(res => {
-        this.$refs.OpearteModelList.dialogFormVisible = true
+        this.$refs.OpearteModelList.dialogFormVisible = true;
         this.$nextTick(() => {
-          this.$refs.OpearteModelList.amapData(res.data, row.id, '责任区域')
-        })
-      })
+          this.$refs.OpearteModelList.amapData(res.data, row.id, "责任区域");
+        });
+      });
     },
     // 删除
     tapDelete(v) {
       if (v.dutyId) {
         this.$notify.error({
-          title: '错误',
-          message: '请先解除绑定负责人'
-        })
-        return
+          title: "错误",
+          message: "请先解除绑定负责人"
+        });
+        return;
       }
       dutyParkDelete({ id: v.id }).then(res => {
         if (res.code == 0) {
           this.$notify({
-            title: '成功',
-            message: '删除成功',
-            type: 'success'
-          })
-          this.tableData.splice(this.tableData.indexOf(v), 1)
+            title: "成功",
+            message: "删除成功",
+            type: "success"
+          });
+          this.tableData.splice(this.tableData.indexOf(v), 1);
         }
-      })
+      });
     },
     // 保存
     tapSave() {
       this.$refs.form.validate(valid => {
         if (valid) {
-          console.log(this.dialogtitle)
-          console.log(this.form)
+          console.log(this.dialogtitle);
+          console.log(this.form);
           if (this.form.actualRegionModelList.length >= 3) {
-            this.submitData(this.form)
+            this.submitData(this.form);
           } else {
-            console.log(this.form.actualRegionModelList)
+            console.log(this.form.actualRegionModelList);
             this.$notify.error({
-              title: '错误',
-              message: '请完善区域'
-            })
+              title: "错误",
+              message: "请完善区域"
+            });
           }
         } else {
-          console.log('error submit!!')
-          return false
+          console.log("error submit!!");
+          return false;
         }
-      })
+      });
     },
     // 提交数据
     submitData(data) {
-      if (this.dialogtitle == '新增责任区域') {
+      if (this.dialogtitle == "新增责任区域") {
         dutyParkInsert(data)
           .then(res => {
-            console.log(res, '1111111')
+            console.log(res, "1111111");
             if (res.code == 0) {
               this.$notify({
-                title: '成功',
-                message: '添加成功',
-                type: 'success'
-              })
+                title: "成功",
+                message: "添加成功",
+                type: "success"
+              });
               // this.dialogFormVisible = false;
-              this.dialogForm = false
-              this.getList()
+              this.dialogForm = false;
+              this.getList();
             }
           })
           .catch(err => {
             // this.$refs.mydialog.close();
             // this.$message.error(err.message);
-          })
+          });
       } else {
         dutyParkUpdate(data)
           .then(res => {
-            console.log(res, '1111111')
+            console.log(res, "1111111");
             if (res.code == 0) {
               this.$notify({
-                title: '成功',
-                message: '修改成功',
-                type: 'success'
-              })
+                title: "成功",
+                message: "修改成功",
+                type: "success"
+              });
               // this.dialogFormVisible = false;
-              this.dialogForm = false
-              this.getList()
+              this.dialogForm = false;
+              this.getList();
             }
           })
           .catch(err => {
             // this.$refs.mydialog.close();
             // this.$message.error(err.message);
-          })
+          });
       }
     },
     changeForm(v) {
-      this.form.id = v.id || '' // 编辑时需要id  新增时会删除该属性
-      this.form.largeAreaId = v.largeAreaId || ''
-      this.form.franchiseeId = v.franchiseeId || ''
-      this.form.regionName = v.regionName || ''
-      this.form.actualRegionModelList = v.actualRegionModelList || []
+      this.form.id = v.id || ""; // 编辑时需要id  新增时会删除该属性
+      this.form.largeAreaId = v.largeAreaId || "";
+      this.form.franchiseeId = v.franchiseeId || "";
+      this.form.regionName = v.regionName || "";
+      this.form.actualRegionModelList = v.actualRegionModelList || [];
     },
     handleSizeChange(val) {
-      this.listQuery.current = 1
-      this.listQuery.size = val
-      this.getList()
+      this.listQuery.current = 1;
+      this.listQuery.size = val;
+      this.getList();
     },
     handleCurrentChange(val) {
-      this.listQuery.current = val
-      this.getList()
+      this.listQuery.current = val;
+      this.getList();
     },
     // 查询
     handleFilter() {
-      this.listQuery.current = 1
-      this.getList()
+      this.listQuery.current = 1;
+      this.getList();
     },
     clearValue() {
-      this.allianceOptions = []
+      this.allianceOptions = [];
     },
     // 新建
     handleCreate() {
-      this.dialogtitle = '新增责任区域'
-      this.dialogFormVisible = true
-      this.dialogForm = true
-      this.changeForm({})
-      delete this.form.id
+      this.dialogtitle = "新增责任区域";
+      this.dialogFormVisible = true;
+      this.dialogForm = true;
+      this.allianceOptions = []; //20200513
+      this.changeForm({});
+      delete this.form.id;
     },
     markerRegion(v) {
-      this.form.actualRegionModelList = v
-      console.log(this.form, '编辑完成用户可见区域点击提交传递到from')
+      this.form.actualRegionModelList = v;
+      console.log(this.form, "编辑完成用户可见区域点击提交传递到from");
     }
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>

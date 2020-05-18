@@ -397,10 +397,23 @@ export default {
         drawType: 'edit',
         polygonSetting: {
           fillColor: '#67c23a',
-          strokeColor: '#67c23a'
+          strokeColor: '#67c23a',
         },
         polylineSetting: {
-          strokeColor: '#67c23a'
+          strokeColor: '#67c23a',
+        }
+        
+      })
+      amap.drawMapArr({
+        dataList: [actArr],
+        target: 'actualRegion',
+        polygonSetting: {
+          fillColor: '#f56c6c',
+          strokeColor: '#f56c6c',
+          zIndex:1
+        },
+        polylineSetting: {
+          strokeColor: '#f56c6c',zIndex:1
         }
       })
       this.Maploading = false

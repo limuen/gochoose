@@ -183,6 +183,7 @@ export default {
         if (!this.Mapobject.seeingRegion.markerarr) {
           return;
         }
+        this.drawMap({ region: this.Mapobject.actualRegion,color:"#f56c6c" });
         this.Mapobject.seeingRegion.polylines = [];
         this.Mapobject.seeingRegion.markers = [];
         this.drawMapArr({
@@ -459,6 +460,7 @@ export default {
     },
     // 放大缩小地图
     clickmap() {
+      console.log(this.isFullscreenmap)
       if (this.isFullscreenmap === false) {
         this.isFullscreenmap = true;
         this.isActive = true;
@@ -823,6 +825,7 @@ export default {
       this.drawData.pop();
       that.markers[this.drawData.length].setMap(null);
       that.markers.pop();
+      that.markerarr.pop();
       // console.log(that.polylines[this.drawData.length]);
       // console.log(that.polylines);
       // console.log(this.drawData);
@@ -908,8 +911,8 @@ export default {
   position: fixed;
   left: 0;
   top: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw !important;
+  height: 100vh !important;
   z-index: 9999999;
 }
 .gdmap #container /deep/ .amap-maptype-list {
